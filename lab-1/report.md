@@ -1,4 +1,46 @@
-## What are the network settings of the Raspberry Pi (hostname, DNS, routes)? What are its IPv4 and IPv6 addresses?
+## 1. What were the Linux accounts that were present on the Raspberry Pi?
+``` 
+root
+daemon
+bin
+sys
+sync
+games
+man
+lp
+mail
+news
+uucp
+proxy
+www-data
+backup
+list
+irc
+gnats
+nobody
+_apt
+postfix
+sshd
+systemd-network
+systemd-resolve
+messagebus
+systemd-timesync
+systemd-coredump
+tcpdump
+pi
+brown.j
+smith.a
+```
+
+and only three users have an associated home directory
+```
+pi
+brown.j
+smith.a
+```
+
+
+## 3. What are the network settings of the Raspberry Pi (hostname, DNS, routes)? What are its IPv4 and IPv6 addresses?
 Hostname : 
 >raspberry
 
@@ -23,7 +65,7 @@ Local ipv6 address :
 Mac address:
 > b8:27:eb:32:00:67
 
-## 4. Manual run of OpenVPN, VPN tunnel IP and ping output
+## 4. Provide the output of your manual run of OpenVPN, your VPN tunnel IP address, and the ping output.
 ### 4.1 OpenVPN run
 ```sudo openvpn net-sec.ovpn```
 ``` 
