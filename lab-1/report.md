@@ -1,3 +1,28 @@
+## What are the network settings of the Raspberry Pi (hostname, DNS, routes)? What are its IPv4 and IPv6 addresses?
+Hostname : 
+>raspberry
+
+ DNS : 
+>search ep.int.e-netsec.org
+
+Routes:
+| Destination | Gateway    | Genmask         | Flags |
+|-------------|------------|-----------------|-------|
+| 0.0.0.0     | 10.10.92.1 | 0.0.0.0         | UG    |
+| 10.10.92.0  | 0.0.0.0    | 255.255.255.0   | U     |
+
+ipv4 address :  
+>10.10.92.10
+
+Global ipv6 address : 
+> 2001:470:8cc5:3201:ba27:ebff:fe32:67
+
+Local ipv6 address : 
+> fe80::ba27:ebff:fe32:67
+
+Mac address:
+> b8:27:eb:32:00:67
+
 ## 4. Manual run of OpenVPN, VPN tunnel IP and ping output
 ### 4.1 OpenVPN run
 ```sudo openvpn net-sec.ovpn```
