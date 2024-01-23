@@ -1,5 +1,5 @@
 ## 1. What were the Linux accounts that were present on the Raspberry Pi?
-``` 
+```
 root
 daemon
 bin
@@ -41,10 +41,10 @@ smith.a
 
 
 ## 3. What are the network settings of the Raspberry Pi (hostname, DNS, routes)? What are its IPv4 and IPv6 addresses?
-Hostname : 
+Hostname :
 >raspberry
 
- DNS : 
+ DNS :
 >search ep.int.e-netsec.org
 
 Routes:
@@ -53,27 +53,34 @@ Routes:
 | 0.0.0.0     | 10.10.92.1 | 0.0.0.0         | UG    |
 | 10.10.92.0  | 0.0.0.0    | 255.255.255.0   | U     |
 
-ipv4 address :  
+ipv4 address :
 >10.10.92.10
 
-Global ipv6 address : 
+Global ipv6 address :
 > 2001:470:8cc5:3201:ba27:ebff:fe32:67
 
-Local ipv6 address : 
+Local ipv6 address :
 > fe80::ba27:ebff:fe32:67
 
 Mac address:
 > b8:27:eb:32:00:67
 
+## 2. What is the purpose of the sudo(8) command? What advantages does it have over the su(1) command? Why is “root” disabled by default?
+
+sudo allows users to execute a command as another user (which is almost always root). On the other hand, su allows you to switch your priveledges to that of another user, which may not be desired for security reasons if you only want to run a single command with elevated priveledges.
+
+Root may be disabled by default to prevent any security breaches from giving attackers access to root priveledges.
+
+
 ## 4. Provide the output of your manual run of OpenVPN, your VPN tunnel IP address, and the ping output.
 ### 4.1 OpenVPN run
 ```sudo openvpn net-sec.ovpn```
-``` 
+```
 2024-01-22 18:49:44 OpenVPN 2.6.8 [git:makepkg/3b0d9489cc423da3+] x86_64-pc-linux-gnu [SSL (OpenSSL)] [LZO] [LZ4] [EPOLL] [PKCS11] [MH/PKTINFO] [AEAD] [DCO] built on Nov 17 2023
 2024-01-22 18:49:44 library versions: OpenSSL 3.2.0 23 Nov 2023, LZO 2.10
 2024-01-22 18:49:44 DCO version: N/A
-Enter Auth Username: 
-Enter Auth Password: •••••••••••••••         
+Enter Auth Username:
+Enter Auth Password: •••••••••••••••
 2024-01-22 18:49:50 TCP/UDP: Preserving recently used remote address: [AF_INET]129.10.112.35:1194
 2024-01-22 18:49:50 UDPv4 link local: (not bound)
 2024-01-22 18:49:50 UDPv4 link remote: [AF_INET]129.10.112.35:1194
@@ -105,7 +112,7 @@ tun0: flags=4305<UP,POINTOPOINT,RUNNING,NOARP,MULTICAST>  mtu 1500
 
 #### Local addresses:
  > IPv4 = 10.10.222.1
- 
+
  > IPv6 = fe80::92cf:a054:5052:8fa6
 
 
@@ -129,4 +136,3 @@ PING 10.10.1.1 (10.10.1.1) 56(84) bytes of data.
 --- 10.10.1.1 ping statistics ---
 9 packets transmitted, 9 received, 0% packet loss, time 8010ms
 rtt min/avg/max/mdev = 11.525/17.546/25.882/4.903 ms```
-
