@@ -1,0 +1,155 @@
+{
+  "main": {
+    "id": "660dc0612d5da855",
+    "type": "split",
+    "children": [
+      {
+        "id": "8071f1e88d792cee",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f00e1fc7e8593aa8",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "lab-2/Part 1.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "75806625a8a20817",
+    "type": "split",
+    "children": [
+      {
+        "id": "f22a8552b387d5bb",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6d3caf8c78970efe",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "3b96d88147f91383",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "7d637899d71f16f4",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "right": {
+    "id": "af0737af4c950d90",
+    "type": "split",
+    "children": [
+      {
+        "id": "bbce9059ea85c5d3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b30aa281af680015",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "lab-2/Part 1.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "a5390780d35d8e43",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "lab-2/Part 1.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "5a7e41819453f31f",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "48725c1f97501b89",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "lab-2/Part 1.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "f00e1fc7e8593aa8",
+  "lastOpenFiles": [
+    "lab-2/Part 1.md",
+    "lab-2"
+  ]
+}
