@@ -1,8 +1,6 @@
-# Part 1
+### 1. Ping scans
 
-## 1. Ping scans
-discovery scan using -sn against your subnets
-```
+```bash
 pi@raspberry:~$ sudo /sbin/iptables -Z
 pi@raspberry:~$ nmap -sn 10.10.152.0/24 10.10.92.0/24 -oG discovery_scan.txt
 Starting Nmap 7.80 ( https://nmap.org ) at 2024-02-08 00:52 UTC
@@ -21,7 +19,7 @@ Host is up (0.0024s latency).
 Nmap done: 512 IP addresses (10 hosts up) scanned in 16.44 second
 ```
 
-Traffic generated
+#### Network Traffic
 ```
 pi@raspberry:~$ sudo /sbin/iptables -vn -L
 Chain INPUT (policy ACCEPT 89 packets, 6536 bytes)
@@ -36,8 +34,8 @@ Chain OUTPUT (policy ACCEPT 62 packets, 8064 bytes)
  6301  411K ACCEPT     all  --  *      *       0.0.0.0/0           !10.10.192.0/18
 ```
 
-## 2. Full TCP Scan
-```
+### 2. Full TCP Scan
+```bash
 pi@raspberry:~$ sudo /sbin/iptables -Z
 pi@raspberry:~$ sudo nmap -sT 10.10.152.1 10.10.152.18 10.10.152.53 10.10.152.120 10.10.152.129 10.10.152.150
 Starting Nmap 7.80 ( https://nmap.org ) at 2024-02-08 00:57 UTC
@@ -96,7 +94,8 @@ PORT     STATE SERVICE
 Nmap done: 6 IP addresses (6 hosts up) scanned in 22.40 seconds
 ```
 
-```
+#### Network Traffic
+```bash
 pi@raspberry:~$ sudo /sbin/iptables -vn -L
 Chain INPUT (policy ACCEPT 195 packets, 13980 bytes)
  pkts bytes target     prot opt in     out     source               destination
@@ -111,7 +110,7 @@ Chain OUTPUT (policy ACCEPT 117 packets, 14056 bytes)
 ```
 
 
-## 3. TCP syn scan
+### 3. TCP syn scan
 ```bash
 pi@raspberry:~$ sudo nmap -sS 10.10.152.1 10.10.152.18 10.10.152.53 10.10.152.120 10.10.152.129 10.10.152.150
 Starting Nmap 7.80 ( https://nmap.org ) at 2024-02-08 01:17 UTC
@@ -170,8 +169,8 @@ PORT     STATE SERVICE
 Nmap done: 6 IP addresses (6 hosts up) scanned in 13.70 seconds
 ```
 
-
-```
+#### Network Traffic
+``` bash
 pi@raspberry:~$ sudo /sbin/iptables -vn -L
 Chain INPUT (policy ACCEPT 52 packets, 3564 bytes)
  pkts bytes target     prot opt in     out     source               destination
@@ -185,15 +184,13 @@ Chain OUTPUT (policy ACCEPT 42 packets, 6368 bytes)
 27465 1456K ACCEPT     all  --  *      *       0.0.0.0/0           !10.10.192.0/18
 ```
 
-## 4.  
+### 4.  The output of your UDP scan.
 
-## 5.  
+### 5.  The output of your TCP SYN ping scan and “No Ping” scan.
 
 
-# Part 2
-## 6. OS scans
-```
-
+### 6. OS scans
+```bash
 pi@raspberry:~$ sudo nmap -O 10.10.152.1 10.10.152.18 10.10.152.53 10.10.152.120 10.10.152.129 10.10.152.150
 Starting Nmap 7.80 ( https://nmap.org ) at 2024-02-08 01:51 UTC
 Nmap scan report for 10.10.152.1
@@ -299,9 +296,24 @@ Nmap done: 6 IP addresses (6 hosts up) scanned in 35.44 seconds
 ```
 
 
-## 7. Traffic comparison
-## 8. Telnet and HTTP
+### 7. Traffic comparison
+#### 7.1 For OS Scan
+``` bash
+pi@raspberry:~$ sudo /sbin/iptables -vn -L
+Chain INPUT (policy ACCEPT 43 packets, 2916 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+55517 4563K ACCEPT     all  --  *      *      !10.10.192.0/18       0.0.0.0/0
+
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain OUTPUT (policy ACCEPT 37 packets, 11056 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+97464 5109K ACCEPT     all  --  *      *       0.0.0.0/0           !10.10.192.0/18
+
 ```
+### 8. Telnet and HTTP
+```bash
 pi@raspberry:~$ sudo telnet 10.10.152.1 80
 Trying 10.10.152.1...
 Connected to 10.10.152.1.
@@ -325,6 +337,9 @@ X-Frame-Options: SAMEORIGIN
 </body>
 </html>
 Connection closed by foreign host.
+
+
+
 pi@raspberry:~$ sudo telnet 10.10.152.150 80
 Trying 10.10.152.150...
 Connected to 10.10.152.150.
@@ -387,8 +402,8 @@ Connection closed by foreign host.
 ```
 
 
-## 9. Service Probes
-```
+### 9. Service Probes
+```bash
 pi@raspberry:~$ sudo nmap -sV -sS 10.10.152.1 10.10.152.18 10.10.152.53 10.10.152.120 10.10.152.129 10.10.152.150
 Starting Nmap 7.80 ( https://nmap.org ) at 2024-02-08 02:02 UTC
 Stats: 0:01:38 elapsed; 0 hosts completed (6 up), 6 undergoing Service Scan
@@ -474,3 +489,97 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 6 IP addresses (6 hosts up) scanned in 160.56 seconds
 ```
+
+
+
+
+### 10. What method does nmap use by default to ping a host?
+By default, Nmap does host discovery and then performs a port scan against each host it determines is online.
+
+### 11. Describe how you could use the icmp ratelimit kernel parameter in Linux to slow down a  UDP scan
+
+### 12. Which nmap scan typically runs faster, -sS or -sT? Why?
+-sS runs typically faster than -sT because -sS only sends out syn packets and never completes the TCP connection, whereas sT completes a connection.
+Not only does -sT take longer and require more packets to obtain the same information, but target machines are more likely to log the connection.
+### 13. In general, if any port scanner sends a datagram to a specific UDP port on a system and receives NO response, what can be concluded without any other information? (Hint: see the nmap man page, and consider networks which use firewalls.)
+There are three scenarios:
+	a. ICMP Port unreachable errors  - 3
+	b. ICMP unreachable errors - 0, 1, 2, 9, 10, 13		
+	c. No response or response with UDP Packet
+
+In condition a, the port is closed, b marks the port as filtered whereas c, means that the port could be open or filters are blocking the communication.
+Therefore, no response means that the port could be open.
+### 14. (Bonus) Describe your results using ZMap scanning the virtual network. Discuss the differ- ences between nmap and ZMap, in terms of design, functionality, techniques, and performance.
+    
+### 15. What additional DNS names did you find with DNS enumeration?
+    
+### 16. Which secret host did you find using the Certificate Transparency log? Which CA generated how many certificates for your team’s network?
+    
+### 17.  Tabular view
+Using the information gathered through the port scanning task and the fingerprinting task, describe in detail various nodes of the network 7 Make sure to include the following details: i) Node IP addresses and hostname, ii) operating system information including patch number (e.g Ubuntu 16.04.6 LTS), iii) running services and open ports and iv) services and service version numbers. Make sure to include both, IPv4 and IPv6 addresses.
+	Important Note. Please include all the hostnames and IPs found in the DNS enumeration and Certificate part in the table (you cannot actually access these machines)!
+
+**Node 1: 10.10.152.1**
+- OS Info: Not specified
+- Hostname: Not specified
+
+| Connection Protocol | Ports | Services | Version |
+| ---- | ---- | ---- | ---- |
+| TCP | 53 | domain | generic dns response: NOTIMP |
+| TCP | 80 | http | nginx |
+| TCP | 443 | https | nginx |
+| TCP | 2222 | EtherNetIP-1 | OpenSSH 7.9 (protocol 2.0) |
+**Node 2: 10.10.152.18**
+- OS Info: Ubuntu *FIND MORE DETAILS*
+- Hostname: ics.ep.int.e-netsec.org
+
+|Connection Protocol|Ports|Services|Version|
+|---|---|---|---|
+|TCP|22|ssh|OpenSSH 8.2p1 Ubuntu 4 (protocol 2.0)|
+|TCP|139|netbios-ssn|Samba smbd 4.6.2|
+|TCP|445|microsoft-ds |Samba smbd 4.6.2|
+|TCP|8083|us-srv |Not specified|
+
+**Node 3: 10.10.152.53**
+- OS Info: Debian 5 *FIND MORE DETAILS*
+- Hostname: updatesrv.ep.int.e-netsec.org
+
+|Connection Protocol|Ports|Services|Version|
+|---|---|---|---|
+|TCP|22|ssh|OpenSSH 8.4p1 Debian 5 (protocol 2.0)|
+|TCP|80|http|Apache httpd 2.4.56 ((Debian))|
+
+**Node 4: 10.10.152.120**
+- OS Info: Ubuntu 4 *FIND MORE DETAILS*
+- Hostname: Not specified
+
+|Connection Protocol|Ports|Services|Version|
+|---|---|---|---|
+|TCP|22|ssh|OpenSSH 8.2p1 Ubuntu 4 (protocol 2.0)|
+|TCP |2022|down |OpenSSH 8.2p1 Ubuntu 4 (protocol 2.0)|
+
+
+**Node 5: 10.10.152.129**
+- OS Info: Ubuntu 4 *FIND MORE DETAILS*
+- Hostname: routerb.ep.int.e-netsec.org
+
+|Connection Protocol|Ports|Services|Version|
+|---|---|---|---|
+|TCP|22|ssh|OpenSSH 8.2p1 Ubuntu 4 (protocol 2.0)|
+|TCP|2022|down |OpenSSH 8.2p1 Ubuntu 4 (protocol 2.0)|
+
+**Node 6: 10.10.152.150**
+- OS Info: Debian 5 *FIND MORE DETAILS*
+- Hostname: hr.ep.int.e-netsec.or
+
+|Connection Protocol|Ports|Services|Version|
+|---|---|---|---|
+|TCP|80|http|Apache httpd 2.2.22 ((Debian))|
+|TCP|111|rpcbind|2-4 (RPC #100000)|
+|TCP|139|netbios-ssn|Samba smbd 3.X - 4.X(workgroup: CORPSEC)|
+|TCP|443|https |Samba smbd 3.X - 4.X(workgroup: CORPSEC)|
+|TCP|445|microsoft-ds |Samba SWAT administration server|
+|TCP|901|samba-swat |Not specified|
+|TCP|2222|EtherNetIP-1 |OpenSSH 6.0p1 Debian|
+|TCP|3306|mysql|MySQL |
+
