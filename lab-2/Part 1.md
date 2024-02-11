@@ -1,22 +1,28 @@
 ### 1. Ping scans
 
 ```bash
-pi@raspberry:~$ sudo /sbin/iptables -Z
-pi@raspberry:~$ nmap -sn 10.10.152.0/24 10.10.92.0/24 -oG discovery_scan.txt
-Starting Nmap 7.80 ( https://nmap.org ) at 2024-02-08 00:52 UTC
+Starting Nmap 7.80 ( https://nmap.org ) at 2024-02-10 23:23 UTC
 Nmap scan report for 10.10.152.1
-Host is up (0.0018s latency).
+Host is up (0.0017s latency).
 Nmap scan report for ics.ep.int.e-netsec.org (10.10.152.18)
-Host is up (0.0010s latency).
+Host is up (0.00095s latency).
 Nmap scan report for updatesrv.ep.int.e-netsec.org (10.10.152.53)
-Host is up (0.0012s latency).
+Host is up (0.00058s latency).
 Nmap scan report for 10.10.152.120
-Host is up (0.0019s latency).
+Host is up (0.00081s latency).
 Nmap scan report for routerb.ep.int.e-netsec.org (10.10.152.129)
-Host is up (0.00091s latency).
+Host is up (0.00092s latency).
 Nmap scan report for hr.ep.int.e-netsec.org (10.10.152.150)
-Host is up (0.0024s latency).
-Nmap done: 512 IP addresses (10 hosts up) scanned in 16.44 second
+Host is up (0.0018s latency).
+Nmap scan report for dns.ep.int.e-netsec.org (10.10.92.2)
+Host is up (0.0016s latency).
+Nmap scan report for raspberry.ep.int.e-netsec.org (10.10.92.10)
+Host is up (0.00017s latency).
+Nmap scan report for client.ep.int.e-netsec.org (10.10.92.20)
+Host is up (0.00064s latency).
+Nmap scan report for server.ep.int.e-netsec.org (10.10.92.26)
+Host is up (0.00063s latency).
+Nmap done: 512 IP addresses (10 hosts up) scanned in 16.23 seconds
 ```
 
 #### Network Traffic
@@ -211,6 +217,13 @@ PORT   STATE SERVICE
 80/tcp open  http
 MAC Address: 0C:C4:7A:32:01:9A (Super Micro Computer)
 
+Nmap scan report for raspberry.ep.int.e-netsec.org (10.10.92.10)
+Host is up (0.000018s latency).
+Not shown: 998 closed ports
+PORT     STATE SERVICE
+22/tcp   open  ssh
+4444/tcp open  krb524
+
 Nmap scan report for client.ep.int.e-netsec.org (10.10.92.20)
 Host is up (0.000026s latency).
 Not shown: 998 closed ports
@@ -230,13 +243,6 @@ PORT    STATE SERVICE
 443/tcp open  https
 445/tcp open  microsoft-ds
 MAC Address: 4C:44:5B:32:02:AA (Unknown)
-
-Nmap scan report for raspberry.ep.int.e-netsec.org (10.10.92.10)
-Host is up (0.000018s latency).
-Not shown: 998 closed ports
-PORT     STATE SERVICE
-22/tcp   open  ssh
-4444/tcp open  krb524
 
 Nmap done: 10 IP addresses (10 hosts up) scanned in 18.62 seconds
 ```
@@ -258,63 +264,17 @@ Chain OUTPUT (policy ACCEPT 42 packets, 6368 bytes)
 
 ### 4.  The output of your UDP scan.
 
-### 5.  The output of your TCP SYN ping scan and “No Ping” scan.
+
+
+### 5.  TCP SYN ping scan and “No Ping” scan.
+The host that did not respond to ICMP ping requests was this:
 ```bash
-
-Nmap scan report for 10.10.152.1
-Host is up (0.00027s latency).
-Not shown: 996 filtered ports
-PORT     STATE SERVICE
-53/tcp   open  domain
-80/tcp   open  http
-443/tcp  open  https
-2222/tcp open  EtherNetIP-1
-
-Nmap scan report for 10.10.152.18
-Host is up (0.00078s latency).
-Not shown: 996 closed ports
-PORT     STATE SERVICE
-22/tcp   open  ssh
-139/tcp  open  netbios-ssn
-445/tcp  open  microsoft-ds
-8083/tcp open  us-srv
-
-Nmap scan report for 10.10.152.53
-Host is up (0.00056s latency).
-Not shown: 998 closed ports
+Nmap scan report for corerouter.ep.int.e-netsec.org (10.10.92.1)
+Host is up (0.00085s latency).
+Not shown: 999 filtered ports
 PORT   STATE SERVICE
-22/tcp open  ssh
-80/tcp open  http
-
-Nmap scan report for 10.10.152.120
-Host is up (0.00047s latency).
-Not shown: 998 closed ports
-PORT     STATE SERVICE
-22/tcp   open  ssh
-2022/tcp open  down
-
-Nmap scan report for 10.10.152.129
-Host is up (0.00037s latency).
-Not shown: 998 closed ports
-PORT     STATE SERVICE
-22/tcp   open  ssh
-2022/tcp open  down
-
-Nmap scan report for 10.10.152.150
-Host is up (0.00093s latency).
-Not shown: 992 closed ports
-PORT     STATE SERVICE
-80/tcp   open  http
-111/tcp  open  rpcbind
-139/tcp  open  netbios-ssn
-443/tcp  open  https
-445/tcp  open  microsoft-ds
-901/tcp  open  samba-swat
-2222/tcp open  EtherNetIP-1
-3306/tcp open  mysql
-
+53/tcp open  domain
 ```
-
 
 ### 6. OS scans
 ```bash
@@ -531,21 +491,8 @@ Chain OUTPUT (policy ACCEPT 170 packets, 35055 bytes)
 ```
 
 ### 7. Traffic comparison
-#### 7.1 For OS Scan
-``` bash
-pi@raspberry:~$ sudo /sbin/iptables -vn -L
-Chain INPUT (policy ACCEPT 43 packets, 2916 bytes)
- pkts bytes target     prot opt in     out     source               destination
-55517 4563K ACCEPT     all  --  *      *      !10.10.192.0/18       0.0.0.0/0
 
-Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
- pkts bytes target     prot opt in     out     source               destination
 
-Chain OUTPUT (policy ACCEPT 37 packets, 11056 bytes)
- pkts bytes target     prot opt in     out     source               destination
-97464 5109K ACCEPT     all  --  *      *       0.0.0.0/0           !10.10.192.0/18
-
-```
 ### 8. Telnet and HTTP
 ```bash
 pi@raspberry:~$ sudo telnet 10.10.152.1 80
@@ -598,38 +545,6 @@ Content-Type: text/html
 Access the HR share ("hrshare") on Samba with user hrshare and password hrshare!
 </body></html>
 Connection closed by foreign host.
-
-
-
-
-
-pi@raspberry:~$ sudo telnet 10.10.152.150 80
-Trying 10.10.152.150...
-Connected to 10.10.152.150.
-Escape character is '^]'.
-GET / HTTP/1.0
-
-HTTP/1.1 200 OK
-Date: Sat, 10 Feb 2024 18:58:21 GMT
-Server: Apache/2.2.22 (Debian)
-Last-Modified: Mon, 12 Sep 2022 21:06:01 GMT
-ETag: "244c5-e6-5e881434f117c"
-Accept-Ranges: bytes
-Content-Length: 230
-Vary: Accept-Encoding
-Connection: close
-Content-Type: text/html
-
-<html><body><h1>Welcome to Corp-Sec HR!</h1>
-<a href="/cgi-bin/uptime">Uptime</a><br>
-<a href="/hr">HR Timesheet application</a>
-<br>
-Access the HR share ("hrshare") on Samba with user hrshare and password hrshare!
-</body></html>
-Connection closed by foreign host.
-
-
-
 
 
 
@@ -696,8 +611,7 @@ Accept-Ranges: bytes
 <html><body><a href=https://server.ep.int.e-netsec.org>Debug</a><br><a href=phpinfo.php>Phpinfo</a></body></html>
 Connection closed by foreign host.
 ```
-
-### SSH
+#### SSH
 ```bash
 pi@raspberry:~$ sudo telnet 10.10.152.18 22
 Trying 10.10.152.18...
@@ -766,16 +680,11 @@ SSH-2.0-OpenSSH_8.4p1 Debian-5
 
 ### 9. Service Probes
 ```bash
-pi@raspberry:~$ sudo nmap -sV -sS 10.10.152.1 10.10.152.18 10.10.152.53 10.10.152.120 10.10.152.129 10.10.152.150
-Starting Nmap 7.80 ( https://nmap.org ) at 2024-02-08 02:02 UTC
-Stats: 0:01:38 elapsed; 0 hosts completed (6 up), 6 undergoing Service Scan
-Service scan Timing: About 90.91% done; ETC: 02:04 (0:00:08 remaining)
-Stats: 0:01:58 elapsed; 0 hosts completed (6 up), 6 undergoing Service Scan
-Service scan Timing: About 90.91% done; ETC: 02:04 (0:00:10 remaining)
-Stats: 0:02:03 elapsed; 0 hosts completed (6 up), 6 undergoing Service Scan
-Service scan Timing: About 90.91% done; ETC: 02:05 (0:00:11 remaining)
+pi@raspberry:~$ sudo nmap -sV -sS 10.10.152.1 10.10.152.18 10.10.152.53 10.10.152.120 10.10.152.129 10.10.152.150 10.10.92.2 10.10.92.10 10.10.92.20 10.10.92.26
+[sudo] password for pi:
+Starting Nmap 7.80 ( https://nmap.org ) at 2024-02-10 23:39 UTC
 Nmap scan report for 10.10.152.1
-Host is up (0.00071s latency).
+Host is up (0.00050s latency).
 Not shown: 996 filtered ports
 PORT     STATE SERVICE  VERSION
 53/tcp   open  domain   (generic dns response: NOTIMP)
@@ -783,35 +692,20 @@ PORT     STATE SERVICE  VERSION
 443/tcp  open  ssl/http nginx
 2222/tcp open  ssh      OpenSSH 7.9 (protocol 2.0)
 1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
-SF-Port53-TCP:V=7.80%I=7%D=2/8%Time=65C43664%P=x86_64-pc-linux-gnu%r(DNSVe
-SF:rsionBindReqTCP,20,"\0\x1e\0\x06\x81\x85\0\x01\0\0\0\0\0\0\x07version\x
-SF:04bind\0\0\x10\0\x03")%r(DNSStatusRequestTCP,E,"\0\x0c\0\0\x90\x04\0\0\
-SF:0\0\0\0\0\0");
 
 Nmap scan report for ics.ep.int.e-netsec.org (10.10.152.18)
-Host is up (0.0013s latency).
+Host is up (0.0016s latency).
 Not shown: 996 closed ports
-PORT     STATE SERVICE       VERSION
-22/tcp   open  ssh           OpenSSH 8.2p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)
-139/tcp  open  netbios-ssn   Samba smbd 4.6.2
-445/tcp  open  microsoft-ds?
+PORT     STATE SERVICE     VERSION
+22/tcp   open  ssh         OpenSSH 8.2p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)
+139/tcp  open  netbios-ssn Samba smbd 4.6.2
+445/tcp  open  netbios-ssn Samba smbd 4.6.2
 8083/tcp open  us-srv?
 1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
-SF-Port8083-TCP:V=7.80%I=7%D=2/8%Time=65C43665%P=x86_64-pc-linux-gnu%r(Fou
-SF:rOhFourRequest,62,"HTTP/1\.1\x20302\x20Found\r\nContent-Length:\x200\r\
-SF:nX-FHEM-csrfToken:\x20csrf_168872777155443\r\nLocation:\x20/fhem\r\n\r\
-SF:n")%r(GenericLines,5E,"HTTP/1\.1\x20405\x20Method\x20Not\x20Allowed\r\n
-SF:X-FHEM-csrfToken:\x20csrf_168872777155443\r\nContent-Length:\x200\r\n\r
-SF:\n")%r(HTTPOptions,4E,"HTTP/1\.1\x20200\x20OK\r\nX-FHEM-csrfToken:\x20c
-SF:srf_168872777155443\r\nContent-Length:\x200\r\n\r\n")%r(RTSPRequest,4E,
-SF:"HTTP/1\.1\x20200\x20OK\r\nX-FHEM-csrfToken:\x20csrf_168872777155443\r\
-SF:nContent-Length:\x200\r\n\r\n")%r(SIPOptions,4E,"HTTP/1\.1\x20200\x20OK
-SF:\r\nX-FHEM-csrfToken:\x20csrf_168872777155443\r\nContent-Length:\x200\r
-SF:\n\r\n");
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Nmap scan report for updatesrv.ep.int.e-netsec.org (10.10.152.53)
-Host is up (0.0013s latency).
+Host is up (0.0016s latency).
 Not shown: 998 closed ports
 PORT   STATE SERVICE VERSION
 22/tcp open  ssh     OpenSSH 8.4p1 Debian 5 (protocol 2.0)
@@ -819,7 +713,7 @@ PORT   STATE SERVICE VERSION
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Nmap scan report for 10.10.152.120
-Host is up (0.0013s latency).
+Host is up (0.0014s latency).
 Not shown: 998 closed ports
 PORT     STATE SERVICE VERSION
 22/tcp   open  ssh     OpenSSH 8.2p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)
@@ -827,7 +721,7 @@ PORT     STATE SERVICE VERSION
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Nmap scan report for routerb.ep.int.e-netsec.org (10.10.152.129)
-Host is up (0.0012s latency).
+Host is up (0.0013s latency).
 Not shown: 998 closed ports
 PORT     STATE SERVICE VERSION
 22/tcp   open  ssh     OpenSSH 8.2p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)
@@ -835,7 +729,7 @@ PORT     STATE SERVICE VERSION
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Nmap scan report for hr.ep.int.e-netsec.org (10.10.152.150)
-Host is up (0.0015s latency).
+Host is up (0.0014s latency).
 Not shown: 992 closed ports
 PORT     STATE SERVICE     VERSION
 80/tcp   open  http        Apache httpd 2.2.22 ((Debian))
@@ -848,21 +742,69 @@ PORT     STATE SERVICE     VERSION
 3306/tcp open  mysql       MySQL (unauthorized)
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
+Stats: 0:04:41 elapsed; 6 hosts completed (9 up), 3 undergoing Service Scan
+Service scan Timing: About 81.82% done; ETC: 23:44 (0:00:27 remaining)
+Stats: 0:04:46 elapsed; 6 hosts completed (9 up), 3 undergoing Service Scan
+Service scan Timing: About 81.82% done; ETC: 23:44 (0:00:28 remaining)
+Nmap scan report for dns.ep.int.e-netsec.org (10.10.92.2)
+Host is up (0.000026s latency).
+Not shown: 997 closed ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.4p1 Debian 5 (protocol 2.0)
+53/tcp open  domain  dnsmasq 2.85
+80/tcp open  http    Apache httpd 2.4.56 ((Debian))
+MAC Address: 0C:C4:7A:32:01:9A (Super Micro Computer)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for client.ep.int.e-netsec.org (10.10.92.20)
+Host is up (0.000025s latency).
+Not shown: 998 closed ports
+PORT   STATE SERVICE  VERSION
+22/tcp open  ssh      OpenSSH 8.4p1 Debian 5 (protocol 2.0)
+80/tcp open  ssl/http Apache/2.4.56 (Debian)
+MAC Address: 4C:44:5B:32:03:BB (Unknown)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for server.ep.int.e-netsec.org (10.10.92.26)
+Host is up (0.000026s latency).
+Not shown: 994 closed ports
+PORT    STATE SERVICE       VERSION
+21/tcp  open  ftp           vsftpd 3.0.3
+22/tcp  open  ssh           OpenSSH 8.4p1 Debian 5 (protocol 2.0)
+80/tcp  open  http          nginx 1.18.0
+139/tcp open  netbios-ssn?
+443/tcp open  ssl/http      Apache httpd 2.4.56 ((Debian))
+445/tcp open  microsoft-ds?
+MAC Address: 4C:44:5B:32:02:AA (Unknown)
+Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for raspberry.ep.int.e-netsec.org (10.10.92.10)
+Host is up (0.000016s latency).
+Not shown: 998 closed ports
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 8.4p1 Debian 5 (protocol 2.0)
+4444/tcp open  krb524?
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 6 IP addresses (6 hosts up) scanned in 160.56 seconds
+Nmap done: 10 IP addresses (10 hosts up) scanned in 312.49 seconds
 ```
 
+### 10. Method for ping
+> What method does nmap use by default to ping a host?
 
-
-
-### 10. What method does nmap use by default to ping a host?
 By default, Nmap does host discovery and then performs a port scan against each host it determines is online. When we use the `-PE` option, Nmap sends ICMP echo requests (ping) to the target hosts to determine their online status. 
-### 11. Describe how you could use the icmp ratelimit kernel parameter in Linux to slow down a  UDP scan
+### 11. ICMP rate limit
+> Describe how you could use the icmp ratelimit kernel parameter in Linux to slow down a  UDP scan
 
-### 12. Which nmap scan typically runs faster, -sS or -sT? Why?
+### 12. -sS or -sT? Why?
+> Which nmap scan typically runs faster, -sS or -sT? Why?
+
 -sS runs typically faster than -sT because -sS only sends out syn packets and never completes the TCP connection, whereas sT completes a connection.
 Not only does -sT take longer and require more packets to obtain the same information, but target machines are more likely to log the connection.
-### 13. In general, if any port scanner sends a datagram to a specific UDP port on a system and receives NO response, what can be concluded without any other information? (Hint: see the nmap man page, and consider networks which use firewalls.)
+### 13. Port Scanner
+>In general, if any port scanner sends a datagram to a specific UDP port on a system and receives NO response, what can be concluded without any other information? (Hint: see the nmap man page, and consider networks which use firewalls.)
+
 There are three scenarios:
 	a. ICMP Port unreachable errors  - 3
 	b. ICMP unreachable errors - 0, 1, 2, 9, 10, 13		
@@ -870,9 +812,12 @@ There are three scenarios:
 
 In condition a, the port is closed, b marks the port as filtered whereas c, means that the port could be open or filters are blocking the communication.
 Therefore, no response means that the port could be open.
-### 14. (Bonus) Describe your results using ZMap scanning the virtual network. Discuss the differ- ences between nmap and ZMap, in terms of design, functionality, techniques, and performance.
-    
-### 15. What additional DNS names did you find with DNS enumeration?
+### 14. (Bonus) 
+>Describe your results using ZMap scanning the virtual network. Discuss the differ- ences between nmap and ZMap, in terms of design, functionality, techniques, and performance.
+### 15. DNS enumeration
+> What additional DNS names did you find with DNS enumeration?
+
+nice.ep.int.e-netsec.org and crew.ep.int.e-netsec.org
 ```bash
 pi@raspberry:~$ sudo dnsmap ep.int.e-netsec.org -w /root/wordlists/dns4.wordlist
 dnsmap 0.35 - DNS Network Mapper
@@ -892,9 +837,20 @@ IP address #1: 10.10.3.87
 [+] 2 internal IP address(es) disclosed
 [+] completion time: 1 second(s)
 ```
-nice.ep.int.e-netsec.org and crew.ep.int.e-netsec.org
 
-### 16. Which secret host did you find using the Certificate Transparency log? Which CA generated how many certificates for your team’s network?
+
+### 16. CA Logs:
+>Which secret host did you find using the Certificate Transparency log? 
+
+alpha-development.ep.int.e-netsec.org
+
+> Which CA generated how many certificates for your team’s network?
+    
+    commonName                = R3  
+    organizationName          = Let's Encrypt  
+    countryName               = US
+    Generated 8 Certificates to our team's network
+
 1. 8 Certificates issued to our team's network.
 2. Which secret server in the 10.10.4.0/24 network has a certificate with your team’s DNS suffix?
 	``` bash
@@ -930,92 +886,121 @@ Using the information gathered through the port scanning task and the fingerprin
 	Important Note. Please include all the hostnames and IPs found in the DNS enumeration and Certificate part in the table (you cannot actually access these machines)!
 
 
+**Node 1:**
+- IPv4 Address:  10.10.152.1
 
-```bash
-pi@raspberry:~$ sudo host 10.10.152.1
-;; connection timed out; no servers could be reached
-pi@raspberry:~$ sudo host 10.10.152.18
-18.152.10.10.in-addr.arpa domain name pointer ics.ep.int.e-netsec.org.
-pi@raspberry:~$ sudo host 10.10.152.53
-53.152.10.10.in-addr.arpa domain name pointer updatesrv.ep.int.e-netsec.org.
-pi@raspberry:~$ sudo host 10.10.152.120
-;; connection timed out; no servers could be reached
-pi@raspberry:~$ sudo host 10.10.152.129
-129.152.10.10.in-addr.arpa domain name pointer routerb.ep.int.e-netsec.org.
-pi@raspberry:~$ sudo host 10.10.152.150
-150.152.10.10.in-addr.arpa domain name pointer hr.ep.int.e-netsec.org.
-pi@raspberry:~$ sudo host 10.10.92.2
-2.92.10.10.in-addr.arpa domain name pointer dns.ep.int.e-netsec.org.
-pi@raspberry:~$ sudo host 10.10.92.10
-10.92.10.10.in-addr.arpa domain name pointer raspberry.ep.int.e-netsec.org.
-pi@raspberry:~$ sudo host 10.10.92.20
-20.92.10.10.in-addr.arpa domain name pointer client.ep.int.e-netsec.org.
-pi@raspberry:~$ sudo host 10.10.92.26
-26.92.10.10.in-addr.arpa domain name pointer server.ep.int.e-netsec.org.
-```
+| Port (Protocol) | Service | Version |
+| ---- | ---- | ---- |
+| 53/tcp | domain | (generic dns response: NOTIMP) |
+| 80/tcp | http | nginx |
+| 443/tcp | https | nginx |
+| 2222/tcp | EtherNetIP-1 | OpenSSH 7.9 (protocol 2.0) |
+**Node 2:**
+    - IPv4 Address: 10.10.152.18
+    - IPv6 Address: 2001:470:8cc5:3202:20c:87ff:fe32:652
+    - Hostname: ics.ep.int.e-netsec.org
+    - Operating System: SSH-2.0-OpenSSH_8.2p1 Ubuntu-4
 
+|Port (Protocol)|Service|Version|
+|---|---|---|
+|22/tcp|ssh|OpenSSH 8.2p1 Ubuntu 4 (protocol 2.0) |
+|139/tcp|netbios-ssn|Samba smbd 4.6.2|
+|445/tcp|microsoft-ds |Samba smbd 4.6.2|
+|8083/tcp|us-srv |-|
+**Node 3:**
+    - IPv4 Address: 10.10.152.53
+    - IPv6 Address: 2001:470:8cc5:3202::22
+    - Hostname: updatesrv.ep.int.e-netsec.org
+    - Operating System: SSH-2.0-OpenSSH_8.4p1 Debian-5
+    
+| Port (Protocol) | Service | Version |
+| ---- | ---- | ---- |
+| 22/tcp | ssh | OpenSSH 8.4p1 Debian 5 (protocol 2.0) |
+| 80/tcp | http | Apache httpd 2.4.56 (Debian) |
+**Node 4:**
+    - IPv4 Address: 10.10.152.120
 
-**Node 1: 10.10.152.1**
-- OS Info: Not specified
-- Hostname: Not specified
+|Port (Protocol)|Service|Version|
+|---|---|---|
+|22/tcp|ssh|OpenSSH 8.2p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)|
+|2022/tcp|down |OpenSSH 8.2p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)|
 
-| Connection Protocol | Ports | Services | Version |
-| ---- | ---- | ---- | ---- |
-| TCP | 53 | domain | generic dns response: NOTIMP |
-| TCP | 80 | http | nginx |
-| TCP | 443 | https | nginx |
-| TCP | 2222 | EtherNetIP-1 | OpenSSH 7.9 (protocol 2.0) |
-**Node 2: 10.10.152.18**
-- OS Info: Ubuntu 4 
-- Hostname: ics.ep.int.e-netsec.org
+**Node 5:**
+    - IPv4 Address: 10.10.152.129
+    - IPv6 Address: 2001:470:8cc5:3203::1
+    - Hostname: routerb.ep.int.e-netsec.org
+    - Operating System: SSH-2.0-OpenSSH_8.2p1 Ubuntu-4
+    
+|Port (Protocol)|Service|Version|
+|---|---|---|
+|22/tcp|ssh|OpenSSH 8.2p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)|
+|2022/tcp|down |OpenSSH 8.2p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)|
+**Node 6:**
+    - IPv4 Address: 10.10.152.150
+    - IPv6 Address: 2001:470:8cc5:3203:eece:13ff:feea:32f3
+    - Hostname: hr.ep.int.e-netsec.org
+    - Operating System: Linux 3.2 - 3.8
 
-|Connection Protocol|Ports|Services|Version|
-|---|---|---|---|
-|TCP|22|ssh|OpenSSH 8.2p1 Ubuntu 4 (protocol 2.0)|
-|TCP|139|netbios-ssn|Samba smbd 4.6.2|
-|TCP|445|microsoft-ds |Samba smbd 4.6.2|
-|TCP|8083|us-srv |Not specified|
+|Port (Protocol)|Service|Version|
+|---|---|---|
+|80/tcp|http|Apache httpd 2.2.22 (Debian)|
+|111/tcp|rpcbind|2-4 (RPC #100000)|
+|139/tcp|netbios-ssn|Samba smbd 3.X - 4.X|
+|443/tcp|https |-|
+|445/tcp|microsoft-ds |Samba smbd 3.X - 4.X|
+|901/tcp|samba-swat |Samba SWAT administration server|
+|2222/tcp|EtherNetIP-1 |OpenSSH 6.0p1 Debian 4 (protocol 2.0)|
+|3306/tcp|mysql|MySQL |
+**Node 7:**
+    - IPv4 Address: 10.10.92.1
+    - IPv6 Address: 2001:470:8cc5:3202::1
+    - Hostname: corerouter.ep.int.e-netsec.org
 
-**Node 3: 10.10.152.53**
-- OS Info: Debian 5 *FIND MORE DETAILS*
-- Hostname: updatesrv.ep.int.e-netsec.org
+| Port (Protocol) | Service | Version |
+| ---- | ---- | ---- |
+| 53/tcp | domain | dnsmasq 2.85 |
+ **Node 8:**
+    - IPv4 Address: 10.10.92.2
+    - Hostname: dns.ep.int.e-netsec.org
+    -  IPv6 Address: 2001:470:8cc5:3202::1
+    - Operating System: SSH-2.0-OpenSSH_8.4p1 Debian-5
 
-|Connection Protocol|Ports|Services|Version|
-|---|---|---|---|
-|TCP|22|ssh|OpenSSH 8.4p1 Debian 5 (protocol 2.0)|
-|TCP|80|http|Apache httpd 2.4.56 ((Debian))|
+| Port (Protocol) | Service | Version |
+| ---- | ---- | ---- |
+| 22/tcp | ssh | OpenSSH 8.4p1 Debian 5 (protocol 2.0) |
+| 53/tcp | domain | dnsmasq 2.85 |
+| 80/tcp | http | Apache httpd 2.4.56 (Debian) |
 
-**Node 4: 10.10.152.120**
-- OS Info: Ubuntu 4 *FIND MORE DETAILS*
-- Hostname: Not specified
+**Node 9:**
+    - IPv4 Address: 10.10.92.10
+    - Hostname: raspberry.ep.int.e-netsec.org
+    - Operating System: SSH-2.0-OpenSSH_8.4p1 Debian-5
 
-|Connection Protocol|Ports|Services|Version|
-|---|---|---|---|
-|TCP|22|ssh|OpenSSH 8.2p1 Ubuntu 4 (protocol 2.0)|
-|TCP |2022|down |OpenSSH 8.2p1 Ubuntu 4 (protocol 2.0)|
+|Port (Protocol)|Service|Version|
+|---|---|---|
+|22/tcp|ssh|OpenSSH 8.4p1 Debian 5 (protocol 2.0)|
+|4444/tcp|krb524 |-|
+**Node 10:**
+    - IPv4 Address: 10.10.92.20
+    - IPv6 Address: 2001:470:8cc5:3201:4e44:5bff:fe32:3bb
+    - Hostname: client.ep.int.e-netsec.org
+    - Operating System: SSH-2.0-OpenSSH_8.4p1 Debian-5
 
+|Port (Protocol)|Service|Version|
+|---|---|---|
+|22/tcp|ssh|OpenSSH 8.4p1 Debian 5 (protocol 2.0)|
+|80/tcp|http |Apache/2.4.56 (Debian)|
+**Node 11:**
+    - IPv4 Address: 10.10.92.26
+    - IPv6 Address: 2001:470:8cc5:3201:4e44:5bff:fe32:2aa
+    - Hostname: server.ep.int.e-netsec.org
+    - Operating System: SSH-2.0-OpenSSH_8.4p1 Debian-5
 
-**Node 5: 10.10.152.129**
-- OS Info: Ubuntu 4 *FIND MORE DETAILS*
-- Hostname: routerb.ep.int.e-netsec.org
-
-|Connection Protocol|Ports|Services|Version|
-|---|---|---|---|
-|TCP|22|ssh|OpenSSH 8.2p1 Ubuntu 4 (protocol 2.0)|
-|TCP|2022|down |OpenSSH 8.2p1 Ubuntu 4 (protocol 2.0)|
-
-**Node 6: 10.10.152.150**
-- OS Info: Debian 5 *FIND MORE DETAILS*
-- Hostname: hr.ep.int.e-netsec.or
-
-|Connection Protocol|Ports|Services|Version|
-|---|---|---|---|
-|TCP|80|http|Apache httpd 2.2.22 ((Debian))|
-|TCP|111|rpcbind|2-4 (RPC #100000)|
-|TCP|139|netbios-ssn|Samba smbd 3.X - 4.X(workgroup: CORPSEC)|
-|TCP|443|https |Samba smbd 3.X - 4.X(workgroup: CORPSEC)|
-|TCP|445|microsoft-ds |Samba SWAT administration server|
-|TCP|901|samba-swat |Not specified|
-|TCP|2222|EtherNetIP-1 |OpenSSH 6.0p1 Debian|
-|TCP|3306|mysql|MySQL |
-
+|Port (Protocol)|Service|Version|
+|---|---|---|
+|21/tcp|ftp|vsftpd 3.0.3|
+|22/tcp|ssh|OpenSSH 8.4p1 Debian 5 (protocol 2.0)|
+|80/tcp|http|nginx 1.18.0|
+|139/tcp|netbios-ssn |-|
+|443/tcp|https |Apache httpd 2.4.56 ((Debian))|
+|445/tcp|microsoft-ds |-|

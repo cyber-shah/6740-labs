@@ -1,0 +1,2097 @@
+Starting Nmap 7.80 ( https://nmap.org ) at 2024-02-10 20:51 UTC
+Nmap scan report for 10.10.152.0
+Host is up.
+All 1000 scanned ports on 10.10.152.0 are filtered
+
+Nmap scan report for 10.10.152.1
+Host is up (0.00061s latency).
+Not shown: 996 filtered ports
+PORT     STATE SERVICE
+53/tcp   open  domain
+80/tcp   open  http
+443/tcp  open  https
+2222/tcp open  EtherNetIP-1
+
+Nmap scan report for 10.10.152.2
+Host is up.
+All 1000 scanned ports on 10.10.152.2 are filtered
+
+Nmap scan report for 10.10.152.3
+Host is up.
+All 1000 scanned ports on 10.10.152.3 are filtered
+
+Nmap scan report for 10.10.152.4
+Host is up.
+All 1000 scanned ports on 10.10.152.4 are filtered
+
+Nmap scan report for 10.10.152.5
+Host is up.
+All 1000 scanned ports on 10.10.152.5 are filtered
+
+Nmap scan report for 10.10.152.6
+Host is up.
+All 1000 scanned ports on 10.10.152.6 are filtered
+
+Nmap scan report for 10.10.152.7
+Host is up.
+All 1000 scanned ports on 10.10.152.7 are filtered
+
+Nmap scan report for 10.10.152.8
+Host is up.
+All 1000 scanned ports on 10.10.152.8 are filtered
+
+Nmap scan report for 10.10.152.9
+Host is up.
+All 1000 scanned ports on 10.10.152.9 are filtered
+
+Nmap scan report for 10.10.152.10
+Host is up.
+All 1000 scanned ports on 10.10.152.10 are filtered
+
+Nmap scan report for 10.10.152.11
+Host is up.
+All 1000 scanned ports on 10.10.152.11 are filtered
+
+Nmap scan report for 10.10.152.12
+Host is up.
+All 1000 scanned ports on 10.10.152.12 are filtered
+
+Nmap scan report for 10.10.152.13
+Host is up.
+All 1000 scanned ports on 10.10.152.13 are filtered
+
+Nmap scan report for 10.10.152.14
+Host is up.
+All 1000 scanned ports on 10.10.152.14 are filtered
+
+Nmap scan report for 10.10.152.15
+Host is up.
+All 1000 scanned ports on 10.10.152.15 are filtered
+
+Nmap scan report for 10.10.152.16
+Host is up.
+All 1000 scanned ports on 10.10.152.16 are filtered
+
+Nmap scan report for 10.10.152.17
+Host is up.
+All 1000 scanned ports on 10.10.152.17 are filtered
+
+Nmap scan report for ics.ep.int.e-netsec.org (10.10.152.18)
+Host is up (0.00064s latency).
+Not shown: 996 closed ports
+PORT     STATE SERVICE
+22/tcp   open  ssh
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+8083/tcp open  us-srv
+
+Nmap scan report for 10.10.152.19
+Host is up.
+All 1000 scanned ports on 10.10.152.19 are filtered
+
+Nmap scan report for 10.10.152.20
+Host is up.
+All 1000 scanned ports on 10.10.152.20 are filtered
+
+Nmap scan report for 10.10.152.21
+Host is up.
+All 1000 scanned ports on 10.10.152.21 are filtered
+
+Nmap scan report for 10.10.152.22
+Host is up.
+All 1000 scanned ports on 10.10.152.22 are filtered
+
+Nmap scan report for 10.10.152.23
+Host is up.
+All 1000 scanned ports on 10.10.152.23 are filtered
+
+Nmap scan report for 10.10.152.24
+Host is up.
+All 1000 scanned ports on 10.10.152.24 are filtered
+
+Nmap scan report for 10.10.152.25
+Host is up.
+All 1000 scanned ports on 10.10.152.25 are filtered
+
+Nmap scan report for 10.10.152.26
+Host is up.
+All 1000 scanned ports on 10.10.152.26 are filtered
+
+Nmap scan report for 10.10.152.27
+Host is up.
+All 1000 scanned ports on 10.10.152.27 are filtered
+
+Nmap scan report for 10.10.152.28
+Host is up.
+All 1000 scanned ports on 10.10.152.28 are filtered
+
+Nmap scan report for 10.10.152.29
+Host is up.
+All 1000 scanned ports on 10.10.152.29 are filtered
+
+Nmap scan report for 10.10.152.30
+Host is up.
+All 1000 scanned ports on 10.10.152.30 are filtered
+
+Nmap scan report for 10.10.152.31
+Host is up.
+All 1000 scanned ports on 10.10.152.31 are filtered
+
+Nmap scan report for 10.10.152.32
+Host is up.
+All 1000 scanned ports on 10.10.152.32 are filtered
+
+Nmap scan report for 10.10.152.33
+Host is up.
+All 1000 scanned ports on 10.10.152.33 are filtered
+
+Nmap scan report for 10.10.152.34
+Host is up.
+All 1000 scanned ports on 10.10.152.34 are filtered
+
+Nmap scan report for 10.10.152.35
+Host is up.
+All 1000 scanned ports on 10.10.152.35 are filtered
+
+Nmap scan report for 10.10.152.36
+Host is up.
+All 1000 scanned ports on 10.10.152.36 are filtered
+
+Nmap scan report for 10.10.152.37
+Host is up.
+All 1000 scanned ports on 10.10.152.37 are filtered
+
+Nmap scan report for 10.10.152.38
+Host is up.
+All 1000 scanned ports on 10.10.152.38 are filtered
+
+Nmap scan report for 10.10.152.39
+Host is up.
+All 1000 scanned ports on 10.10.152.39 are filtered
+
+Nmap scan report for 10.10.152.40
+Host is up.
+All 1000 scanned ports on 10.10.152.40 are filtered
+
+Nmap scan report for 10.10.152.41
+Host is up.
+All 1000 scanned ports on 10.10.152.41 are filtered
+
+Nmap scan report for 10.10.152.42
+Host is up.
+All 1000 scanned ports on 10.10.152.42 are filtered
+
+Nmap scan report for 10.10.152.43
+Host is up.
+All 1000 scanned ports on 10.10.152.43 are filtered
+
+Nmap scan report for 10.10.152.44
+Host is up.
+All 1000 scanned ports on 10.10.152.44 are filtered
+
+Nmap scan report for 10.10.152.45
+Host is up.
+All 1000 scanned ports on 10.10.152.45 are filtered
+
+Nmap scan report for 10.10.152.46
+Host is up.
+All 1000 scanned ports on 10.10.152.46 are filtered
+
+Nmap scan report for 10.10.152.47
+Host is up.
+All 1000 scanned ports on 10.10.152.47 are filtered
+
+Nmap scan report for 10.10.152.48
+Host is up.
+All 1000 scanned ports on 10.10.152.48 are filtered
+
+Nmap scan report for 10.10.152.49
+Host is up.
+All 1000 scanned ports on 10.10.152.49 are filtered
+
+Nmap scan report for 10.10.152.50
+Host is up.
+All 1000 scanned ports on 10.10.152.50 are filtered
+
+Nmap scan report for 10.10.152.51
+Host is up.
+All 1000 scanned ports on 10.10.152.51 are filtered
+
+Nmap scan report for 10.10.152.52
+Host is up.
+All 1000 scanned ports on 10.10.152.52 are filtered
+
+Nmap scan report for updatesrv.ep.int.e-netsec.org (10.10.152.53)
+Host is up (0.00097s latency).
+Not shown: 998 closed ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+
+Nmap scan report for 10.10.152.54
+Host is up.
+All 1000 scanned ports on 10.10.152.54 are filtered
+
+Nmap scan report for 10.10.152.55
+Host is up.
+All 1000 scanned ports on 10.10.152.55 are filtered
+
+Nmap scan report for 10.10.152.56
+Host is up.
+All 1000 scanned ports on 10.10.152.56 are filtered
+
+Nmap scan report for 10.10.152.57
+Host is up.
+All 1000 scanned ports on 10.10.152.57 are filtered
+
+Nmap scan report for 10.10.152.58
+Host is up.
+All 1000 scanned ports on 10.10.152.58 are filtered
+
+Nmap scan report for 10.10.152.59
+Host is up.
+All 1000 scanned ports on 10.10.152.59 are filtered
+
+Nmap scan report for 10.10.152.60
+Host is up.
+All 1000 scanned ports on 10.10.152.60 are filtered
+
+Nmap scan report for 10.10.152.61
+Host is up.
+All 1000 scanned ports on 10.10.152.61 are filtered
+
+Nmap scan report for 10.10.152.62
+Host is up.
+All 1000 scanned ports on 10.10.152.62 are filtered
+
+Nmap scan report for 10.10.152.63
+Host is up.
+All 1000 scanned ports on 10.10.152.63 are filtered
+
+Nmap scan report for 10.10.152.64
+Host is up.
+All 1000 scanned ports on 10.10.152.64 are filtered
+
+Nmap scan report for 10.10.152.65
+Host is up.
+All 1000 scanned ports on 10.10.152.65 are filtered
+
+Nmap scan report for 10.10.152.66
+Host is up.
+All 1000 scanned ports on 10.10.152.66 are filtered
+
+Nmap scan report for 10.10.152.67
+Host is up.
+All 1000 scanned ports on 10.10.152.67 are filtered
+
+Nmap scan report for 10.10.152.68
+Host is up.
+All 1000 scanned ports on 10.10.152.68 are filtered
+
+Nmap scan report for 10.10.152.69
+Host is up.
+All 1000 scanned ports on 10.10.152.69 are filtered
+
+Nmap scan report for 10.10.152.70
+Host is up.
+All 1000 scanned ports on 10.10.152.70 are filtered
+
+Nmap scan report for 10.10.152.71
+Host is up.
+All 1000 scanned ports on 10.10.152.71 are filtered
+
+Nmap scan report for 10.10.152.72
+Host is up.
+All 1000 scanned ports on 10.10.152.72 are filtered
+
+Nmap scan report for 10.10.152.73
+Host is up.
+All 1000 scanned ports on 10.10.152.73 are filtered
+
+Nmap scan report for 10.10.152.74
+Host is up.
+All 1000 scanned ports on 10.10.152.74 are filtered
+
+Nmap scan report for 10.10.152.75
+Host is up.
+All 1000 scanned ports on 10.10.152.75 are filtered
+
+Nmap scan report for 10.10.152.76
+Host is up.
+All 1000 scanned ports on 10.10.152.76 are filtered
+
+Nmap scan report for 10.10.152.77
+Host is up.
+All 1000 scanned ports on 10.10.152.77 are filtered
+
+Nmap scan report for 10.10.152.78
+Host is up.
+All 1000 scanned ports on 10.10.152.78 are filtered
+
+Nmap scan report for 10.10.152.79
+Host is up.
+All 1000 scanned ports on 10.10.152.79 are filtered
+
+Nmap scan report for 10.10.152.80
+Host is up.
+All 1000 scanned ports on 10.10.152.80 are filtered
+
+Nmap scan report for 10.10.152.81
+Host is up.
+All 1000 scanned ports on 10.10.152.81 are filtered
+
+Nmap scan report for 10.10.152.82
+Host is up.
+All 1000 scanned ports on 10.10.152.82 are filtered
+
+Nmap scan report for 10.10.152.83
+Host is up.
+All 1000 scanned ports on 10.10.152.83 are filtered
+
+Nmap scan report for 10.10.152.84
+Host is up.
+All 1000 scanned ports on 10.10.152.84 are filtered
+
+Nmap scan report for 10.10.152.85
+Host is up.
+All 1000 scanned ports on 10.10.152.85 are filtered
+
+Nmap scan report for 10.10.152.86
+Host is up.
+All 1000 scanned ports on 10.10.152.86 are filtered
+
+Nmap scan report for 10.10.152.87
+Host is up.
+All 1000 scanned ports on 10.10.152.87 are filtered
+
+Nmap scan report for 10.10.152.88
+Host is up.
+All 1000 scanned ports on 10.10.152.88 are filtered
+
+Nmap scan report for 10.10.152.89
+Host is up.
+All 1000 scanned ports on 10.10.152.89 are filtered
+
+Nmap scan report for 10.10.152.90
+Host is up.
+All 1000 scanned ports on 10.10.152.90 are filtered
+
+Nmap scan report for 10.10.152.91
+Host is up.
+All 1000 scanned ports on 10.10.152.91 are filtered
+
+Nmap scan report for 10.10.152.92
+Host is up.
+All 1000 scanned ports on 10.10.152.92 are filtered
+
+Nmap scan report for 10.10.152.93
+Host is up.
+All 1000 scanned ports on 10.10.152.93 are filtered
+
+Nmap scan report for 10.10.152.94
+Host is up.
+All 1000 scanned ports on 10.10.152.94 are filtered
+
+Nmap scan report for 10.10.152.95
+Host is up.
+All 1000 scanned ports on 10.10.152.95 are filtered
+
+Nmap scan report for 10.10.152.96
+Host is up.
+All 1000 scanned ports on 10.10.152.96 are filtered
+
+Nmap scan report for 10.10.152.97
+Host is up.
+All 1000 scanned ports on 10.10.152.97 are filtered
+
+Nmap scan report for 10.10.152.98
+Host is up.
+All 1000 scanned ports on 10.10.152.98 are filtered
+
+Nmap scan report for 10.10.152.99
+Host is up.
+All 1000 scanned ports on 10.10.152.99 are filtered
+
+Nmap scan report for 10.10.152.100
+Host is up.
+All 1000 scanned ports on 10.10.152.100 are filtered
+
+Nmap scan report for 10.10.152.101
+Host is up.
+All 1000 scanned ports on 10.10.152.101 are filtered
+
+Nmap scan report for 10.10.152.102
+Host is up.
+All 1000 scanned ports on 10.10.152.102 are filtered
+
+Nmap scan report for 10.10.152.103
+Host is up.
+All 1000 scanned ports on 10.10.152.103 are filtered
+
+Nmap scan report for 10.10.152.104
+Host is up.
+All 1000 scanned ports on 10.10.152.104 are filtered
+
+Nmap scan report for 10.10.152.105
+Host is up.
+All 1000 scanned ports on 10.10.152.105 are filtered
+
+Nmap scan report for 10.10.152.106
+Host is up.
+All 1000 scanned ports on 10.10.152.106 are filtered
+
+Nmap scan report for 10.10.152.107
+Host is up.
+All 1000 scanned ports on 10.10.152.107 are filtered
+
+Nmap scan report for 10.10.152.108
+Host is up.
+All 1000 scanned ports on 10.10.152.108 are filtered
+
+Nmap scan report for 10.10.152.109
+Host is up.
+All 1000 scanned ports on 10.10.152.109 are filtered
+
+Nmap scan report for 10.10.152.110
+Host is up.
+All 1000 scanned ports on 10.10.152.110 are filtered
+
+Nmap scan report for 10.10.152.111
+Host is up.
+All 1000 scanned ports on 10.10.152.111 are filtered
+
+Nmap scan report for 10.10.152.112
+Host is up.
+All 1000 scanned ports on 10.10.152.112 are filtered
+
+Nmap scan report for 10.10.152.113
+Host is up.
+All 1000 scanned ports on 10.10.152.113 are filtered
+
+Nmap scan report for 10.10.152.114
+Host is up.
+All 1000 scanned ports on 10.10.152.114 are filtered
+
+Nmap scan report for 10.10.152.115
+Host is up.
+All 1000 scanned ports on 10.10.152.115 are filtered
+
+Nmap scan report for 10.10.152.116
+Host is up.
+All 1000 scanned ports on 10.10.152.116 are filtered
+
+Nmap scan report for 10.10.152.117
+Host is up.
+All 1000 scanned ports on 10.10.152.117 are filtered
+
+Nmap scan report for 10.10.152.118
+Host is up.
+All 1000 scanned ports on 10.10.152.118 are filtered
+
+Nmap scan report for 10.10.152.119
+Host is up.
+All 1000 scanned ports on 10.10.152.119 are filtered
+
+Nmap scan report for 10.10.152.120
+Host is up (0.00054s latency).
+Not shown: 998 closed ports
+PORT     STATE SERVICE
+22/tcp   open  ssh
+2022/tcp open  down
+
+Nmap scan report for 10.10.152.121
+Host is up.
+All 1000 scanned ports on 10.10.152.121 are filtered
+
+Nmap scan report for 10.10.152.122
+Host is up.
+All 1000 scanned ports on 10.10.152.122 are filtered
+
+Nmap scan report for 10.10.152.123
+Host is up.
+All 1000 scanned ports on 10.10.152.123 are filtered
+
+Nmap scan report for 10.10.152.124
+Host is up.
+All 1000 scanned ports on 10.10.152.124 are filtered
+
+Nmap scan report for 10.10.152.125
+Host is up.
+All 1000 scanned ports on 10.10.152.125 are filtered
+
+Nmap scan report for 10.10.152.126
+Host is up.
+All 1000 scanned ports on 10.10.152.126 are filtered
+
+Nmap scan report for 10.10.152.127
+Host is up.
+All 1000 scanned ports on 10.10.152.127 are filtered
+
+Nmap scan report for 10.10.152.128
+Host is up.
+All 1000 scanned ports on 10.10.152.128 are filtered
+
+Nmap scan report for routerb.ep.int.e-netsec.org (10.10.152.129)
+Host is up (0.0031s latency).
+Not shown: 998 closed ports
+PORT     STATE SERVICE
+22/tcp   open  ssh
+2022/tcp open  down
+
+Nmap scan report for 10.10.152.130
+Host is up.
+All 1000 scanned ports on 10.10.152.130 are filtered
+
+Nmap scan report for 10.10.152.131
+Host is up.
+All 1000 scanned ports on 10.10.152.131 are filtered
+
+Nmap scan report for 10.10.152.132
+Host is up.
+All 1000 scanned ports on 10.10.152.132 are filtered
+
+Nmap scan report for 10.10.152.133
+Host is up.
+All 1000 scanned ports on 10.10.152.133 are filtered
+
+Nmap scan report for 10.10.152.134
+Host is up.
+All 1000 scanned ports on 10.10.152.134 are filtered
+
+Nmap scan report for 10.10.152.135
+Host is up.
+All 1000 scanned ports on 10.10.152.135 are filtered
+
+Nmap scan report for 10.10.152.136
+Host is up.
+All 1000 scanned ports on 10.10.152.136 are filtered
+
+Nmap scan report for 10.10.152.137
+Host is up.
+All 1000 scanned ports on 10.10.152.137 are filtered
+
+Nmap scan report for 10.10.152.138
+Host is up.
+All 1000 scanned ports on 10.10.152.138 are filtered
+
+Nmap scan report for 10.10.152.139
+Host is up.
+All 1000 scanned ports on 10.10.152.139 are filtered
+
+Nmap scan report for 10.10.152.140
+Host is up.
+All 1000 scanned ports on 10.10.152.140 are filtered
+
+Nmap scan report for 10.10.152.141
+Host is up.
+All 1000 scanned ports on 10.10.152.141 are filtered
+
+Nmap scan report for 10.10.152.142
+Host is up.
+All 1000 scanned ports on 10.10.152.142 are filtered
+
+Nmap scan report for 10.10.152.143
+Host is up.
+All 1000 scanned ports on 10.10.152.143 are filtered
+
+Nmap scan report for 10.10.152.144
+Host is up.
+All 1000 scanned ports on 10.10.152.144 are filtered
+
+Nmap scan report for 10.10.152.145
+Host is up.
+All 1000 scanned ports on 10.10.152.145 are filtered
+
+Nmap scan report for 10.10.152.146
+Host is up.
+All 1000 scanned ports on 10.10.152.146 are filtered
+
+Nmap scan report for 10.10.152.147
+Host is up.
+All 1000 scanned ports on 10.10.152.147 are filtered
+
+Nmap scan report for 10.10.152.148
+Host is up.
+All 1000 scanned ports on 10.10.152.148 are filtered
+
+Nmap scan report for 10.10.152.149
+Host is up.
+All 1000 scanned ports on 10.10.152.149 are filtered
+
+Nmap scan report for hr.ep.int.e-netsec.org (10.10.152.150)
+Host is up (0.0014s latency).
+Not shown: 992 closed ports
+PORT     STATE SERVICE
+80/tcp   open  http
+111/tcp  open  rpcbind
+139/tcp  open  netbios-ssn
+443/tcp  open  https
+445/tcp  open  microsoft-ds
+901/tcp  open  samba-swat
+2222/tcp open  EtherNetIP-1
+3306/tcp open  mysql
+
+Nmap scan report for 10.10.152.151
+Host is up.
+All 1000 scanned ports on 10.10.152.151 are filtered
+
+Nmap scan report for 10.10.152.152
+Host is up.
+All 1000 scanned ports on 10.10.152.152 are filtered
+
+Nmap scan report for 10.10.152.153
+Host is up.
+All 1000 scanned ports on 10.10.152.153 are filtered
+
+Nmap scan report for 10.10.152.154
+Host is up.
+All 1000 scanned ports on 10.10.152.154 are filtered
+
+Nmap scan report for 10.10.152.155
+Host is up.
+All 1000 scanned ports on 10.10.152.155 are filtered
+
+Nmap scan report for 10.10.152.156
+Host is up.
+All 1000 scanned ports on 10.10.152.156 are filtered
+
+Nmap scan report for 10.10.152.157
+Host is up.
+All 1000 scanned ports on 10.10.152.157 are filtered
+
+Nmap scan report for 10.10.152.158
+Host is up.
+All 1000 scanned ports on 10.10.152.158 are filtered
+
+Nmap scan report for 10.10.152.159
+Host is up.
+All 1000 scanned ports on 10.10.152.159 are filtered
+
+Nmap scan report for 10.10.152.160
+Host is up.
+All 1000 scanned ports on 10.10.152.160 are filtered
+
+Nmap scan report for 10.10.152.161
+Host is up.
+All 1000 scanned ports on 10.10.152.161 are filtered
+
+Nmap scan report for 10.10.152.162
+Host is up.
+All 1000 scanned ports on 10.10.152.162 are filtered
+
+Nmap scan report for 10.10.152.163
+Host is up.
+All 1000 scanned ports on 10.10.152.163 are filtered
+
+Nmap scan report for 10.10.152.164
+Host is up.
+All 1000 scanned ports on 10.10.152.164 are filtered
+
+Nmap scan report for 10.10.152.165
+Host is up.
+All 1000 scanned ports on 10.10.152.165 are filtered
+
+Nmap scan report for 10.10.152.166
+Host is up.
+All 1000 scanned ports on 10.10.152.166 are filtered
+
+Nmap scan report for 10.10.152.167
+Host is up.
+All 1000 scanned ports on 10.10.152.167 are filtered
+
+Nmap scan report for 10.10.152.168
+Host is up.
+All 1000 scanned ports on 10.10.152.168 are filtered
+
+Nmap scan report for 10.10.152.169
+Host is up.
+All 1000 scanned ports on 10.10.152.169 are filtered
+
+Nmap scan report for 10.10.152.170
+Host is up.
+All 1000 scanned ports on 10.10.152.170 are filtered
+
+Nmap scan report for 10.10.152.171
+Host is up.
+All 1000 scanned ports on 10.10.152.171 are filtered
+
+Nmap scan report for 10.10.152.172
+Host is up.
+All 1000 scanned ports on 10.10.152.172 are filtered
+
+Nmap scan report for 10.10.152.173
+Host is up.
+All 1000 scanned ports on 10.10.152.173 are filtered
+
+Nmap scan report for 10.10.152.174
+Host is up.
+All 1000 scanned ports on 10.10.152.174 are filtered
+
+Nmap scan report for 10.10.152.175
+Host is up.
+All 1000 scanned ports on 10.10.152.175 are filtered
+
+Nmap scan report for 10.10.152.176
+Host is up.
+All 1000 scanned ports on 10.10.152.176 are filtered
+
+Nmap scan report for 10.10.152.177
+Host is up.
+All 1000 scanned ports on 10.10.152.177 are filtered
+
+Nmap scan report for 10.10.152.178
+Host is up.
+All 1000 scanned ports on 10.10.152.178 are filtered
+
+Nmap scan report for 10.10.152.179
+Host is up.
+All 1000 scanned ports on 10.10.152.179 are filtered
+
+Nmap scan report for 10.10.152.180
+Host is up.
+All 1000 scanned ports on 10.10.152.180 are filtered
+
+Nmap scan report for 10.10.152.181
+Host is up.
+All 1000 scanned ports on 10.10.152.181 are filtered
+
+Nmap scan report for 10.10.152.182
+Host is up.
+All 1000 scanned ports on 10.10.152.182 are filtered
+
+Nmap scan report for 10.10.152.183
+Host is up.
+All 1000 scanned ports on 10.10.152.183 are filtered
+
+Nmap scan report for 10.10.152.184
+Host is up.
+All 1000 scanned ports on 10.10.152.184 are filtered
+
+Nmap scan report for 10.10.152.185
+Host is up.
+All 1000 scanned ports on 10.10.152.185 are filtered
+
+Nmap scan report for 10.10.152.186
+Host is up.
+All 1000 scanned ports on 10.10.152.186 are filtered
+
+Nmap scan report for 10.10.152.187
+Host is up.
+All 1000 scanned ports on 10.10.152.187 are filtered
+
+Nmap scan report for 10.10.152.188
+Host is up.
+All 1000 scanned ports on 10.10.152.188 are filtered
+
+Nmap scan report for 10.10.152.189
+Host is up.
+All 1000 scanned ports on 10.10.152.189 are filtered
+
+Nmap scan report for 10.10.152.190
+Host is up.
+All 1000 scanned ports on 10.10.152.190 are filtered
+
+Nmap scan report for 10.10.152.191
+Host is up.
+All 1000 scanned ports on 10.10.152.191 are filtered
+
+Nmap scan report for 10.10.152.192
+Host is up.
+All 1000 scanned ports on 10.10.152.192 are filtered
+
+Nmap scan report for 10.10.152.193
+Host is up.
+All 1000 scanned ports on 10.10.152.193 are filtered
+
+Nmap scan report for 10.10.152.194
+Host is up.
+All 1000 scanned ports on 10.10.152.194 are filtered
+
+Nmap scan report for 10.10.152.195
+Host is up.
+All 1000 scanned ports on 10.10.152.195 are filtered
+
+Nmap scan report for 10.10.152.196
+Host is up.
+All 1000 scanned ports on 10.10.152.196 are filtered
+
+Nmap scan report for 10.10.152.197
+Host is up.
+All 1000 scanned ports on 10.10.152.197 are filtered
+
+Nmap scan report for 10.10.152.198
+Host is up.
+All 1000 scanned ports on 10.10.152.198 are filtered
+
+Nmap scan report for 10.10.152.199
+Host is up.
+All 1000 scanned ports on 10.10.152.199 are filtered
+
+Nmap scan report for 10.10.152.200
+Host is up.
+All 1000 scanned ports on 10.10.152.200 are filtered
+
+Nmap scan report for 10.10.152.201
+Host is up.
+All 1000 scanned ports on 10.10.152.201 are filtered
+
+Nmap scan report for 10.10.152.202
+Host is up.
+All 1000 scanned ports on 10.10.152.202 are filtered
+
+Nmap scan report for 10.10.152.203
+Host is up.
+All 1000 scanned ports on 10.10.152.203 are filtered
+
+Nmap scan report for 10.10.152.204
+Host is up.
+All 1000 scanned ports on 10.10.152.204 are filtered
+
+Nmap scan report for 10.10.152.205
+Host is up.
+All 1000 scanned ports on 10.10.152.205 are filtered
+
+Nmap scan report for 10.10.152.206
+Host is up.
+All 1000 scanned ports on 10.10.152.206 are filtered
+
+Nmap scan report for 10.10.152.207
+Host is up.
+All 1000 scanned ports on 10.10.152.207 are filtered
+
+Nmap scan report for 10.10.152.208
+Host is up.
+All 1000 scanned ports on 10.10.152.208 are filtered
+
+Nmap scan report for 10.10.152.209
+Host is up.
+All 1000 scanned ports on 10.10.152.209 are filtered
+
+Nmap scan report for 10.10.152.210
+Host is up.
+All 1000 scanned ports on 10.10.152.210 are filtered
+
+Nmap scan report for 10.10.152.211
+Host is up.
+All 1000 scanned ports on 10.10.152.211 are filtered
+
+Nmap scan report for 10.10.152.212
+Host is up.
+All 1000 scanned ports on 10.10.152.212 are filtered
+
+Nmap scan report for 10.10.152.213
+Host is up.
+All 1000 scanned ports on 10.10.152.213 are filtered
+
+Nmap scan report for 10.10.152.214
+Host is up.
+All 1000 scanned ports on 10.10.152.214 are filtered
+
+Nmap scan report for 10.10.152.215
+Host is up.
+All 1000 scanned ports on 10.10.152.215 are filtered
+
+Nmap scan report for 10.10.152.216
+Host is up.
+All 1000 scanned ports on 10.10.152.216 are filtered
+
+Nmap scan report for 10.10.152.217
+Host is up.
+All 1000 scanned ports on 10.10.152.217 are filtered
+
+Nmap scan report for 10.10.152.218
+Host is up.
+All 1000 scanned ports on 10.10.152.218 are filtered
+
+Nmap scan report for 10.10.152.219
+Host is up.
+All 1000 scanned ports on 10.10.152.219 are filtered
+
+Nmap scan report for 10.10.152.220
+Host is up.
+All 1000 scanned ports on 10.10.152.220 are filtered
+
+Nmap scan report for 10.10.152.221
+Host is up.
+All 1000 scanned ports on 10.10.152.221 are filtered
+
+Nmap scan report for 10.10.152.222
+Host is up.
+All 1000 scanned ports on 10.10.152.222 are filtered
+
+Nmap scan report for 10.10.152.223
+Host is up.
+All 1000 scanned ports on 10.10.152.223 are filtered
+
+Nmap scan report for 10.10.152.224
+Host is up.
+All 1000 scanned ports on 10.10.152.224 are filtered
+
+Nmap scan report for 10.10.152.225
+Host is up.
+All 1000 scanned ports on 10.10.152.225 are filtered
+
+Nmap scan report for 10.10.152.226
+Host is up.
+All 1000 scanned ports on 10.10.152.226 are filtered
+
+Nmap scan report for 10.10.152.227
+Host is up.
+All 1000 scanned ports on 10.10.152.227 are filtered
+
+Nmap scan report for 10.10.152.228
+Host is up.
+All 1000 scanned ports on 10.10.152.228 are filtered
+
+Nmap scan report for 10.10.152.229
+Host is up.
+All 1000 scanned ports on 10.10.152.229 are filtered
+
+Nmap scan report for 10.10.152.230
+Host is up.
+All 1000 scanned ports on 10.10.152.230 are filtered
+
+Nmap scan report for 10.10.152.231
+Host is up.
+All 1000 scanned ports on 10.10.152.231 are filtered
+
+Nmap scan report for 10.10.152.232
+Host is up.
+All 1000 scanned ports on 10.10.152.232 are filtered
+
+Nmap scan report for 10.10.152.233
+Host is up.
+All 1000 scanned ports on 10.10.152.233 are filtered
+
+Nmap scan report for 10.10.152.234
+Host is up.
+All 1000 scanned ports on 10.10.152.234 are filtered
+
+Nmap scan report for 10.10.152.235
+Host is up.
+All 1000 scanned ports on 10.10.152.235 are filtered
+
+Nmap scan report for 10.10.152.236
+Host is up.
+All 1000 scanned ports on 10.10.152.236 are filtered
+
+Nmap scan report for 10.10.152.237
+Host is up.
+All 1000 scanned ports on 10.10.152.237 are filtered
+
+Nmap scan report for 10.10.152.238
+Host is up.
+All 1000 scanned ports on 10.10.152.238 are filtered
+
+Nmap scan report for 10.10.152.239
+Host is up.
+All 1000 scanned ports on 10.10.152.239 are filtered
+
+Nmap scan report for 10.10.152.240
+Host is up.
+All 1000 scanned ports on 10.10.152.240 are filtered
+
+Nmap scan report for 10.10.152.241
+Host is up.
+All 1000 scanned ports on 10.10.152.241 are filtered
+
+Nmap scan report for 10.10.152.242
+Host is up (0.056s latency).
+All 1000 scanned ports on 10.10.152.242 are filtered
+
+Nmap scan report for 10.10.152.243
+Host is up.
+All 1000 scanned ports on 10.10.152.243 are filtered
+
+Nmap scan report for 10.10.152.244
+Host is up.
+All 1000 scanned ports on 10.10.152.244 are filtered
+
+Nmap scan report for 10.10.152.245
+Host is up.
+All 1000 scanned ports on 10.10.152.245 are filtered
+
+Nmap scan report for 10.10.152.246
+Host is up.
+All 1000 scanned ports on 10.10.152.246 are filtered
+
+Nmap scan report for 10.10.152.247
+Host is up.
+All 1000 scanned ports on 10.10.152.247 are filtered
+
+Nmap scan report for 10.10.152.248
+Host is up.
+All 1000 scanned ports on 10.10.152.248 are filtered
+
+Nmap scan report for 10.10.152.249
+Host is up.
+All 1000 scanned ports on 10.10.152.249 are filtered
+
+Nmap scan report for 10.10.152.250
+Host is up.
+All 1000 scanned ports on 10.10.152.250 are filtered
+
+Nmap scan report for 10.10.152.251
+Host is up.
+All 1000 scanned ports on 10.10.152.251 are filtered
+
+Nmap scan report for 10.10.152.252
+Host is up.
+All 1000 scanned ports on 10.10.152.252 are filtered
+
+Nmap scan report for 10.10.152.253
+Host is up.
+All 1000 scanned ports on 10.10.152.253 are filtered
+
+Nmap scan report for 10.10.152.254
+Host is up.
+All 1000 scanned ports on 10.10.152.254 are filtered
+
+Nmap scan report for 10.10.152.255
+Host is up.
+All 1000 scanned ports on 10.10.152.255 are filtered
+
+Nmap scan report for 10.10.92.0
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.0 are filtered
+
+Nmap scan report for corerouter.ep.int.e-netsec.org (10.10.92.1)
+Host is up (0.00085s latency).
+Not shown: 999 filtered ports
+PORT   STATE SERVICE
+53/tcp open  domain
+
+Nmap scan report for dns.ep.int.e-netsec.org (10.10.92.2)
+Host is up (0.00035s latency).
+Not shown: 997 closed ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+53/tcp open  domain
+80/tcp open  http
+
+Nmap scan report for 10.10.92.3
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.3 are filtered
+
+Nmap scan report for 10.10.92.4
+Host is up (1.3s latency).
+All 1000 scanned ports on 10.10.92.4 are filtered
+
+Nmap scan report for 10.10.92.5
+Host is up (1.1s latency).
+All 1000 scanned ports on 10.10.92.5 are filtered
+
+Nmap scan report for 10.10.92.6
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.6 are filtered
+
+Nmap scan report for 10.10.92.7
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.7 are filtered
+
+Nmap scan report for 10.10.92.8
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.8 are filtered
+
+Nmap scan report for 10.10.92.9
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.9 are filtered
+
+Nmap scan report for raspberry.ep.int.e-netsec.org (10.10.92.10)
+Host is up (0.00049s latency).
+Not shown: 998 closed ports
+PORT     STATE SERVICE
+22/tcp   open  ssh
+4444/tcp open  krb524
+
+Nmap scan report for 10.10.92.11
+Host is up (0.89s latency).
+All 1000 scanned ports on 10.10.92.11 are filtered
+
+Nmap scan report for 10.10.92.12
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.12 are filtered
+
+Nmap scan report for 10.10.92.13
+Host is up (2.5s latency).
+All 1000 scanned ports on 10.10.92.13 are filtered
+
+Nmap scan report for 10.10.92.14
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.14 are filtered
+
+Nmap scan report for 10.10.92.15
+Host is up (1.00s latency).
+All 1000 scanned ports on 10.10.92.15 are filtered
+
+Nmap scan report for 10.10.92.16
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.16 are filtered
+
+Nmap scan report for 10.10.92.17
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.17 are filtered
+
+Nmap scan report for 10.10.92.18
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.18 are filtered
+
+Nmap scan report for 10.10.92.19
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.19 are filtered
+
+Nmap scan report for client.ep.int.e-netsec.org (10.10.92.20)
+Host is up (0.00042s latency).
+Not shown: 998 closed ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+
+Nmap scan report for 10.10.92.21
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.21 are filtered
+
+Nmap scan report for 10.10.92.22
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.22 are filtered
+
+Nmap scan report for 10.10.92.23
+Host is up (1.1s latency).
+All 1000 scanned ports on 10.10.92.23 are filtered
+
+Nmap scan report for 10.10.92.24
+Host is up (2.2s latency).
+All 1000 scanned ports on 10.10.92.24 are filtered
+
+Nmap scan report for 10.10.92.25
+Host is up (2.3s latency).
+All 1000 scanned ports on 10.10.92.25 are filtered
+
+Nmap scan report for server.ep.int.e-netsec.org (10.10.92.26)
+Host is up (0.00034s latency).
+Not shown: 994 closed ports
+PORT    STATE SERVICE
+21/tcp  open  ftp
+22/tcp  open  ssh
+80/tcp  open  http
+139/tcp open  netbios-ssn
+443/tcp open  https
+445/tcp open  microsoft-ds
+
+Nmap scan report for 10.10.92.27
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.27 are filtered
+
+Nmap scan report for 10.10.92.28
+Host is up (0.45s latency).
+All 1000 scanned ports on 10.10.92.28 are filtered
+
+Nmap scan report for 10.10.92.29
+Host is up (2.9s latency).
+All 1000 scanned ports on 10.10.92.29 are filtered
+
+Nmap scan report for 10.10.92.30
+Host is up (0.95s latency).
+All 1000 scanned ports on 10.10.92.30 are filtered
+
+Nmap scan report for 10.10.92.31
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.31 are filtered
+
+Nmap scan report for 10.10.92.32
+Host is up (0.63s latency).
+All 1000 scanned ports on 10.10.92.32 are filtered
+
+Nmap scan report for 10.10.92.33
+Host is up (0.85s latency).
+All 1000 scanned ports on 10.10.92.33 are filtered
+
+Nmap scan report for 10.10.92.34
+Host is up (0.89s latency).
+All 1000 scanned ports on 10.10.92.34 are filtered
+
+Nmap scan report for 10.10.92.35
+Host is up (0.90s latency).
+All 1000 scanned ports on 10.10.92.35 are filtered
+
+Nmap scan report for 10.10.92.36
+Host is up (2.3s latency).
+All 1000 scanned ports on 10.10.92.36 are filtered
+
+Nmap scan report for 10.10.92.37
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.37 are filtered
+
+Nmap scan report for 10.10.92.38
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.38 are filtered
+
+Nmap scan report for 10.10.92.39
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.39 are filtered
+
+Nmap scan report for 10.10.92.40
+Host is up (2.2s latency).
+All 1000 scanned ports on 10.10.92.40 are filtered
+
+Nmap scan report for 10.10.92.41
+Host is up (1.3s latency).
+All 1000 scanned ports on 10.10.92.41 are filtered
+
+Nmap scan report for 10.10.92.42
+Host is up (2.5s latency).
+All 1000 scanned ports on 10.10.92.42 are filtered
+
+Nmap scan report for 10.10.92.43
+Host is up (2.3s latency).
+All 1000 scanned ports on 10.10.92.43 are filtered
+
+Nmap scan report for 10.10.92.44
+Host is up (1.2s latency).
+All 1000 scanned ports on 10.10.92.44 are filtered
+
+Nmap scan report for 10.10.92.45
+Host is up (1.3s latency).
+All 1000 scanned ports on 10.10.92.45 are filtered
+
+Nmap scan report for 10.10.92.46
+Host is up (0.87s latency).
+All 1000 scanned ports on 10.10.92.46 are filtered
+
+Nmap scan report for 10.10.92.47
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.47 are filtered
+
+Nmap scan report for 10.10.92.48
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.48 are filtered
+
+Nmap scan report for 10.10.92.49
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.49 are filtered
+
+Nmap scan report for 10.10.92.50
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.50 are filtered
+
+Nmap scan report for 10.10.92.51
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.51 are filtered
+
+Nmap scan report for 10.10.92.52
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.52 are filtered
+
+Nmap scan report for 10.10.92.53
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.53 are filtered
+
+Nmap scan report for 10.10.92.54
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.54 are filtered
+
+Nmap scan report for 10.10.92.55
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.55 are filtered
+
+Nmap scan report for 10.10.92.56
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.56 are filtered
+
+Nmap scan report for 10.10.92.57
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.57 are filtered
+
+Nmap scan report for 10.10.92.58
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.58 are filtered
+
+Nmap scan report for 10.10.92.59
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.59 are filtered
+
+Nmap scan report for 10.10.92.60
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.60 are filtered
+
+Nmap scan report for 10.10.92.61
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.61 are filtered
+
+Nmap scan report for 10.10.92.62
+Host is up (1.3s latency).
+All 1000 scanned ports on 10.10.92.62 are filtered
+
+Nmap scan report for 10.10.92.63
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.63 are filtered
+
+Nmap scan report for 10.10.92.64
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.64 are filtered
+
+Nmap scan report for 10.10.92.65
+Host is up (1.2s latency).
+All 1000 scanned ports on 10.10.92.65 are filtered
+
+Nmap scan report for 10.10.92.66
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.66 are filtered
+
+Nmap scan report for 10.10.92.67
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.67 are filtered
+
+Nmap scan report for 10.10.92.68
+Host is up (1.3s latency).
+All 1000 scanned ports on 10.10.92.68 are filtered
+
+Nmap scan report for 10.10.92.69
+Host is up (1.3s latency).
+All 1000 scanned ports on 10.10.92.69 are filtered
+
+Nmap scan report for 10.10.92.70
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.70 are filtered
+
+Nmap scan report for 10.10.92.71
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.71 are filtered
+
+Nmap scan report for 10.10.92.72
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.72 are filtered
+
+Nmap scan report for 10.10.92.73
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.73 are filtered
+
+Nmap scan report for 10.10.92.74
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.74 are filtered
+
+Nmap scan report for 10.10.92.75
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.75 are filtered
+
+Nmap scan report for 10.10.92.76
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.76 are filtered
+
+Nmap scan report for 10.10.92.77
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.77 are filtered
+
+Nmap scan report for 10.10.92.78
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.78 are filtered
+
+Nmap scan report for 10.10.92.79
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.79 are filtered
+
+Nmap scan report for 10.10.92.80
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.80 are filtered
+
+Nmap scan report for 10.10.92.81
+Host is up (2.6s latency).
+All 1000 scanned ports on 10.10.92.81 are filtered
+
+Nmap scan report for 10.10.92.82
+Host is up (3.5s latency).
+All 1000 scanned ports on 10.10.92.82 are filtered
+
+Nmap scan report for 10.10.92.83
+Host is up (0.77s latency).
+All 1000 scanned ports on 10.10.92.83 are filtered
+
+Nmap scan report for 10.10.92.84
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.84 are filtered
+
+Nmap scan report for 10.10.92.85
+Host is up (2.9s latency).
+All 1000 scanned ports on 10.10.92.85 are filtered
+
+Nmap scan report for 10.10.92.86
+Host is up (3.9s latency).
+All 1000 scanned ports on 10.10.92.86 are filtered
+
+Nmap scan report for 10.10.92.87
+Host is up (0.58s latency).
+All 1000 scanned ports on 10.10.92.87 are filtered
+
+Nmap scan report for 10.10.92.88
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.88 are filtered
+
+Nmap scan report for 10.10.92.89
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.89 are filtered
+
+Nmap scan report for 10.10.92.90
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.90 are filtered
+
+Nmap scan report for 10.10.92.91
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.91 are filtered
+
+Nmap scan report for 10.10.92.92
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.92 are filtered
+
+Nmap scan report for 10.10.92.93
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.93 are filtered
+
+Nmap scan report for 10.10.92.94
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.94 are filtered
+
+Nmap scan report for 10.10.92.95
+Host is up (0.93s latency).
+All 1000 scanned ports on 10.10.92.95 are filtered
+
+Nmap scan report for 10.10.92.96
+Host is up (3.7s latency).
+All 1000 scanned ports on 10.10.92.96 are filtered
+
+Nmap scan report for 10.10.92.97
+Host is up (1.1s latency).
+All 1000 scanned ports on 10.10.92.97 are filtered
+
+Nmap scan report for 10.10.92.98
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.98 are filtered
+
+Nmap scan report for 10.10.92.99
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.99 are filtered
+
+Nmap scan report for 10.10.92.100
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.100 are filtered
+
+Nmap scan report for 10.10.92.101
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.101 are filtered
+
+Nmap scan report for 10.10.92.102
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.102 are filtered
+
+Nmap scan report for 10.10.92.103
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.103 are filtered
+
+Nmap scan report for 10.10.92.104
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.104 are filtered
+
+Nmap scan report for 10.10.92.105
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.105 are filtered
+
+Nmap scan report for 10.10.92.106
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.106 are filtered
+
+Nmap scan report for 10.10.92.107
+Host is up (2.9s latency).
+All 1000 scanned ports on 10.10.92.107 are filtered
+
+Nmap scan report for 10.10.92.108
+Host is up (0.69s latency).
+All 1000 scanned ports on 10.10.92.108 are filtered
+
+Nmap scan report for 10.10.92.109
+Host is up (0.80s latency).
+All 1000 scanned ports on 10.10.92.109 are filtered
+
+Nmap scan report for 10.10.92.110
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.110 are filtered
+
+Nmap scan report for 10.10.92.111
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.111 are filtered
+
+Nmap scan report for 10.10.92.112
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.112 are filtered
+
+Nmap scan report for 10.10.92.113
+Host is up (1.0s latency).
+All 1000 scanned ports on 10.10.92.113 are filtered
+
+Nmap scan report for 10.10.92.114
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.114 are filtered
+
+Nmap scan report for 10.10.92.115
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.115 are filtered
+
+Nmap scan report for 10.10.92.116
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.116 are filtered
+
+Nmap scan report for 10.10.92.117
+Host is up (2.4s latency).
+All 1000 scanned ports on 10.10.92.117 are filtered
+
+Nmap scan report for 10.10.92.118
+Host is up (0.53s latency).
+All 1000 scanned ports on 10.10.92.118 are filtered
+
+Nmap scan report for 10.10.92.119
+Host is up (1.1s latency).
+All 1000 scanned ports on 10.10.92.119 are filtered
+
+Nmap scan report for 10.10.92.120
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.120 are filtered
+
+Nmap scan report for 10.10.92.121
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.121 are filtered
+
+Nmap scan report for 10.10.92.122
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.122 are filtered
+
+Nmap scan report for 10.10.92.123
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.123 are filtered
+
+Nmap scan report for 10.10.92.124
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.124 are filtered
+
+Nmap scan report for 10.10.92.125
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.125 are filtered
+
+Nmap scan report for 10.10.92.126
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.126 are filtered
+
+Nmap scan report for 10.10.92.127
+Host is up (1.2s latency).
+All 1000 scanned ports on 10.10.92.127 are filtered
+
+Nmap scan report for 10.10.92.128
+Host is up (0.92s latency).
+All 1000 scanned ports on 10.10.92.128 are filtered
+
+Nmap scan report for 10.10.92.129
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.129 are filtered
+
+Nmap scan report for 10.10.92.130
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.130 are filtered
+
+Nmap scan report for 10.10.92.131
+Host is up (1.1s latency).
+All 1000 scanned ports on 10.10.92.131 are filtered
+
+Nmap scan report for 10.10.92.132
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.132 are filtered
+
+Nmap scan report for 10.10.92.133
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.133 are filtered
+
+Nmap scan report for 10.10.92.134
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.134 are filtered
+
+Nmap scan report for 10.10.92.135
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.135 are filtered
+
+Nmap scan report for 10.10.92.136
+Host is up (1.1s latency).
+All 1000 scanned ports on 10.10.92.136 are filtered
+
+Nmap scan report for 10.10.92.137
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.137 are filtered
+
+Nmap scan report for 10.10.92.138
+Host is up (2.4s latency).
+All 1000 scanned ports on 10.10.92.138 are filtered
+
+Nmap scan report for 10.10.92.139
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.139 are filtered
+
+Nmap scan report for 10.10.92.140
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.140 are filtered
+
+Nmap scan report for 10.10.92.141
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.141 are filtered
+
+Nmap scan report for 10.10.92.142
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.142 are filtered
+
+Nmap scan report for 10.10.92.143
+Host is up (2.5s latency).
+All 1000 scanned ports on 10.10.92.143 are filtered
+
+Nmap scan report for 10.10.92.144
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.144 are filtered
+
+Nmap scan report for 10.10.92.145
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.145 are filtered
+
+Nmap scan report for 10.10.92.146
+Host is up (2.2s latency).
+All 1000 scanned ports on 10.10.92.146 are filtered
+
+Nmap scan report for 10.10.92.147
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.147 are filtered
+
+Nmap scan report for 10.10.92.148
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.148 are filtered
+
+Nmap scan report for 10.10.92.149
+Host is up (2.4s latency).
+All 1000 scanned ports on 10.10.92.149 are filtered
+
+Nmap scan report for 10.10.92.150
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.150 are filtered
+
+Nmap scan report for 10.10.92.151
+Host is up (1.3s latency).
+All 1000 scanned ports on 10.10.92.151 are filtered
+
+Nmap scan report for 10.10.92.152
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.152 are filtered
+
+Nmap scan report for 10.10.92.153
+Host is up (1.2s latency).
+All 1000 scanned ports on 10.10.92.153 are filtered
+
+Nmap scan report for 10.10.92.154
+Host is up (1.2s latency).
+All 1000 scanned ports on 10.10.92.154 are filtered
+
+Nmap scan report for 10.10.92.155
+Host is up (2.6s latency).
+All 1000 scanned ports on 10.10.92.155 are filtered
+
+Nmap scan report for 10.10.92.156
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.156 are filtered
+
+Nmap scan report for 10.10.92.157
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.157 are filtered
+
+Nmap scan report for 10.10.92.158
+Host is up (0.79s latency).
+All 1000 scanned ports on 10.10.92.158 are filtered
+
+Nmap scan report for 10.10.92.159
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.159 are filtered
+
+Nmap scan report for 10.10.92.160
+Host is up (1.3s latency).
+All 1000 scanned ports on 10.10.92.160 are filtered
+
+Nmap scan report for 10.10.92.161
+Host is up (0.95s latency).
+All 1000 scanned ports on 10.10.92.161 are filtered
+
+Nmap scan report for 10.10.92.162
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.162 are filtered
+
+Nmap scan report for 10.10.92.163
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.163 are filtered
+
+Nmap scan report for 10.10.92.164
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.164 are filtered
+
+Nmap scan report for 10.10.92.165
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.165 are filtered
+
+Nmap scan report for 10.10.92.166
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.166 are filtered
+
+Nmap scan report for 10.10.92.167
+Host is up (3.3s latency).
+All 1000 scanned ports on 10.10.92.167 are filtered
+
+Nmap scan report for 10.10.92.168
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.168 are filtered
+
+Nmap scan report for 10.10.92.169
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.169 are filtered
+
+Nmap scan report for 10.10.92.170
+Host is up (1.3s latency).
+All 1000 scanned ports on 10.10.92.170 are filtered
+
+Nmap scan report for 10.10.92.171
+Host is up (1.2s latency).
+All 1000 scanned ports on 10.10.92.171 are filtered
+
+Nmap scan report for 10.10.92.172
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.172 are filtered
+
+Nmap scan report for 10.10.92.173
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.173 are filtered
+
+Nmap scan report for 10.10.92.174
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.174 are filtered
+
+Nmap scan report for 10.10.92.175
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.175 are filtered
+
+Nmap scan report for 10.10.92.176
+Host is up (1.3s latency).
+All 1000 scanned ports on 10.10.92.176 are filtered
+
+Nmap scan report for 10.10.92.177
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.177 are filtered
+
+Nmap scan report for 10.10.92.178
+Host is up (1.3s latency).
+All 1000 scanned ports on 10.10.92.178 are filtered
+
+Nmap scan report for 10.10.92.179
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.179 are filtered
+
+Nmap scan report for 10.10.92.180
+Host is up (0.92s latency).
+All 1000 scanned ports on 10.10.92.180 are filtered
+
+Nmap scan report for 10.10.92.181
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.181 are filtered
+
+Nmap scan report for 10.10.92.182
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.182 are filtered
+
+Nmap scan report for 10.10.92.183
+Host is up (0.46s latency).
+All 1000 scanned ports on 10.10.92.183 are filtered
+
+Nmap scan report for 10.10.92.184
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.184 are filtered
+
+Nmap scan report for 10.10.92.185
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.185 are filtered
+
+Nmap scan report for 10.10.92.186
+Host is up (0.46s latency).
+All 1000 scanned ports on 10.10.92.186 are filtered
+
+Nmap scan report for 10.10.92.187
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.187 are filtered
+
+Nmap scan report for 10.10.92.188
+Host is up (2.2s latency).
+All 1000 scanned ports on 10.10.92.188 are filtered
+
+Nmap scan report for 10.10.92.189
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.189 are filtered
+
+Nmap scan report for 10.10.92.190
+Host is up (0.89s latency).
+All 1000 scanned ports on 10.10.92.190 are filtered
+
+Nmap scan report for 10.10.92.191
+Host is up (0.68s latency).
+All 1000 scanned ports on 10.10.92.191 are filtered
+
+Nmap scan report for 10.10.92.192
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.192 are filtered
+
+Nmap scan report for 10.10.92.193
+Host is up (2.3s latency).
+All 1000 scanned ports on 10.10.92.193 are filtered
+
+Nmap scan report for 10.10.92.194
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.194 are filtered
+
+Nmap scan report for 10.10.92.195
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.195 are filtered
+
+Nmap scan report for 10.10.92.196
+Host is up (2.2s latency).
+All 1000 scanned ports on 10.10.92.196 are filtered
+
+Nmap scan report for 10.10.92.197
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.197 are filtered
+
+Nmap scan report for 10.10.92.198
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.198 are filtered
+
+Nmap scan report for 10.10.92.199
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.199 are filtered
+
+Nmap scan report for 10.10.92.200
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.200 are filtered
+
+Nmap scan report for 10.10.92.201
+Host is up (1.2s latency).
+All 1000 scanned ports on 10.10.92.201 are filtered
+
+Nmap scan report for 10.10.92.202
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.202 are filtered
+
+Nmap scan report for 10.10.92.203
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.203 are filtered
+
+Nmap scan report for 10.10.92.204
+Host is up (1.0s latency).
+All 1000 scanned ports on 10.10.92.204 are filtered
+
+Nmap scan report for 10.10.92.205
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.205 are filtered
+
+Nmap scan report for 10.10.92.206
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.206 are filtered
+
+Nmap scan report for 10.10.92.207
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.207 are filtered
+
+Nmap scan report for 10.10.92.208
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.208 are filtered
+
+Nmap scan report for 10.10.92.209
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.209 are filtered
+
+Nmap scan report for 10.10.92.210
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.210 are filtered
+
+Nmap scan report for 10.10.92.211
+Host is up (0.99s latency).
+All 1000 scanned ports on 10.10.92.211 are filtered
+
+Nmap scan report for 10.10.92.212
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.212 are filtered
+
+Nmap scan report for 10.10.92.213
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.213 are filtered
+
+Nmap scan report for 10.10.92.214
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.214 are filtered
+
+Nmap scan report for 10.10.92.215
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.215 are filtered
+
+Nmap scan report for 10.10.92.216
+Host is up (2.3s latency).
+All 1000 scanned ports on 10.10.92.216 are filtered
+
+Nmap scan report for 10.10.92.217
+Host is up (2.3s latency).
+All 1000 scanned ports on 10.10.92.217 are filtered
+
+Nmap scan report for 10.10.92.218
+Host is up (0.62s latency).
+All 1000 scanned ports on 10.10.92.218 are filtered
+
+Nmap scan report for 10.10.92.219
+Host is up (3.3s latency).
+All 1000 scanned ports on 10.10.92.219 are filtered
+
+Nmap scan report for 10.10.92.220
+Host is up (1.2s latency).
+All 1000 scanned ports on 10.10.92.220 are filtered
+
+Nmap scan report for 10.10.92.221
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.221 are filtered
+
+Nmap scan report for 10.10.92.222
+Host is up (2.4s latency).
+All 1000 scanned ports on 10.10.92.222 are filtered
+
+Nmap scan report for 10.10.92.223
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.223 are filtered
+
+Nmap scan report for 10.10.92.224
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.224 are filtered
+
+Nmap scan report for 10.10.92.225
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.225 are filtered
+
+Nmap scan report for 10.10.92.226
+Host is up (1.2s latency).
+All 1000 scanned ports on 10.10.92.226 are filtered
+
+Nmap scan report for 10.10.92.227
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.227 are filtered
+
+Nmap scan report for 10.10.92.228
+Host is up (2.2s latency).
+All 1000 scanned ports on 10.10.92.228 are filtered
+
+Nmap scan report for 10.10.92.229
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.229 are filtered
+
+Nmap scan report for 10.10.92.230
+Host is up (1.2s latency).
+All 1000 scanned ports on 10.10.92.230 are filtered
+
+Nmap scan report for 10.10.92.231
+Host is up (2.8s latency).
+All 1000 scanned ports on 10.10.92.231 are filtered
+
+Nmap scan report for 10.10.92.232
+Host is up (0.72s latency).
+All 1000 scanned ports on 10.10.92.232 are filtered
+
+Nmap scan report for 10.10.92.233
+Host is up (2.0s latency).
+All 1000 scanned ports on 10.10.92.233 are filtered
+
+Nmap scan report for 10.10.92.234
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.234 are filtered
+
+Nmap scan report for 10.10.92.235
+Host is up (3.3s latency).
+All 1000 scanned ports on 10.10.92.235 are filtered
+
+Nmap scan report for 10.10.92.236
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.236 are filtered
+
+Nmap scan report for 10.10.92.237
+Host is up (0.49s latency).
+All 1000 scanned ports on 10.10.92.237 are filtered
+
+Nmap scan report for 10.10.92.238
+Host is up (1.5s latency).
+All 1000 scanned ports on 10.10.92.238 are filtered
+
+Nmap scan report for 10.10.92.239
+Host is up (0.72s latency).
+All 1000 scanned ports on 10.10.92.239 are filtered
+
+Nmap scan report for 10.10.92.240
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.240 are filtered
+
+Nmap scan report for 10.10.92.241
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.241 are filtered
+
+Nmap scan report for 10.10.92.242
+Host is up (1.0s latency).
+All 1000 scanned ports on 10.10.92.242 are filtered
+
+Nmap scan report for 10.10.92.243
+Host is up (0.42s latency).
+All 1000 scanned ports on 10.10.92.243 are filtered
+
+Nmap scan report for 10.10.92.244
+Host is up (1.6s latency).
+All 1000 scanned ports on 10.10.92.244 are filtered
+
+Nmap scan report for 10.10.92.245
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.245 are filtered
+
+Nmap scan report for 10.10.92.246
+Host is up (1.9s latency).
+All 1000 scanned ports on 10.10.92.246 are filtered
+
+Nmap scan report for 10.10.92.247
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.247 are filtered
+
+Nmap scan report for 10.10.92.248
+Host is up (1.4s latency).
+All 1000 scanned ports on 10.10.92.248 are filtered
+
+Nmap scan report for 10.10.92.249
+Host is up (1.7s latency).
+All 1000 scanned ports on 10.10.92.249 are filtered
+
+Nmap scan report for 10.10.92.250
+Host is up (1.2s latency).
+All 1000 scanned ports on 10.10.92.250 are filtered
+
+Nmap scan report for 10.10.92.251
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.251 are filtered
+
+Nmap scan report for 10.10.92.252
+Host is up (2.4s latency).
+All 1000 scanned ports on 10.10.92.252 are filtered
+
+Nmap scan report for 10.10.92.253
+Host is up (1.8s latency).
+All 1000 scanned ports on 10.10.92.253 are filtered
+
+Nmap scan report for 10.10.92.254
+Host is up (2.1s latency).
+All 1000 scanned ports on 10.10.92.254 are filtered
+
+Nmap scan report for 10.10.92.255
+Host is up (0.000025s latency).
+All 1000 scanned ports on 10.10.92.255 are filtered
+
+Nmap done: 512 IP addresses (512 hosts up) scanned in 5722.74 seconds
