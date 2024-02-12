@@ -263,8 +263,100 @@ Chain OUTPUT (policy ACCEPT 42 packets, 6368 bytes)
 ```
 
 ### 4.  The output of your UDP scan.
+```bash
 
+Nmap scan report for 10.10.152.1
+Host is up (0.00076s latency).
+Not shown: 1022 open|filtered ports
+PORT    STATE SERVICE
+53/udp  open  domain
+123/udp open  ntp
 
+Nmap scan report for ics.ep.int.e-netsec.org (10.10.152.18)
+Host is up (0.00086s latency).
+Not shown: 1022 closed ports
+PORT    STATE         SERVICE
+137/udp open          netbios-ns
+138/udp open|filtered netbios-dgm
+
+Nmap scan report for updatesrv.ep.int.e-netsec.org (10.10.152.53)
+Host is up (0.00084s latency).
+All 1024 scanned ports on updatesrv.ep.int.e-netsec.org (10.10.152.53) are closed
+
+Nmap scan report for 10.10.152.120
+Host is up (0.00079s latency).
+Not shown: 1022 closed ports
+PORT    STATE         SERVICE
+67/udp  open|filtered dhcps
+218/udp open|filtered mpp
+
+Nmap scan report for routerb.ep.int.e-netsec.org (10.10.152.129)
+Host is up (0.00083s latency).
+Not shown: 1018 closed ports
+PORT    STATE         SERVICE
+67/udp  open|filtered dhcps
+203/udp open|filtered at-3
+250/udp open|filtered unknown
+432/udp open|filtered iasd
+688/udp open|filtered realm-rusd
+922/udp open|filtered unknown
+
+Nmap scan report for hr.ep.int.e-netsec.org (10.10.152.150)
+Host is up (0.0036s latency).
+Not shown: 1018 closed ports
+PORT    STATE         SERVICE
+68/udp  open|filtered dhcpc
+111/udp open          rpcbind
+137/udp open          netbios-ns
+138/udp open|filtered netbios-dgm
+605/udp open|filtered soap-beep
+631/udp open|filtered ipp
+
+Stats: 0:46:08 elapsed; 6 hosts completed (9 up), 3 undergoing UDP Scan
+UDP Scan Timing: About 37.18% done; ETC: 02:23 (0:10:07 remaining)
+Nmap scan report for dns.ep.int.e-netsec.org (10.10.92.2)
+Host is up (0.00011s latency).
+Not shown: 966 closed ports, 57 open|filtered ports
+PORT   STATE SERVICE
+53/udp open  domain
+MAC Address: 0C:C4:7A:32:01:9A (Super Micro Computer)
+
+Nmap scan report for client.ep.int.e-netsec.org (10.10.92.20)
+Host is up (0.00011s latency).
+All 1024 scanned ports on client.ep.int.e-netsec.org (10.10.92.20) are closed
+MAC Address: 4C:44:5B:32:03:BB (Unknown)
+
+Nmap scan report for server.ep.int.e-netsec.org (10.10.92.26)
+Host is up (0.00010s latency).
+Not shown: 1021 closed ports
+PORT    STATE         SERVICE
+137/udp open          netbios-ns
+138/udp open|filtered netbios-dgm
+631/udp open|filtered ipp
+MAC Address: 4C:44:5B:32:02:AA (Unknown)
+
+Nmap scan report for raspberry.ep.int.e-netsec.org (10.10.92.10)
+Host is up (0.000042s latency).
+All 1024 scanned ports on raspberry.ep.int.e-netsec.org (10.10.92.10) are closed
+
+Nmap done: 10 IP addresses (10 hosts up) scanned in 3520.35 seconds
+```
+
+#### Traffic generated:
+```bash
+pi@raspberry:~$ sudo /sbin/iptables -vn -L
+[sudo] password for pi:
+Chain INPUT (policy ACCEPT 7563 packets, 544K bytes)
+ pkts bytes target     prot opt in     out     source               destination
+ 696K   91M ACCEPT     all  --  *      *      !10.10.192.0/18       0.0.0.0/0
+
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain OUTPUT (policy ACCEPT 5946 packets, 2191K bytes)
+ pkts bytes target     prot opt in     out     source               destination
+2519K  157M ACCEPT     all  --  *      *       0.0.0.0/0           !10.10.192.0/18
+```
 
 ### 5.  TCP SYN ping scan and “No Ping” scan.
 The host that did not respond to ICMP ping requests was this:
