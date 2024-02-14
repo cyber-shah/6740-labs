@@ -945,6 +945,19 @@ There are three scenarios:
 In condition a, the port is closed, b marks the port as filtered whereas c, means that the port could be open or filters are blocking the communication.
 Therefore, no response means that the port could be open.
 
+
+### 14. ZMap
+
+The idea:
+ZMap works in cyclic multiplicative groups. That means unlike Nmap, which sends out packets to each IP address and waits for reply. Then as the host replies Nmap would compile it into a database to track the responses. Which is very slow compared to ZMap.
+
+Design:
+ZMap is made for speed, it specializes in single-packet scans like SYN scans and ping sweeps. Prioritizes speed and efficiency over deep probing or comprehensive service identification. Whereas Nmap offers a wider range of functionalities: detailed port scans, service identification, vulnerability detection, and scripting capabilities.
+
+Functionality:
+Therefore zmap is made for high level recon, whereas nmap offers more indepth tools.
+
+I couldn't scan the subnet with zmap from my machine, it works on the pi; and I could also nmap on my machine that worked too.
 ### 15. DNS enumeration
 > What additional DNS names did you find with DNS enumeration?
 
