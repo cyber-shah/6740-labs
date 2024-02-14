@@ -583,7 +583,41 @@ Chain OUTPUT (policy ACCEPT 170 packets, 35055 bytes)
 ```
 
 ### 7. Traffic comparison
+Ping
+```bash
+Chain INPUT (policy ACCEPT 89 packets, 6536 bytes)
+Chain OUTPUT (policy ACCEPT 62 packets, 8064 bytes)
+```
 
+TCP Scan
+```bash
+Chain INPUT (policy ACCEPT 195 packets, 13980 bytes)
+Chain OUTPUT (policy ACCEPT 117 packets, 14056 bytes)
+```
+
+TCP syn scan
+```bash
+Chain INPUT (policy ACCEPT 52 packets, 3564 bytes)
+Chain OUTPUT (policy ACCEPT 42 packets, 6368 bytes)
+```
+
+UDP Scan for ports 1-1024
+```bash
+Chain INPUT (policy ACCEPT 7563 packets, 544K bytes)
+Chain OUTPUT (policy ACCEPT 5946 packets, 2191K bytes)
+```
+
+OS Scan
+```bash
+Chain INPUT (policy ACCEPT 238 packets, 17360 bytes)
+Chain OUTPUT (policy ACCEPT 170 packets, 35055 bytes)
+```
+
+TCP Sync scans create the least amount of traffic as it knows which hosts to ping and just sends out syn packets without establishing a full connection, whereas TCP full scan creates a fuill connection and therefore it has 3x traffic generated, making it more intrusive.
+
+UDP scan created the highest traffic but that's because we asked it to send packets to all the ports from 1-1024 on the hosts specified.
+
+Discovery scan was average as it had to discover hosts but OS Scan was the most intrusive sending and receiving the highest number of packets.
 
 ### 8. Telnet and HTTP
 ```bash
@@ -889,6 +923,12 @@ By default, Nmap does host discovery and then performs a port scan against each 
 ### 11. ICMP rate limit
 > Describe how you could use the icmp ratelimit kernel parameter in Linux to slow down a  UDP scan
 
+The value can be found at:
+````bash
+cat /proc/sys/net/ipv4/icmp_ratelimit
+````
+This allows us to control the rate at which ICMP error messages are sent in response to incoming packets. This rate limit slows down the process of sending ICMP error messages in response to UDP packets, making it more time-consuming for the attacker to identify open and closed ports.
+
 ### 12. -sS or -sT? Why?
 > Which nmap scan typically runs faster, -sS or -sT? Why?
 
@@ -904,8 +944,7 @@ There are three scenarios:
 
 In condition a, the port is closed, b marks the port as filtered whereas c, means that the port could be open or filters are blocking the communication.
 Therefore, no response means that the port could be open.
-### 14. (Bonus) 
->Describe your results using ZMap scanning the virtual network. Discuss the differ- ences between nmap and ZMap, in terms of design, functionality, techniques, and performance.
+
 ### 15. DNS enumeration
 > What additional DNS names did you find with DNS enumeration?
 
@@ -991,7 +1030,7 @@ Using the information gathered through the port scanning task and the fingerprin
     - IPv4 Address: 10.10.152.18
     - IPv6 Address: 2001:470:8cc5:3202:20c:87ff:fe32:652
     - Hostname: ics.ep.int.e-netsec.org
-    - Operating System: SSH-2.0-OpenSSH_8.2p1 Ubuntu-4
+    - Operating System: Ubuntu-4 SSH-2.0-OpenSSH_8.2p1 
 
 |Port (Protocol)|Service|Version|
 |---|---|---|
@@ -1003,7 +1042,7 @@ Using the information gathered through the port scanning task and the fingerprin
     - IPv4 Address: 10.10.152.53
     - IPv6 Address: 2001:470:8cc5:3202::22
     - Hostname: updatesrv.ep.int.e-netsec.org
-    - Operating System: SSH-2.0-OpenSSH_8.4p1 Debian-5
+    - Operating System:  Debian-5 SSH-2.0-OpenSSH_8.4p1
     
 | Port (Protocol) | Service | Version |
 | ---- | ---- | ---- |
@@ -1021,7 +1060,7 @@ Using the information gathered through the port scanning task and the fingerprin
     - IPv4 Address: 10.10.152.129
     - IPv6 Address: 2001:470:8cc5:3203::1
     - Hostname: routerb.ep.int.e-netsec.org
-    - Operating System: SSH-2.0-OpenSSH_8.2p1 Ubuntu-4
+    - Operating System: Ubuntu-4 SSH-2.0-OpenSSH_8.2p1 
     
 |Port (Protocol)|Service|Version|
 |---|---|---|
@@ -1055,7 +1094,7 @@ Using the information gathered through the port scanning task and the fingerprin
     - IPv4 Address: 10.10.92.2
     - Hostname: dns.ep.int.e-netsec.org
     -  IPv6 Address: 2001:470:8cc5:3202::1
-    - Operating System: SSH-2.0-OpenSSH_8.4p1 Debian-5
+    - Operating System: Debian-5 SSH-2.0-OpenSSH_8.4p1 
 
 | Port (Protocol) | Service | Version |
 | ---- | ---- | ---- |
@@ -1066,8 +1105,8 @@ Using the information gathered through the port scanning task and the fingerprin
 **Node 9:**
     - IPv4 Address: 10.10.92.10
     - Hostname: raspberry.ep.int.e-netsec.org
-    - Operating System: SSH-2.0-OpenSSH_8.4p1 Debian-5
-
+    - Operating System:  Debian-5 SSH-2.0-OpenSSH_8.4p1
+ 
 |Port (Protocol)|Service|Version|
 |---|---|---|
 |22/tcp|ssh|OpenSSH 8.4p1 Debian 5 (protocol 2.0)|
@@ -1076,7 +1115,7 @@ Using the information gathered through the port scanning task and the fingerprin
     - IPv4 Address: 10.10.92.20
     - IPv6 Address: 2001:470:8cc5:3201:4e44:5bff:fe32:3bb
     - Hostname: client.ep.int.e-netsec.org
-    - Operating System: SSH-2.0-OpenSSH_8.4p1 Debian-5
+    - Operating System:  Debian-5 SSH-2.0-OpenSSH_8.4p1
 
 |Port (Protocol)|Service|Version|
 |---|---|---|
@@ -1086,7 +1125,7 @@ Using the information gathered through the port scanning task and the fingerprin
     - IPv4 Address: 10.10.92.26
     - IPv6 Address: 2001:470:8cc5:3201:4e44:5bff:fe32:2aa
     - Hostname: server.ep.int.e-netsec.org
-    - Operating System: SSH-2.0-OpenSSH_8.4p1 Debian-5
+    - Operating System: Debian-5 SSH-2.0-OpenSSH_8.4p1 
 
 |Port (Protocol)|Service|Version|
 |---|---|---|
