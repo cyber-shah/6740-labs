@@ -42,7 +42,6 @@ listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
 ```
 
 
-
 ## 3.3 - FTP data between CLIENT and SERVER
 ```bash
 tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
@@ -77,20 +76,45 @@ FTP : 10.10.92.26:21 -> USER: ftpadmin  PASS: S3cure
 ```
 
 ## 3.6 - In the tcpdump output of FTP packets, why are only packets from CLIENT to SERVER shown?
+`tcpdump -n -i eth0 port 21 and host CLIENT` shows only packets between client and the server because we use ettercap to redirect traffic from client to server through the jumphost.
+Basically the jumphost acts as a MiTM and therefore the dump shows the conversation between client and server.
 
 ## 3.7 - A screenshot of the contents of the file on the FTP server
 ![[Pasted image 20240212203611.png]]
 
+## 3.8 - The intercepted SSH credentials
+``` bash
+
+2488  write(5, "\0\0\0\fconfigpasswd", 16) = 16
+2499  write(5, "\0\0\0\vconfigadmin", 15) = 15
+```
 
 
+## 3.9 - simple heuristic to detect ARP poisoning attacks?
+1. Check for duplicate MAC addresses - The same MAC appearing in multiple places can imply address impersonation.
+2. Detect excessive ARP traffic - Regular ARP broadcasts occur infrequently. High volumes of ARP packets could indicate poisoning.
 
-Tue Feb 13 04:08:01 2024 [231320]
-TCP  10.10.92.26:23080 --> 10.10.92.20:43644 | AP (1254)
-.com,Maught,isheiQu1ai,202-969-7975,Visa,4485180956474700,417,11/2027,10/26/2000
-Benjamin,K,Dreher,"340 Concord Street",Matthews,NC,28105,US,BenjaminDreher@rhyta.com,Whort2002,aeG9vaifa7I,704-589-1592,Visa,4916936094526035,482,3/2025,6/6/2002
-Margaret,J,Conley,"3239 Hickman Street","Burr Ridge",IL,60527,US,MargaretJConley@teleworm.us,Piceplonse,aiphemooY3,630-419-2407,MasterCard,5342101143218800,692,10/2027,11/9/1999
-Antonio,M,Hazzard,"3446 Zimmerman Lane","Los Angeles",CA,90071,US,AntonioMHazzard@armyspy.com,Tirs1996,Veeyoe7g,213-489-8134,MasterCard,5138395529348276,068,11/2026,8/1/1996
-Sienna,T,Graham,"1485 Modoc Alley",Meridian,ID,83642,US,SiennaGraham@teleworm.us,Likedest95,aW2mie0e,208-846-1414,MasterCard,5393529302171725,398,3/2023,10/2/1995
-Corette,M,Dionne,"466 Frum Street",Nashville,TN,37212,US,CoretteDionne@fleckens.hu,Duerse,Nookooh5ee,615-279-1355,MasterCard,5152213097663771,480,11/2025,10/28/1997
-Frederica,J,Vick,"3267 Hart Country Lane",Athens,GA,30601,US,FredericaJVick@fleckens.hu,Durry1992,Goot6lao,706-542-2114,MasterCard,5392904296712704,449,1/2023,7/16/1992
-Finley,Z,Lynch,"2707 Calvin Street",Baltimore,MD,21202,US,FinleyLynch@dayrep.com,Padmings,peeCh3ooc,443-368-8341,MasterCard,5170008436367227,241,2/2027,2/20/1981
+
+## 3.10 - Link to a tool that you can install on your Linux machine to detect ARP poisoning.
+
+[ArpWatch](https://www.kali.org/tools/arpwatch/)
+## 3.11 - Differences between “atk6-parasite6” and “atk6-fake router26”
+
+atk6-parasite6 sends spoofed neighbor solicitation replies to redirect traffic to our MAC adrress and poisons the neighbors cache rather than the routers.
+Whereas atk6-fakerouter26 actively sends forged RA messages, and causes the victim to alter IPv6 routing by pointing default gateway to us. Therefore it can redirect both local and internet traffic acting as an actual router.
+
+## 3.12 A screenshot of the intercepted authorized keys file and its original location (URL)
+```bash
+2001:470:8cc5:3202::22.80: Flags [P.], seq 0:162, ack 1, win 507, options [nop,nop,TS val 2499782539 ecr 4209662568], length 162: HTTP: GET /secret449/authorized_keys HTTP/1.1
+```
+
+```
+root@raspberry:~# cat authorized_keys
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCpeaTX0yS2cunyw0k1d2w71eKOJ9rZsGfnDEiRD+4lVHqT6pJL9TCntaCR7pqB1mIA/Gusw5RVburFvArIfElEAjtLLl102Stu38cmOd1ybPZBxpjZIMpmKMMwIp2ssTZql+L/wgIl4MajD53gbti4NlQp6VAmhetl75rs7DXlhdWV4STXdNehnK1ir6i5GziwRzwgn9EINbGvdu9sFEijmRElmBujRJQrlVjYGETBwLMiMmvOxapv3jx3CBhtAAG/c2osAXN55mO3JVhaddtHR8kcbfcaNbztjhmwUhXLuGVSB246tRWBGIdqytO+kpETlY7I8wHgkp7JdufMV5Nh
+```
+
+## 3.13 - How can you protect yourself against IPv6 attacks?
+1. Use strong encryption protocols for communication to protect data in transit.
+2. Use Router Advertisement Guard where it makes sure that only authorised routers can send RA messages.
+3. We can also use static IPv6 addresses wherever possible to stop automatic address assignments.
+4. Deploy Intrusion Detection Systems.
