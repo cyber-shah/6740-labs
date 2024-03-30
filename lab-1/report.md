@@ -1,3 +1,7 @@
+Group 22 : El Paso
+Pranchal 
+Liam 
+
 ## 1. What were the Linux accounts that were present on the Raspberry Pi?
 ```
 root
@@ -74,8 +78,11 @@ Root may be disabled by default to prevent any security breaches from giving att
 
 ## 4. Provide the output of your manual run of OpenVPN, your VPN tunnel IP address, and the ping output.
 ### 4.1 OpenVPN run
-```sudo openvpn net-sec.ovpn```
+``` bash
+sudo openvpn net-sec.ovpn
 ```
+
+``` bash
 2024-01-22 18:49:44 OpenVPN 2.6.8 [git:makepkg/3b0d9489cc423da3+] x86_64-pc-linux-gnu [SSL (OpenSSL)] [LZO] [LZ4] [EPOLL] [PKCS11] [MH/PKTINFO] [AEAD] [DCO] built on Nov 17 2023
 2024-01-22 18:49:44 library versions: OpenSSL 3.2.0 23 Nov 2023, LZO 2.10
 2024-01-22 18:49:44 DCO version: N/A
@@ -99,7 +106,7 @@ Enter Auth Password: •••••••••••••••
 
 ```ifconfig tun0```
 
-```
+```bash
 tun0: flags=4305<UP,POINTOPOINT,RUNNING,NOARP,MULTICAST>  mtu 1500
         inet 10.10.222.1  netmask 255.255.192.0  destination 10.10.222.1
         inet6 fe80::92cf:a054:5052:8fa6  prefixlen 64  scopeid 0x20<link>
