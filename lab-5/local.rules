@@ -10,25 +10,23 @@
 
 # detect HTTP request to cgi-bin directory and set flag, but do not alert yet
 # # Instead of "pass" as rule action you could also use the option "flowbits:noalert;"
-ipvar HOME_RANGE 10.10.152.128/25
-
 
 # -------------------------------------------------------------------
 # 		CGI-BIN	
 # ------------------------------------------------------------------
-alert tcp any any -> $HOME_RANGE $HTTP_PORTS (msg:"access to cgi"; flow:to_server; metadata:service http; flowbits:isnotset,cgi-tag; uricontent: "cgi-bin/"; nocase; flowbits:set,cgi-tag; sid:1000002; rev:1;)
+alert tcp any any -> $HOME_NET $HTTP_PORTS (msg:"access to cgi"; flow:to_server; metadata:service http; flowbits:isnotset,cgi-tag; uricontent: "cgi-bin/"; nocase; flowbits:set,cgi-tag; sid:1000002; rev:1;)
 
 # detect string "load" in response from the server to the client
 # use file_data to match string in gzip http response
-alert tcp $HOME_RANGE $HTTP_PORTS -> any any (msg:"CGI alert"; flow:from_server,established; file_data; flowbits:isset,cgi-tag; content:"load"; flowbits:unset,cgi-tag; sid:1000003; rev:1;)
+alert tcp $HOME_NET $HTTP_PORTS -> any any (msg:"CGI alert"; flow:from_server,established; file_data; flowbits:isset,cgi-tag; content:"load"; flowbits:unset,cgi-tag; sid:1000003; rev:1;)
 
 # -------------------------------------------------------------------
 # 			SECRET
 # ------------------------------------------------------------------
 
-alert tcp any any -> $HOME_RANGE $HTTP_PORTS (msg: "trying to access secret file"; flow:to_server; uricontent: "secret"; nocase; flowbits:set,secret-tag;sid: 1000004; rev: 1;)
+alert tcp any any -> $HOME_NET $HTTP_PORTS (msg: "trying to access secret file"; flow:to_server; uricontent: "secret"; nocase; flowbits:set,secret-tag;sid: 1000004; rev: 1;)
 
-alert tcp $HOME_RANGE $HTTP_PORTS -> any any (msg: "Secret File downloaded"; flow:to_client,established; flowbits:isset,secret-tag; content:"200"; http_stat_code; flowbits:unset,secret-tag; sid: 1000005;)
+alert tcp $HOME_NET $HTTP_PORTS -> any any (msg: "Secret File downloaded"; flow:to_client,established; flowbits:isset,secret-tag; content:"200"; http_stat_code; flowbits:unset,secret-tag; sid: 1000005;)
 
 # alert tcp any any -> any 80 (msg:"File downloaded from secret folder"; flow:to_server,established; content:"GET"; http_method; content:"/secret/"; http_uri; content:".xlsx"; http_uri; sid:1000009;)
 
@@ -47,13 +45,13 @@ alert tcp any any -> 10.10.152.129 22 (msg:"SSH access to HR server"; sid:100000
 # ------------------------------------------------------------------
 
 # detect ICMP
-# alert icmp any any -> $HOME_RANGE any (msg:"ICMP scan detected"; sid:1000007; rev:1;)
+# alert icmp any any -> $HOME_NET any (msg:"ICMP scan detected"; sid:1000007; rev:1;)
 
 # set threshold
 threshold gen_id 1, sig_id 100010, type threshold, track by_src, count 25, seconds 5
 
 # Detect ICMP scan based on threshold
-alert icmp any any -> $HOME_RANGE any (msg: "ICMP scan detected"; threshold: type limit, track by_src, count 25, seconds 10; sid: 1000008;)
+alert icmp any any -> $HOME_NET any (msg: "ICMP scan detected"; threshold: type limit, track by_src, count 25, seconds 10; sid: 1000008;)
 
 
 
@@ -61,10 +59,13 @@ alert icmp any any -> $HOME_RANGE any (msg: "ICMP scan detected"; threshold: typ
 # 				HEARTBLEED	
 # ------------------------------------------------------------------
 
-# bytes 18 03 02 signify SSLv3
+# bytes |18 03 00| signify SSLv3
 # bytes 01
 
-alert tcp any any -> any 443 (msg:"Openssl Heartbleed attack"; flow:to_server, established; content:"|18 03|"; depth: 3; byte_test:2, >, 200, 3, big; byte_test:2, <, 16385, 3, big; threshold:type limit, track by_src, count 1, seconds 600; reference:cve, 2014-0160; classtype:bad-unknown; sid:20140160; rev:2;)
+alert tcp any any -> $HOME_NET $HTTP_PORTS ( msg:"SERVER-OTHER OpenSSL SSLv3 heartbeat read overrun attempt"; flow:to_server,established,only_stream; content:"|18 03 00|",depth 3; detection_filter:track by_src,count 3,seconds 1; metadata:policy balanced-ips drop,policy max-detect-ips drop,policy security-ips drop,ruleset community; service:ssl; reference:cve,2014-0160; classtype:attempted-recon; sid:30510; rev:8; )
 
-alert tcp any any -> any 443 (msg: "Attempted Heartbleed access exploitation for OpenSSL 1.0.1f and lower"; flow: to_server; content:"| 18 03 02 00 03 01 40 00 |"; reference:cve, CVE-2014-0160; sid: 213120;)
+alert tcp any any -> $HOME_NET $HTTP_PORTS ( msg:"SERVER-OTHER OpenSSL TLSv1 heartbeat read overrun attempt"; flow:to_server,established,only_stream; content:"|18 03 01|",depth 3; detection_filter:track by_src,count 3,seconds 1; metadata:policy balanced-ips drop,policy max-detect-ips drop,policy security-ips drop,ruleset community; service:ssl; reference:cve,2014-0160; classtype:attempted-recon; sid:30511; rev:8; )
 
+alert tcp any any -> $HOME_NET $HTTP_PORTS ( msg:"SERVER-OTHER OpenSSL TLSv1.1 heartbeat read overrun attempt"; flow:to_server,established,only_stream; content:"|18 03 02|",depth 3; detection_filter:track by_src,count 3,seconds 1; metadata:policy balanced-ips drop,policy max-detect-ips drop,policy security-ips drop,ruleset community; service:ssl; reference:cve,2014-0160; classtype:attempted-recon; sid:30512; rev:8; )
+
+alert tcp any any -> $HOME_NET $HTTP_PORTS ( msg:"SERVER-OTHER OpenSSL TLSv1.2 heartbeat read overrun attempt"; flow:to_server,established,only_stream; content:"|18 03 03|",depth 3; detection_filter:track by_src,count 3,seconds 1; metadata:policy balanced-ips drop,policy max-detect-ips drop,policy security-ips drop,ruleset community; service:ssl; reference:cve,2014-0160; classtype:attempted-recon; sid:30513; rev:8; )
