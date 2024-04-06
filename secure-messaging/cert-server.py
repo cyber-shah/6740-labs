@@ -1,12 +1,17 @@
+import os
 from datetime import datetime, timedelta
+from ipaddress import IPv4Address
 
 from cryptography import x509
+from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from cryptography.x509.base import Certificate
 from cryptography.x509.oid import NameOID
 
 CERT_VALIDITY = 24
+CERT_DIR = "certificates/"
 
 """
 -----------------------------------------------------------------------------
@@ -24,23 +29,73 @@ The server needs to be able to do the following:
 # step 3: srp
 # step 4: manage users and passwords
 
-key = rsa.generate_private_key(
+CA_SK = rsa.generate_private_key(
     public_exponent=65537,
     key_size=2048,
 )
+CA_PK = CA_SK.public_key()
 
 
-def issue_certificate(csr, address):
+def write_certificate(certificate: Certificate):
+    file_path = f"{certificate.subject}.pem"
+    with open(os.path.join(CERT_DIR, file_path), "wb") as cert_file:
+        cert_file.write(certificate.public_bytes(encoding=serialization.Encoding.PEM))
+
+
+def check_exists(csr: x509.CertificateSigningRequest):
     """
-    Issues a certificate, as the CA for the CSR given.
-    Also adds an address field to the certificate.
+    Checks if a certificate exists -- using the file path:
+    `<user>.pem`
 
-    Args:
-        csr ():
-        address ():
+    :param csr:
+    :param address:
+    :return:
+    :rtype:
+    :return:
+    :rtype:
+    """
+    certificate_filename = f"{csr.subject}.pem"
+    if os.path.exists(os.path.join(CERT_DIR, certificate_filename)):
+        existing_certificate = x509.load_pem_x509_certificate(b"certificate_filename")
+        if check_validity(existing_certificate):
+            return existing_certificate
+    else:
+        return None
 
-    Returns:
 
+def check_validity(certificate: x509.Certificate):
+    # check dates
+    if (
+        certificate.not_valid_before > datetime.now()
+        or certificate.not_valid_after < datetime.now()
+    ):
+        return False
+
+    # check signature
+    try:
+        CA_PK.verify(
+            signature=certificate.signature,
+            data=certificate.tbs_certificate_bytes,
+            padding=padding.PKCS1v15(),
+            algorithm=hashes.SHA256(),
+        )
+    except InvalidSignature as e:
+        raise e
+
+    return True
+
+
+def request_certificate(
+    csr: x509.CertificateSigningRequest, address: IPv4Address
+) -> x509.Certificate:
+    """
+    1. Checks if certificate already exists
+    2. if not, creates and signs it as a CA
+    3. writes it to the DB
+
+    :param csr:
+    :param address:
+    :return:
     """
     valid_to = datetime.now() + timedelta(hours=CERT_VALIDITY)
 
@@ -58,6 +113,12 @@ def issue_certificate(csr, address):
     )
 
     certificate = cert_builder.sign(
-        private_key=key, algorithm=hashes.SHA256(), backend=default_backend()
+        private_key=CA_SK, algorithm=hashes.SHA256(), backend=default_backend()
     )
+
+    write_certificate(certificate)
     return certificate
+
+
+def delete_certificate(certificate: x509.Certificate):
+    pass
