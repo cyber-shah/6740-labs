@@ -32,24 +32,132 @@ The server needs to be able to do the following:
 # step 2: maintain them
 # step 3: srp
 # step 4: manage users and passwords
-
-CA_SK = rsa.generate_private_key(
-    public_exponent=65537,
-    key_size=2048,
-)
-CA_PK = CA_SK.public_key()
-
 USER_SK = rsa.generate_private_key(
     public_exponent=65537,
     key_size=2048,
 )
 USER_PK = USER_SK.public_key()
-print(
-    USER_PK.public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo,
-    ).decode()
-)
+
+
+class CA:
+    """
+    CA is responsible for writing and managing certificates
+
+    :param CA_SK: CA's secret key
+    :param CA_PK: CA's public key
+    """
+
+    CA_SK = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+    CA_PK = CA_SK.public_key()
+
+    def request_certificate(
+        self, csr: x509.CertificateSigningRequest
+    ) -> x509.Certificate:
+        """
+        1. Checks if certificate already exists
+        2. if not, creates and signs it as a CA
+        3. writes it to the DB
+
+        :param csr:
+        :param address:
+        :return:
+        """
+        valid_to = datetime.now() + timedelta(hours=CERT_VALIDITY)
+
+        cert_builder = (
+            x509.CertificateBuilder()
+            .subject_name(csr.subject)
+            .issuer_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "server")]))
+            .public_key(csr.public_key())
+            .serial_number(x509.random_serial_number())
+            .not_valid_before(datetime.now())
+            .not_valid_after(valid_to)
+        )
+
+        # cert_builder.add_extension(
+        #     x509.SubjectAlternativeName([x509.IPAddress(address)]), critical=True
+        # )
+
+        certificate = cert_builder.sign(
+            private_key=self.CA_SK, algorithm=hashes.SHA256(), backend=default_backend()
+        )
+
+        self.write_to_file(certificate)
+        return certificate
+
+    def write_to_file(self, certificate: Certificate):
+        """
+        Writes the ceritificate to local storage in PEM format
+
+        :param certificate: certificate to write
+        """
+        file_path = f"{certificate.subject}.pem"
+        try:
+            with open(os.path.join(CERT_DIR, file_path), "wb") as cert_file:
+                cert_file.write(
+                    certificate.public_bytes(encoding=serialization.Encoding.PEM)
+                )
+        except Exception as identifier:
+            pass
+
+    def check_exists(self, csr: x509.CertificateSigningRequest):
+        """
+        Checks if a certificate exists -- using the file path:
+        `<user>.pem`
+
+        :param csr:
+        :param address:
+        :return:
+        :rtype:
+        :return:
+        :rtype:
+        """
+        certificate_filename = f"{csr.subject}.pem"
+        if os.path.exists(os.path.join(CERT_DIR, certificate_filename)):
+            existing_certificate = x509.load_pem_x509_certificate(
+                b"certificate_filename"
+            )
+            if self.check_validity(existing_certificate):
+                return existing_certificate
+        else:
+            return None
+
+    def check_validity(self, certificate: x509.Certificate) -> bool:
+        """
+        Checks the validity of the certificate provided:
+        1. time
+        2. signature
+
+        :param certificate: Certificate to check
+        :return: False if invalid or True if valid
+        :rtype: Boolean
+        """
+        # check dates
+        if (
+            certificate.not_valid_before > datetime.now()
+            or certificate.not_valid_after < datetime.now()
+        ):
+            return False
+
+        # check signature
+        try:
+            CA_PK.verify(
+                signature=certificate.signature,
+                data=certificate.tbs_certificate_bytes,
+                padding=padding.PKCS1v15(),
+                algorithm=hashes.SHA256(),
+            )
+        except InvalidSignature as e:
+            print(e)
+            return False
+
+        return True
+
+    def delete_certificate(self):
+        pass
 
 
 def create_csr():
@@ -66,89 +174,6 @@ def create_csr():
     )
 
     return csr
-
-
-def write_certificate(certificate: Certificate):
-    file_path = f"{certificate.subject}.pem"
-    with open(os.path.join(CERT_DIR, file_path), "wb") as cert_file:
-        cert_file.write(certificate.public_bytes(encoding=serialization.Encoding.PEM))
-
-
-def check_exists(csr: x509.CertificateSigningRequest):
-    """
-    Checks if a certificate exists -- using the file path:
-    `<user>.pem`
-
-    :param csr:
-    :param address:
-    :return:
-    :rtype:
-    :return:
-    :rtype:
-    """
-    certificate_filename = f"{csr.subject}.pem"
-    if os.path.exists(os.path.join(CERT_DIR, certificate_filename)):
-        existing_certificate = x509.load_pem_x509_certificate(b"certificate_filename")
-        if check_validity(existing_certificate):
-            return existing_certificate
-    else:
-        return None
-
-
-def check_validity(certificate: x509.Certificate):
-    # check dates
-    if (
-        certificate.not_valid_before > datetime.now()
-        or certificate.not_valid_after < datetime.now()
-    ):
-        return False
-
-    # check signature
-    try:
-        CA_PK.verify(
-            signature=certificate.signature,
-            data=certificate.tbs_certificate_bytes,
-            padding=padding.PKCS1v15(),
-            algorithm=hashes.SHA256(),
-        )
-    except InvalidSignature as e:
-        raise e
-
-    return True
-
-
-def request_certificate(csr: x509.CertificateSigningRequest) -> x509.Certificate:
-    """
-    1. Checks if certificate already exists
-    2. if not, creates and signs it as a CA
-    3. writes it to the DB
-
-    :param csr:
-    :param address:
-    :return:
-    """
-    valid_to = datetime.now() + timedelta(hours=CERT_VALIDITY)
-
-    cert_builder = (
-        x509.CertificateBuilder()
-        .subject_name(csr.subject)
-        .issuer_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "server")]))
-        .public_key(csr.public_key())
-        .serial_number(x509.random_serial_number())
-        .not_valid_before(datetime.now())
-        .not_valid_after(valid_to)
-    )
-
-    # cert_builder.add_extension(
-    #     x509.SubjectAlternativeName([x509.IPAddress(address)]), critical=True
-    # )
-
-    certificate = cert_builder.sign(
-        private_key=CA_SK, algorithm=hashes.SHA256(), backend=default_backend()
-    )
-
-    write_certificate(certificate)
-    return certificate
 
 
 def read_cert(certificate: x509.Certificate):
@@ -168,13 +193,8 @@ def read_cert(certificate: x509.Certificate):
         f"Public Key: {public_key_str}"
     )
 
-
-def delete_certificate(certificate: x509.Certificate):
     pass
 
 
 if __name__ == "__main__":
     csr = create_csr()
-    certificate = request_certificate(csr)
-    print(certificate)
-    read_cert(certificate)
