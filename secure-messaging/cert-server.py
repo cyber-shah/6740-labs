@@ -7,7 +7,11 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
-from cryptography.x509.base import Certificate
+from cryptography.x509.base import (
+    Certificate,
+    CertificateSigningRequest,
+    CertificateSigningRequestBuilder,
+)
 from cryptography.x509.oid import NameOID
 
 CERT_VALIDITY = 24
@@ -34,6 +38,34 @@ CA_SK = rsa.generate_private_key(
     key_size=2048,
 )
 CA_PK = CA_SK.public_key()
+
+USER_SK = rsa.generate_private_key(
+    public_exponent=65537,
+    key_size=2048,
+)
+USER_PK = USER_SK.public_key()
+print(
+    USER_PK.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    ).decode()
+)
+
+
+def create_csr():
+    csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
+        x509.Name(
+            [
+                x509.NameAttribute(x509.NameOID.COMMON_NAME, "shah"),
+            ]
+        )
+    )
+
+    csr = csr_builder.sign(
+        private_key=USER_SK, algorithm=hashes.SHA256(), backend=default_backend()
+    )
+
+    return csr
 
 
 def write_certificate(certificate: Certificate):
@@ -85,9 +117,7 @@ def check_validity(certificate: x509.Certificate):
     return True
 
 
-def request_certificate(
-    csr: x509.CertificateSigningRequest, address: IPv4Address
-) -> x509.Certificate:
+def request_certificate(csr: x509.CertificateSigningRequest) -> x509.Certificate:
     """
     1. Checks if certificate already exists
     2. if not, creates and signs it as a CA
@@ -108,9 +138,10 @@ def request_certificate(
         .not_valid_before(datetime.now())
         .not_valid_after(valid_to)
     )
-    cert_builder.add_extension(
-        x509.SubjectAlternativeName([x509.IPAddress(address)]), critical=True
-    )
+
+    # cert_builder.add_extension(
+    #     x509.SubjectAlternativeName([x509.IPAddress(address)]), critical=True
+    # )
 
     certificate = cert_builder.sign(
         private_key=CA_SK, algorithm=hashes.SHA256(), backend=default_backend()
@@ -120,5 +151,30 @@ def request_certificate(
     return certificate
 
 
+def read_cert(certificate: x509.Certificate):
+    # Extract the public key from the certificate
+    public_key = certificate.public_key()
+
+    # Convert the public key to a string representation
+    public_key_str = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    ).decode()
+
+    print(
+        f"Issuer: {certificate.issuer}, "
+        f"Subject: {certificate.subject}, "
+        f"Serial Number: {certificate.serial_number}, "
+        f"Public Key: {public_key_str}"
+    )
+
+
 def delete_certificate(certificate: x509.Certificate):
     pass
+
+
+if __name__ == "__main__":
+    csr = create_csr()
+    certificate = request_certificate(csr)
+    print(certificate)
+    read_cert(certificate)
