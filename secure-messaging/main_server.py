@@ -4,6 +4,11 @@ import socket
 import ssl
 import threading
 
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.x509 import CertificateSigningRequestBuilder
+
 import helpers
 from cert_server import CA
 
@@ -30,10 +35,27 @@ class Server:
         self.server_socket.bind((self.SERVER_IP, self.SERVER_PORT))
         # load secret and public keys
         self.context = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH)
-        self.SERVER_PK = helpers.load_public_key_from_file(pk_location)
-        self.SERVER_SK = helpers.load_private_key_from_file(sk_location)
-        print(self.SERVER_PK)
-        print(self.SERVER_SK)
+        self.server_pk = helpers.load_public_key_from_file(pk_location)
+        self.server_sk = helpers.load_private_key_from_file(sk_location)
+        # get the certificates
+        self.cert = self.request_cert()
+
+    def request_cert(self) -> x509.CertificateSigningRequest:
+        csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
+            x509.Name(
+                [
+                    x509.NameAttribute(x509.NameOID.COMMON_NAME, "shah"),
+                ]
+            )
+        )
+        print(csr_builder)
+        csr = csr_builder.sign(
+            private_key=self.server_sk,
+            algorithm=hashes.SHA256(),
+            backend=default_backend(),
+        )
+        print(csr)
+        return csr
 
     def accept_connections(self):
         """
@@ -77,6 +99,7 @@ class Server:
 
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser(
         description="Initialize the server with private and public keys."
     )
