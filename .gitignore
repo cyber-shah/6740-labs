@@ -164,3 +164,4 @@ cython_debug/
 #.idea/
 secure-messaging/secure/server_private_key.pem
 secure-messaging/secure/server_public_key.pem
+secure-messaging/keys/CA_PK.pem

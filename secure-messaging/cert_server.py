@@ -1,6 +1,5 @@
 import os
 from datetime import datetime, timedelta
-from ipaddress import IPv4Address
 
 from cryptography import x509
 from cryptography.exceptions import InvalidSignature
@@ -14,29 +13,10 @@ from cryptography.x509.base import (
 )
 from cryptography.x509.oid import NameOID
 
+import helpers
+
 CERT_VALIDITY = 24
 CERT_DIR = "certificates/"
-
-"""
------------------------------------------------------------------------------
-
-The server needs to be able to do the following:
-1. Manage users and passwords (create, update and delete)
-2. Authenticate users using SRP
-3. Maintain Certificates (create, delete and update)
-
--------------------------------------------------------------------------------
-"""
-
-# step 1: create certificates
-# step 2: maintain them
-# step 3: srp
-# step 4: manage users and passwords
-USER_SK = rsa.generate_private_key(
-    public_exponent=65537,
-    key_size=2048,
-)
-USER_PK = USER_SK.public_key()
 
 
 class CA:
@@ -47,11 +27,9 @@ class CA:
     :param CA_PK: CA's public key
     """
 
-    CA_SK = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
-    )
-    CA_PK = CA_SK.public_key()
+    def __init__(self, pk_location, sk_location) -> None:
+        self.CA_SK = helpers.load_private_key_from_file(sk_location)
+        self.CA_PK = helpers.load_public_key_from_file(pk_location)
 
     def request_certificate(
         self, csr: x509.CertificateSigningRequest
@@ -144,7 +122,7 @@ class CA:
 
         # check signature
         try:
-            CA_PK.verify(
+            self.CA_PK.verify(
                 signature=certificate.signature,
                 data=certificate.tbs_certificate_bytes,
                 padding=padding.PKCS1v15(),
