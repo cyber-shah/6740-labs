@@ -1,0 +1,8 @@
+server:
+  pk_location: keys/server_pk.pem
+  sk_location: keys/server_sk.pem
+  port: 6789
+
+ca:
+  pk_location: keys/ca_pk.pem
+  sk_location: keys/ca_sk.pem

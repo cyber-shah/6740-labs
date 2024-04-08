@@ -4,6 +4,7 @@ import socket
 import ssl
 import threading
 
+import yaml
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -43,13 +44,15 @@ class Server:
         self.__context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         # get certs
         self.__request_cert()
-        self.__context.load_cert_chain(certfile="certs/server.pem", keyfile=sk_location)
+        self.__context.load_cert_chain(
+            certfile="certificates/<Name(CN=server)>.pem", keyfile=sk_location
+        )
 
     def __request_cert(self) -> x509.Certificate:
         csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
             x509.Name(
                 [
-                    x509.NameAttribute(x509.NameOID.COMMON_NAME, "shah"),
+                    x509.NameAttribute(x509.NameOID.COMMON_NAME, "server"),
                 ]
             )
         )
@@ -58,7 +61,8 @@ class Server:
             algorithm=hashes.SHA256(),
             backend=default_backend(),
         )
-        return self.__ca.request_cert(csr)
+        certificate = self.__ca.request_cert(csr)
+        return certificate
 
     def accept_connections(self):
         """
@@ -99,15 +103,25 @@ class Server:
 
 
 if __name__ == "__main__":
+    with open("config.yml", "r") as config_file:
+        config = yaml.safe_load(config_file)
 
-    ps = argparse.ArgumentParser(description="Initialize server with sk and pk.")
-    ps.add_argument("-Ssk", help="Path to PEM Secret/Private Key file.", required=True)
-    ps.add_argument("-Spk", help="Path to PEM Public Key file.", required=True)
-    ps.add_argument("-port", help="port to start server ", default=6789, required=False)
-    ps.add_argument("-Csk", help="Path to PEM Secret/Private Key file.", required=True)
-    ps.add_argument("-Cpk", help="Path to PEM Public Key file.", required=True)
-    args = ps.parse_args()
+    # Extract server parameters
+    server_pk_location = config["server"]["pk_location"]
+    server_sk_location = config["server"]["sk_location"]
+    server_port = config["server"]["port"]
+
+    # Extract CA parameters
+    ca_pk_location = config["ca"]["pk_location"]
+    ca_sk_location = config["ca"]["sk_location"]
+
     # create a CA
-    ca = CA(pk_location=args.Cpk, sk_location=args.Csk)
+    ca = CA(pk_location=ca_pk_location, sk_location=ca_sk_location)
+
     # create the server instance
-    server = Server(pk_location=args.pk, sk_location=args.sk, port=args.port, ca=ca)
+    server = Server(
+        pk_location=server_pk_location,
+        sk_location=server_sk_location,
+        port=server_port,
+        ca=ca,
+    )

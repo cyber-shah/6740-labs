@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 from datetime import datetime, timedelta
 
@@ -14,6 +15,12 @@ import helpers
 
 CERT_VALIDITY = 24
 CERT_DIR = "certificates/"
+
+logging.basicConfig(
+    filename="ca.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 
 class CA:
@@ -37,6 +44,9 @@ class CA:
         :param address:
         :return:
         """
+        logging.info(msg=f"request_cert REQUEST {csr.subject}")
+        # TODO: check if cert already exists
+        logging.info(msg=f"request_cert CREATE {csr.subject}")
         valid_to = datetime.now() + timedelta(hours=CERT_VALIDITY)
         cert_builder = (
             x509.CertificateBuilder()
@@ -47,18 +57,14 @@ class CA:
             .not_valid_before(datetime.now())
             .not_valid_after(valid_to)
         )
-
-        # cert_builder.add_extension(
-        #     x509.SubjectAlternativeName([x509.IPAddress(address)]), critical=True
-        # )
-
         certificate = cert_builder.sign(
             private_key=self.ca_sk,
             algorithm=hashes.SHA256(),
             backend=default_backend(),
         )
-
+        logging.info(msg=f"request_cert SIGNED {csr.subject}")
         self.write_to_file(certificate)
+        logging.info(msg=f"request_cert WRITTEN {csr.subject}")
         return certificate
 
     def write_to_file(self, certificate: Certificate):
@@ -72,6 +78,7 @@ class CA:
                 cert_file.write(
                     certificate.public_bytes(encoding=serialization.Encoding.PEM)
                 )
+            log
         except Exception:
             pass
 
