@@ -6,7 +6,7 @@ from cryptography import x509
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.x509.base import Certificate
 from cryptography.x509.oid import NameOID
 
@@ -19,29 +19,16 @@ CERT_DIR = "certificates/"
 class CA:
     """
     CA is responsible for writing and managing certificates
-
-    :param CA_SK: CA's secret key
-    :param CA_PK: CA's public key
+    :param sk_location: path to CA's secret key
+    :param pk_location: path to CA's public key
     """
 
     def __init__(self, pk_location, sk_location) -> None:
         self.ca_sk = helpers.load_private_key_from_file(sk_location)
         self.ca_pk = helpers.load_public_key_from_file(pk_location)
-
-        # --- IMPORTED -----
-        print("from CA")
         print(type(self.ca_sk))
-        # # ---- CREATED -------
-        # self.private_key = rsa.generate_private_key(
-        #     public_exponent=65537,
-        #     key_size=2048,
-        # )
-        # print("from CA")
-        # print(type(self.private_key))
 
-    def request_certificate(
-        self, csr: x509.CertificateSigningRequest
-    ) -> x509.Certificate:
+    def request_cert(self, csr: x509.CertificateSigningRequest) -> x509.Certificate:
         """
         1. Checks if certificate already exists
         2. if not, creates and signs it as a CA
@@ -85,7 +72,7 @@ class CA:
                 cert_file.write(
                     certificate.public_bytes(encoding=serialization.Encoding.PEM)
                 )
-        except Exception as identifier:
+        except Exception:
             pass
 
     def check_exists(self, csr: x509.CertificateSigningRequest):
@@ -142,38 +129,11 @@ class CA:
         pass
 
 
-def read_cert(certificate: x509.Certificate):
-    # Extract the public key from the certificate
-    public_key = certificate.public_key()
-
-    # Convert the public key to a string representation
-    public_key_str = public_key.public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo,
-    ).decode()
-
-    print(
-        f"Issuer: {certificate.issuer}, "
-        f"Subject: {certificate.subject}, "
-        f"Serial Number: {certificate.serial_number}, "
-        f"Public Key: {public_key_str}"
-    )
-
-    pass
-
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Initialize the server with private and public keys."
-    )
-    parser.add_argument(
-        "-sk", help="Path to the PEM Secret/Private Key file.", required=True
-    )
-    parser.add_argument("-pk", help="Path to the PEM Public Key file.", required=True)
-    parser.add_argument(
-        "-port", help="port to start the server at", default=6789, required=False
-    )
-    args = parser.parse_args()
+    ps = argparse.ArgumentParser(description="Initialize the server with pk and sk.")
+    ps.add_argument("-sk", help="Path to PEM Secret/Private Key file.", required=True)
+    ps.add_argument("-pk", help="Path to PEM Public Key file.", required=True)
+    ps.add_argument("-port", help="port to start server", default=6789, required=False)
+    args = ps.parse_args()
 
     server = CA(pk_location=args.pk, sk_location=args.sk)
-    pass

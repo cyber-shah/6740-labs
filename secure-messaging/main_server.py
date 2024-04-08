@@ -6,11 +6,10 @@ import threading
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.x509 import CertificateSigningRequestBuilder
+from cryptography.hazmat.primitives import hashes
 
 import helpers
-from cert_server import CA
+from CA_server import CA
 
 """
 1. register users, store id and pass
@@ -28,19 +27,25 @@ logging.basicConfig(
 
 class Server:
 
-    def __init__(self, pk_location, sk_location, port) -> None:
+    def __init__(self, pk_location: str, sk_location: str, port: int, ca: CA) -> None:
+        # some defaults first --------------------------------------------------------
         self.SERVER_PORT = port
         self.SERVER_IP = "localhost"
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.bind((self.SERVER_IP, self.SERVER_PORT))
-        # load secret and public keys
-        self.context = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH)
-        self.server_pk = helpers.load_public_key_from_file(pk_location)
-        self.server_sk = helpers.load_private_key_from_file(sk_location)
-        # get the certificates
-        self.cert = self.request_cert()
+        self.__server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__server_socket.bind((self.SERVER_IP, self.SERVER_PORT))
+        # load the keys --------------------------------------------------------
+        self.__server_pk = helpers.load_public_key_from_file(pk_location)
+        self.__server_sk = helpers.load_private_key_from_file(sk_location)
+        # SSL STUFF --------------------------------------------------------
+        # instantiate a CA
+        self.__ca = ca
+        # create ssl context
+        self.__context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        # get certs
+        self.__request_cert()
+        self.__context.load_cert_chain(certfile="certs/server.pem", keyfile=sk_location)
 
-    def request_cert(self) -> x509.CertificateSigningRequest:
+    def __request_cert(self) -> x509.Certificate:
         csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
             x509.Name(
                 [
@@ -48,28 +53,24 @@ class Server:
                 ]
             )
         )
-        print(csr_builder)
         csr = csr_builder.sign(
-            private_key=self.server_sk,
+            private_key=self.__server_sk,
             algorithm=hashes.SHA256(),
             backend=default_backend(),
         )
-        print(csr)
-        return csr
+        return self.__ca.request_cert(csr)
 
     def accept_connections(self):
         """
         1. Starts listening on the server socket,
         2. spawns a new thread for each client -- handle_client
         """
-        self.server_socket.listen(5)
-        logging.info(
-            f"server has started listening at {self.SERVER_IP}:{self.SERVER_PORT}"
-        )
+        self.__server_socket.listen(5)
+        logging.info(f"server listening at {self.SERVER_IP}:{self.SERVER_PORT}")
         try:
             while True:
                 # Accept incoming connection
-                client_socket, client_address = self.server_socket.accept()
+                client_socket, client_address = self.__server_socket.accept()
                 logging.info(f" Connected {client_address}")
 
                 # create a new thread to handle that
@@ -77,7 +78,6 @@ class Server:
                     target=self.handle_client, args=(client_socket,)
                 )
                 client_thread.start()
-
         except KeyboardInterrupt:
             logging.info("Server stopped.")
 
@@ -85,7 +85,7 @@ class Server:
         try:
             while True:
                 # NOTE: wrap it inside SSL
-                ssl_socket = self.context.wrap_socket(
+                ssl_socket = self.__context.wrap_socket(
                     client_socket,
                     server_side=True,
                     do_handshake_on_connect=True,
@@ -100,16 +100,14 @@ class Server:
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(
-        description="Initialize the server with private and public keys."
-    )
-    parser.add_argument(
-        "-sk", help="Path to the PEM Secret/Private Key file.", required=True
-    )
-    parser.add_argument("-pk", help="Path to the PEM Public Key file.", required=True)
-    parser.add_argument(
-        "-port", help="port to start the server at", default=6789, required=False
-    )
-    args = parser.parse_args()
-
-    server = Server(pk_location=args.pk, sk_location=args.sk, port=args.port)
+    ps = argparse.ArgumentParser(description="Initialize server with sk and pk.")
+    ps.add_argument("-Ssk", help="Path to PEM Secret/Private Key file.", required=True)
+    ps.add_argument("-Spk", help="Path to PEM Public Key file.", required=True)
+    ps.add_argument("-port", help="port to start server ", default=6789, required=False)
+    ps.add_argument("-Csk", help="Path to PEM Secret/Private Key file.", required=True)
+    ps.add_argument("-Cpk", help="Path to PEM Public Key file.", required=True)
+    args = ps.parse_args()
+    # create a CA
+    ca = CA(pk_location=args.Cpk, sk_location=args.Csk)
+    # create the server instance
+    server = Server(pk_location=args.pk, sk_location=args.sk, port=args.port, ca=ca)
