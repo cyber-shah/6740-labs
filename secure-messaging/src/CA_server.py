@@ -78,9 +78,8 @@ class CA:
                 cert_file.write(
                     certificate.public_bytes(encoding=serialization.Encoding.PEM)
                 )
-            log
-        except Exception:
-            pass
+        except Exception as e:
+            logging.error(f"write_to_file {e}")
 
     def check_exists(self, csr: x509.CertificateSigningRequest):
         """
