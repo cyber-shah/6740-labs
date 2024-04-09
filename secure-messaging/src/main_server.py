@@ -41,12 +41,8 @@ class Server:
         # instantiate a CA
         self.__ca = ca
         # create ssl context
-        self.__context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         # get certs
         self.__request_cert()
-        self.__context.load_cert_chain(
-            certfile="certificates/<Name(CN=server)>.pem", keyfile=sk_location
-        )
 
     def __request_cert(self) -> x509.Certificate:
         csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
@@ -89,14 +85,7 @@ class Server:
         try:
             while True:
                 # NOTE: wrap it inside SSL
-                ssl_socket = self.__context.wrap_socket(
-                    client_socket,
-                    server_side=True,
-                    do_handshake_on_connect=True,
-                    server_hostname="server",
-                )
-                data = client_socket.recv(1024).decode().strip()
-                logging.info(f"{client_address}: {data}")
+                pass
         except Exception as e:
             logging.error(e)
         pass
