@@ -1,8 +1,7 @@
-import argparse
 import logging
 import socket
-import ssl
 import threading
+from pathlib import Path
 
 import yaml
 from cryptography import x509
@@ -92,17 +91,18 @@ class Server:
 
 
 if __name__ == "__main__":
-    with open("config.yml", "r") as config_file:
+    p = Path(__file__).parent.parent
+    with open(p / "config.yml") as config_file:
         config = yaml.safe_load(config_file)
 
     # Extract server parameters
-    server_pk_location = config["server"]["pk_location"]
-    server_sk_location = config["server"]["sk_location"]
+    server_pk_location = p / config["server"]["pk_location"]
+    server_sk_location = p / config["server"]["sk_location"]
     server_port = config["server"]["port"]
 
     # Extract CA parameters
-    ca_pk_location = config["ca"]["pk_location"]
-    ca_sk_location = config["ca"]["sk_location"]
+    ca_pk_location = p / config["ca"]["pk_location"]
+    ca_sk_location = p / config["ca"]["sk_location"]
 
     # create a CA
     ca = CA(pk_location=ca_pk_location, sk_location=ca_sk_location)
