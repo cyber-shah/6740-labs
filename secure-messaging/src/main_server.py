@@ -1,12 +1,12 @@
+import hashlib
 import json
 import logging
+import random
 import socket
 import threading
 import time
-from pathlib import Path
 from collections import defaultdict
-import random
-import hashlib
+from pathlib import Path
 
 import yaml
 from cryptography import x509
@@ -53,11 +53,17 @@ types of messages:
 """
 
 
-
 class Server:
 
     def __init__(
-        self, pk_location: str, sk_location: str, port: int, ca: CA, p: int, g: int, logins
+        self,
+        pk_location: str,
+        sk_location: str,
+        port: int,
+        ca: CA,
+        p: int,
+        g: int,
+        logins,
     ) -> None:
         # some defaults first --------------------------------------------------------
         self.SERVER_PORT = port
@@ -76,11 +82,13 @@ class Server:
         self.p = p
         self.g = g
 
-        self.logins = [(username, int(hashlib.sha3_512(p.encode()).hexdigest(), 16)) for username, p in logins]
+        self.logins = [
+            (username, int(hashlib.sha3_512(p.encode()).hexdigest(), 16))
+            for username, p in logins
+        ]
         # map of individual params for client connections
         self.steps = defaultdict(int)
         self.bs = {}
-
 
     def __request_cert(self) -> x509.Certificate:
         csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
@@ -148,7 +156,12 @@ class Server:
                     u = random.randint(1, 2**128 - 1)
                     c = random.randint(1, 2**128 - 1)
 
-                    response = {"val": (pow(self.g, b, self.p) + pow(self.g, password, self.p)) % self.p, "u": u, "c": c}
+                    response = {
+                        "val": (pow(self.g, b, self.p) + pow(self.g, password, self.p))
+                        % self.p,
+                        "u": u,
+                        "c": c,
+                    }
                     self.send(connection, response)
                 if step == 2:
                     # we were sent K{P_K, u, c}. send back A{cert}
@@ -166,6 +179,7 @@ class Server:
         pass
 
     def parse_msg(self, client_socket: socket.socket):
+        # TODO : do not read message more than the msg length, inside the header
         """
         ALL MESSAGES MUST PASS THROUGH THIS
         reads the message and returns the payload, DOES NOT DECRYPT
@@ -183,6 +197,7 @@ class Server:
             return payload
         except Exception as e:
             logging.error(e)
+            return 0
 
     def send(self, socket, message):
         message = json.dumps(message).encode()
@@ -218,6 +233,6 @@ if __name__ == "__main__":
         ca=ca,
         p=p,
         g=g,
-        logins=[("AzureDiamond", "hunter2")]
+        logins=[("AzureDiamond", "hunter2")],
     )
     server.accept_connections()
