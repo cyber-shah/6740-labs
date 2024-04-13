@@ -1,4 +1,3 @@
-import argparse
 import logging
 import os
 from datetime import datetime, timedelta
@@ -133,13 +132,3 @@ class CA:
 
     def delete_certificate(self):
         pass
-
-
-if __name__ == "__main__":
-    ps = argparse.ArgumentParser(description="Initialize the server with pk and sk.")
-    ps.add_argument("-sk", help="Path to PEM Secret/Private Key file.", required=True)
-    ps.add_argument("-pk", help="Path to PEM Public Key file.", required=True)
-    ps.add_argument("-port", help="port to start server", default=6789, required=False)
-    args = ps.parse_args()
-
-    server = CA(pk_location=args.pk, sk_location=args.sk)

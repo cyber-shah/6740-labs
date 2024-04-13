@@ -1,8 +1,9 @@
+import json
 import logging
 import socket
 import threading
-from pathlib import Path
 import time
+from pathlib import Path
 
 import yaml
 from cryptography import x509
@@ -13,10 +14,14 @@ import helpers
 from CA_server import CA
 
 """
-1. register users, store id and pass
-2. authenticate users, using id and pass
-3. talk to the CA, get certs
-4. list all active users
+1. authenticate users, using id and pass
+    Once authenticated, use store the session key:
+    session_keys : 
+        { user1: key1, }
+    
+2. use the Session keys to encrypt the communication between the client and server
+3. get certs for that user
+3. list all active users
 """
 
 logging.basicConfig(
@@ -26,9 +31,31 @@ logging.basicConfig(
 )
 
 
+"""
+types of messages:
+    {
+            msg_length: "",
+            ---------- encrypted ----------
+            command : "",
+            sender: "",
+            payload : "",
+            ---------- encrypted ----------
+            signature: ""
+            }
+
+    commands :  list
+                login
+                logout
+                get_cert
+"""
+HEADER_LENGTH = 4
+
+
 class Server:
 
-    def __init__(self, pk_location: str, sk_location: str, port: int, ca: CA, p: int, g: int) -> None:
+    def __init__(
+        self, pk_location: str, sk_location: str, port: int, ca: CA, p: int, g: int
+    ) -> None:
         # some defaults first --------------------------------------------------------
         self.SERVER_PORT = port
         self.SERVER_IP = "localhost"
@@ -94,6 +121,31 @@ class Server:
             logging.error(e)
         pass
 
+    def logout(self, client_username: str, client_address):
+        pass
+
+    def login(self, client_username: str):
+        pass
+
+    def parse_msg(self, client_socket: socket.socket):
+        """
+        ALL MESSAGES MUST PASS THROUGH THIS
+        reads the message and returns the payload, DOES NOT DECRYPT
+
+        :param client_socket: socket to recieve data from
+        :return: payload in bytes
+        """
+        # step 1: read the header, to get the size of the msg
+        header = client_socket.recv(HEADER_LENGTH)
+        msg_length = 0
+        try:
+            msg_length = int.from_bytes(header, byteorder="big")
+            # step 2: read the message only equal to the msg length
+            payload = client_socket.recv(msg_length)
+            return payload
+        except Exception as e:
+            logging.error(e)
+
 
 if __name__ == "__main__":
     p = Path(__file__).parent.parent
@@ -122,6 +174,6 @@ if __name__ == "__main__":
         port=server_port,
         ca=ca,
         p=p,
-        g=g
+        g=g,
     )
     server.accept_connections()
