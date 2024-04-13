@@ -8,8 +8,10 @@ import json
 import helpers
 
 class Client:
-    def __init__(self, password, p, g, server_port):
-        self.password = hashlib.sha3_512(password.encode()).hexdigest()
+    def __init__(self, username, password, p, g, server_port):
+        self.username = username
+
+        self.password = int(hashlib.sha3_512(password.encode()).hexdigest(), 16)
         # TODO double check this range
         # https://www.ibm.com/docs/en/zvse/6.2?topic=overview-diffie-hellman
         self.a = random.randint(1, p - 2)
@@ -22,12 +24,13 @@ class Client:
         self.handshake()
 
     def handshake(self):
-        self.send({"val": pow(self.g, self.a, self.p)})
+        self.send({"val": pow(self.g, self.a, self.p), "username": self.username})
 
     def send(self, message):
         message = json.dumps(message).encode()
         header = len(message).to_bytes(helpers.HEADER_LENGTH, byteorder="big")
         self.server_socket.send(header + message)
+        # TODO listen for server response somehow
 
 
 p = Path(__file__).parent.parent
@@ -36,7 +39,8 @@ with open(p / "config.yml") as config_file:
 
 
 c = Client(
-    "hunter2",
+    username="AzureDiamond",
+    password="hunter2",
     p=config["dh"]["p"],
     g=config["dh"]["g"],
     server_port=config["server"]["port"],

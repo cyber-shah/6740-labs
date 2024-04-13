@@ -76,7 +76,7 @@ class Server:
         self.p = p
         self.g = g
 
-        self.logins = [(username, hashlib.sha3_512(p.encode()).hexdigest()) for username, p in logins]
+        self.logins = [(username, int(hashlib.sha3_512(p.encode()).hexdigest(), 16)) for username, p in logins]
         # map of individual params for client connections
         self.steps = defaultdict(int)
         self.bs = {}
@@ -130,14 +130,29 @@ class Server:
                 val = json.loads(buf.decode())
                 logging.info(f"recieved from client {address}: {val}")
 
+                self.steps[address] += 1
                 step = self.steps[address]
                 if step == 1:
                     b = random.randint(1, p - 2)
-                    self.bs[address] = b
-                    response = {"val": (pow(self.g, b, self.p) + pow(self.g, w, self.p)) % self.p}
-                    connection.send(json.dumps())
+                    username = val["username"]
 
-                self.steps[address] += 1
+                    login = [v for v in self.logins if v[0] == username]
+                    assert len(login) <= 1
+                    if len(login) == 0:
+                        # someone tried to log in with a username we don't have
+                        return
+
+                    username, password = login[0]
+                    self.bs[address] = b
+
+                    u = random.randint(1, 2**128 - 1)
+                    c = random.randint(1, 2**128 - 1)
+
+                    response = {"val": (pow(self.g, b, self.p) + pow(self.g, password, self.p)) % self.p, "u": u, "c": c}
+                    self.send(connection, response)
+                if step == 2:
+                    # we were sent K{P_K, u, c}. send back A{cert}
+                    pass
 
                 time.sleep(0.1)
         except Exception as e:
@@ -168,6 +183,11 @@ class Server:
             return payload
         except Exception as e:
             logging.error(e)
+
+    def send(self, socket, message):
+        message = json.dumps(message).encode()
+        header = len(message).to_bytes(helpers.HEADER_LENGTH, byteorder="big")
+        socket.send(header + message)
 
 
 if __name__ == "__main__":
