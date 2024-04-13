@@ -37,13 +37,9 @@ import helpers
 
 
 class Client:
-    def __init__(self, username, password, p, g, server_port):
+    def __init__(self, username, password, p, g, server_port, ca, server):
         self.username = username
-
         self.w = int(hashlib.sha3_512(password.encode()).hexdigest(), 16)
-
-        # FIXME: check if 'a' can stay the same for all diffie hellman exchanges
-
         # TODO double check this range
         # https://www.ibm.com/docs/en/zvse/6.2?topic=overview-diffie-hellman
         self.a = random.randint(1, p - 2)
@@ -52,8 +48,15 @@ class Client:
 
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.connect(("localhost", server_port))
-        # TODO: store server's session key here
-        self.session_keys = {}
+        # store server's PK and CA's PK here, as trusted authorities
+        self.session_keys = {
+                ca: {
+                    "PK" : helpers.load_public_key_from_file(ca)
+                    },
+                server : {
+                    "PK" : helpers.load_public_key_from_file(server)
+                    }
+                }
 
         # TODO: check if handshake is sucessful
         self.handshake()
@@ -201,11 +204,16 @@ if __name__ == "__main__":
     parser.add_argument("password", help="Your password")
     args = parser.parse_args()
 
+    server_pk_location = p / config["server"]["pk_location"]
+    ca_pk_location = p / config["ca"]["pk_location"]
+
     c = Client(
         args.username,
         args.password,
         p=config["dh"]["p"],
         g=config["dh"]["g"],
+        ca = ca_pk_location,
+        server=server_pk_location,
         server_port=config["server"]["port"],
     )
 

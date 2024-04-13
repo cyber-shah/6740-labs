@@ -1,10 +1,10 @@
+import logging
+import socket
+
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
-
-import socket
-import logging
 
 HEADER_LENGTH = 4
 
@@ -27,6 +27,7 @@ def parse_msg(client_socket: socket.socket):
         return payload
     except Exception as e:
         logging.error(e)
+        return b"0"
 
 
 def load_private_key_from_file(file_path: str) -> rsa.RSAPrivateKey:
