@@ -168,7 +168,7 @@ class Server:
                     assert u == expected_u and c == expected_c
 
                     pk = serialization.load_pem_public_key(p_k)
-                    # we now have p_k. send back A{cert}
+                    # we now have pk_a. send back K{cert}
 
                 time.sleep(0.1)
         except Exception as e:
