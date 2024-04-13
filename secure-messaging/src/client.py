@@ -1,12 +1,21 @@
 import argparse
 import hashlib
 import json
+import logging
 import os
 import random
 import socket
 from pathlib import Path
 
 import yaml
+
+import helpers
+
+logging.basicConfig(
+    filename="client.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 from cryptography.hazmat.primitives import hashes, hmac
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
@@ -31,7 +40,7 @@ class Client:
     def __init__(self, username, password, p, g, server_port):
         self.username = username
 
-        self.password = int(hashlib.sha3_512(password.encode()).hexdigest(), 16)
+        self.w = int(hashlib.sha3_512(password.encode()).hexdigest(), 16)
 
         # FIXME: check if 'a' can stay the same for all diffie hellman exchanges
 
@@ -51,13 +60,25 @@ class Client:
         # TODO: if sucessful, create KEYS
 
     def handshake(self):
-        self.send({"val": pow(self.g, self.a, self.p), "username": self.username})
+        self.send({"g_a": pow(self.g, self.a, self.p), "username": self.username})
+
+        # need a delay here maybe to ensure server sends response? seems fine
+        # for me though
+        response = helpers.parse_msg(self.server_socket)
+        response = json.loads(response.decode())
+        g_b_plus_g_w = response["g_b_plus_g_w"]
+        u = response["u"]
+        c = response["c"]
+
+        g_b = (g_b_plus_g_w - pow(self.g, self.w, self.p)) % self.p
+
+        K = pow(g_b, self.a + (u * self.w), self.p)
+        logging.info(f"computed shared key {K}")
 
     def send(self, message):
         message = json.dumps(message).encode()
         header = len(message).to_bytes(helpers.HEADER_LENGTH, byteorder="big")
         self.server_socket.send(header + message)
-        # TODO listen for server response somehow
 
     def login(self):
         pass
@@ -153,7 +174,7 @@ class Client:
         :param message: bytes to sign
         :return: signature in bytes
         """
-        h = hmac.HMAC(self.session_keys[user][key], hashes.SHA256())
+        h = hmac.HMAC(self.session_keys[user].key, hashes.SHA256())
         h.update(message)
         signature = h.finalize()
         return signature
@@ -173,14 +194,6 @@ p = Path(__file__).parent.parent
 with open(p / "config.yml") as config_file:
     config = yaml.safe_load(config_file)
 
-
-c = Client(
-    username="AzureDiamond",
-    password="hunter2",
-    p=config["dh"]["p"],
-    g=config["dh"]["g"],
-    server_port=config["server"]["port"],
-)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Client for communicating with server")
