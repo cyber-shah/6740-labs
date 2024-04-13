@@ -7,7 +7,6 @@ import socket
 from pathlib import Path
 
 import yaml
-from cryptography.hazmat.primitives import hashes, hmac
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 import helpers
@@ -87,12 +86,12 @@ class Client:
         """
         {   msg_length: "",
             ---------- encrypted ----------
-            payload_type: "",
+            command : "",
             sender: "",
             payload : "",
             ---------- encrypted ----------
             IV : "",
-            HMAC signature: ""}
+            signature: ""}
 
 
         :param input:
@@ -102,8 +101,8 @@ class Client:
             message = input[1:]
             # 1. check if session key with that user is already setup
             if user in self.session_keys:
-                message = self.encrypt_send(user, f" ".join(message).encode())
-                self.session_keys[user].socket.sendall(message)
+                iv = os.urandom(32)
+                cipher = Cipher
                 pass
             else:
                 self.setup_keys(user)
@@ -112,51 +111,8 @@ class Client:
         except IndexError:
             raise ValueError
 
-    def encrypt_send(self, user: str, message: bytes) -> bytes:
-        iv = os.urandom(32)
-        cipher = Cipher(
-            algorithm=algorithms.AES256(self.session_keys[user].key),
-            mode=modes.CBC(iv),
-        )
-        en = cipher.encryptor()
-
-        # prepare the message
-        payload_type = en.update(b"message") + en.finalize()
-        encrypted_sender = en.update(f"{user}".encode()) + en.finalize()
-        encrypted_payload = en.update(message) + en.finalize()
-        signature = self.HMAC_sign(user, message)
-
-        message_dict = {
-            "iv": iv,
-            "payload_type": payload_type,
-            "encrypted_sender": encrypted_sender,
-            "encrypted_payload": encrypted_payload,
-            "signature": signature,
-        }
-        message_json = json.dumps(message_dict)
-        message_size = len(message_json)
-
-        final_message = {
-            "message_length": message_size,
-            "message": message_json,
-        }
-        return json.dumps(final_message).encode()
-
     def setup_keys(self, user: str):
         pass
-
-    def HMAC_sign(self, user: str, message: bytes) -> bytes:
-        """
-        Signs a message using HMAC
-
-        :param user: user the message is for
-        :param message: bytes to sign
-        :return: signature in bytes
-        """
-        h = hmac.HMAC(self.session_keys[user][key], hashes.SHA256())
-        h.update(message)
-        signature = h.finalize()
-        return signature
 
     def authenticate(self):
         """
