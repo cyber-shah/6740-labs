@@ -20,6 +20,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
+logger = logging.getLogger(__name__)
 
 
 class CA:
@@ -44,6 +45,7 @@ class CA:
         """
         logging.info(msg=f"request_cert REQUEST {csr.subject}")
         # TODO: check if cert already exists
+        
         logging.info(msg=f"request_cert CREATE {csr.subject}")
         valid_to = datetime.now() + timedelta(hours=CERT_VALIDITY)
         cert_builder = (

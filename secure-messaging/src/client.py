@@ -125,12 +125,13 @@ class Client:
 
             # 1. parse the input
             command = user_input[0].lower()
-            if len(user_input) > 1:
-                user = user_input[1].lower()
-
             if command == "list":
+                user_input.insert(0, "server")
+                self.send_message(user_input)
+                print(user_input)
                 pass
             elif command == "send":
+                self.send_message(user_input)
                 # 1. set if session key with that user is already setup
                 #       if already setup, use that to communicate
                 # 2. else set it up
@@ -142,6 +143,7 @@ class Client:
 
     def send_message(self, input: list[str]) -> None:
         """
+        Sends message in the following format
         {   msg_length: "",
             ---------- encrypted ----------
             payload_type: "",
@@ -151,8 +153,7 @@ class Client:
             IV : "",
             HMAC signature: ""}
 
-
-        :param input:
+        :param input: input receieved from the cli
         """
         try:
             user = input[0].lower()
@@ -160,18 +161,28 @@ class Client:
             # 1. check if session key with that user is already setup
             if user in self.session_keys:
                 message = self.encrypt_msg(user, f" ".join(message).encode())
-                pass
-            else:
-                self.setup_keys(user)
+                self.send(message, self.session_keys[user]['socket'])
             # 2. else set it up
+            else:
+                try:
+                    self.setup_keys(user)
+                except ConnectionError:
+                    print(f"> cannot connect to {user}")
 
         except IndexError:
             raise ValueError
 
     def encrypt_msg(self, user: str, message: bytes) -> object:
+        """
+        Encrypts plaintext message, and prepares the final message in message format
+
+        :param user: str user to send TO
+        :param message: bytes plaintext message
+        :return: obj in format
+        """
         iv = os.urandom(32)
         cipher = Cipher(
-            algorithm=algorithms.AES256(self.session_keys[user].key),
+            algorithm=algorithms.AES256(self.session_keys[user]["key"]),
             mode=modes.CBC(iv),
         )
         en = cipher.encryptor()
