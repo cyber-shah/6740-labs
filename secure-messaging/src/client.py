@@ -49,12 +49,15 @@ class Client:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.connect(("localhost", server_port))
         # store server's PK and CA's PK here, as trusted authorities
+        # TODO: add server's keys here after auth
         self.session_keys = {
-                ca: {
-                    "PK" : helpers.load_public_key_from_file(ca)
+                "ca": {
+                    "PK" : helpers.load_public_key_from_file(ca),
                     },
-                server : {
-                    "PK" : helpers.load_public_key_from_file(server)
+                "server" : {
+                    "PK" : helpers.load_public_key_from_file(server),
+                    "key": b"",
+                    "socket": self.server_socket
                     }
                 }
 
@@ -63,7 +66,8 @@ class Client:
         # TODO: if sucessful, create KEYS
 
     def handshake(self):
-        self.send({"g_a": pow(self.g, self.a, self.p), "username": self.username})
+        
+        self.send({"g_a": pow(self.g, self.a, self.p), "username": self.username}, self.session_keys["server"]["socket"])
 
         # need a delay here maybe to ensure server sends response? seems fine
         # for me though
@@ -78,10 +82,10 @@ class Client:
         K = pow(g_b, self.a + (u * self.w), self.p)
         logging.info(f"computed shared key {K}")
 
-    def send(self, message):
+    def send(self, message:object, socket: socket.socket):
         message = json.dumps(message).encode()
         header = len(message).to_bytes(helpers.HEADER_LENGTH, byteorder="big")
-        self.server_socket.send(header + message)
+        socket.send(header + message)
 
     def login(self):
         pass
@@ -126,8 +130,7 @@ class Client:
             message = input[1:]
             # 1. check if session key with that user is already setup
             if user in self.session_keys:
-                message = self.encrypt_send(user, f" ".join(message).encode())
-                self.session_keys[user].socket.sendall(message)
+                message = self.encrypt_msg(user, f" ".join(message).encode())
                 pass
             else:
                 self.setup_keys(user)
@@ -136,7 +139,7 @@ class Client:
         except IndexError:
             raise ValueError
 
-    def encrypt_send(self, user: str, message: bytes) -> bytes:
+    def encrypt_msg(self, user: str, message: bytes) -> object:
         iv = os.urandom(32)
         cipher = Cipher(
             algorithm=algorithms.AES256(self.session_keys[user].key),
@@ -150,22 +153,14 @@ class Client:
         encrypted_payload = en.update(message) + en.finalize()
         signature = self.HMAC_sign(user, message)
 
-        message_dict = {
+        return {
             "iv": iv,
             "payload_type": payload_type,
             "encrypted_sender": encrypted_sender,
             "encrypted_payload": encrypted_payload,
             "signature": signature,
         }
-        message_json = json.dumps(message_dict)
-        message_size = len(message_json)
-
-        final_message = {
-            "message_length": message_size,
-            "message": message_json,
-        }
-        return json.dumps(final_message).encode()
-
+        
     def setup_keys(self, user: str):
         pass
 
