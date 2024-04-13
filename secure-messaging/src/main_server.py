@@ -184,14 +184,15 @@ class Server:
                     )
                     d = cipher.decryptor()
                     message = d.update(buf) + d.finalize()
-                    assert len(message) == 16 + 16 + 16
-                    p_k = message[0:16]
-                    u = int.from_bytes(message[16:32])
-                    c = int.from_bytes(message[32:48])
+                    assert len(message) == 800 + 16 + 16
+                    p_k = message[0:800]
+                    u = int.from_bytes(message[800:800 + 16])
+                    c = int.from_bytes(message[800 + 16:800 + 32])
 
                     # nice try attackers!
                     assert u == expected_u and c == expected_c
 
+                    print("pk", p_k)
                     # we now have p_k. send back A{cert}
 
                 time.sleep(0.1)

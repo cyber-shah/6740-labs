@@ -8,6 +8,9 @@ import socket
 from pathlib import Path
 
 import yaml
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
 
 import helpers
 
@@ -37,7 +40,7 @@ import helpers
 
 
 class Client:
-    def __init__(self, username, password, p, g, server_port, ca, server):
+    def __init__(self, username, password, p, g, rsa_e, server_port, ca, server):
         self.username = username
         self.w = int(hashlib.sha3_512(password.encode()).hexdigest(), 16)
         # TODO double check this range
@@ -45,6 +48,7 @@ class Client:
         self.a = random.randint(1, p - 2)
         self.p = p
         self.g = g
+        self.rsa_e = rsa_e
 
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.connect(("localhost", server_port))
@@ -68,11 +72,8 @@ class Client:
     def handshake(self):
 
         server_socket = self.session_keys["server"]["socket"]
-        message =  {"g_a": pow(self.g, self.a, self.p), "username": self.username}
-        self.send(
-           json.dumps(message).encode(),
-            server_socket
-        )
+        message = {"g_a": pow(self.g, self.a, self.p), "username": self.username}
+        self.send(json.dumps(message).encode(), server_socket)
 
         # need a delay here maybe to ensure server sends response? seems fine
         # for me though
@@ -87,7 +88,17 @@ class Client:
         K = pow(g_b, self.a + (u * self.w), self.p)
         logging.info(f"computed shared key {K}")
 
-        p_k = os.urandom(16)
+        self.sk_a = rsa.generate_private_key(
+            public_exponent=self.rsa_e, key_size=4096, backend=default_backend()
+        )
+        self.pk_a = self.sk_a.public_key()
+
+        pk_bytes = self.pk_a.public_bytes(
+            serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        assert len(pk_bytes) == 800
+
         # convert to 256 bits for aes256
         key = hashlib.sha3_256(str(K).encode()).digest()
         iv = os.urandom(16)
@@ -96,7 +107,9 @@ class Client:
             mode=modes.CBC(iv),
         )
         en = cipher.encryptor()
-        message = en.update(iv + p_k + u.to_bytes(16) + c.to_bytes(16)) + en.finalize()
+        message = (
+            en.update(iv + pk_bytes + u.to_bytes(16) + c.to_bytes(16)) + en.finalize()
+        )
         self.send(message, server_socket)
 
     def send(self, message: object, socket: socket.socket):
@@ -223,6 +236,7 @@ if __name__ == "__main__":
         args.password,
         p=config["dh"]["p"],
         g=config["dh"]["g"],
+        rsa_e=config["rsa"]["e"],
         ca=ca_pk_location,
         server=server_pk_location,
         server_port=config["server"]["port"],
