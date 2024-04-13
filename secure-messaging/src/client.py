@@ -27,7 +27,7 @@ import helpers
 #       4. validate attempts
 """
 {
-        user : { 
+        user : {
             session_key : "",
             socket : socket,
             PK : user's PK
@@ -51,23 +51,28 @@ class Client:
         # store server's PK and CA's PK here, as trusted authorities
         # TODO: add server's keys here after auth
         self.session_keys = {
-                "ca": {
-                    "PK" : helpers.load_public_key_from_file(ca),
-                    },
-                "server" : {
-                    "PK" : helpers.load_public_key_from_file(server),
-                    "key": b"",
-                    "socket": self.server_socket
-                    }
-                }
+            "ca": {
+                "PK": helpers.load_public_key_from_file(ca),
+            },
+            "server": {
+                "PK": helpers.load_public_key_from_file(server),
+                "key": b"",
+                "socket": self.server_socket,
+            },
+        }
 
         # TODO: check if handshake is sucessful
         self.handshake()
         # TODO: if sucessful, create KEYS
 
     def handshake(self):
-        
-        self.send({"g_a": pow(self.g, self.a, self.p), "username": self.username}, self.session_keys["server"]["socket"])
+
+        server_socket = self.session_keys["server"]["socket"]
+        message =  {"g_a": pow(self.g, self.a, self.p), "username": self.username}
+        self.send(
+           json.dumps(message).encode(),
+            server_socket
+        )
 
         # need a delay here maybe to ensure server sends response? seems fine
         # for me though
@@ -82,8 +87,19 @@ class Client:
         K = pow(g_b, self.a + (u * self.w), self.p)
         logging.info(f"computed shared key {K}")
 
-    def send(self, message:object, socket: socket.socket):
-        message = json.dumps(message).encode()
+        p_k = os.urandom(16)
+        # convert to 256 bits for aes256
+        key = hashlib.sha3_256(str(K).encode()).digest()
+        iv = os.urandom(16)
+        cipher = Cipher(
+            algorithm=algorithms.AES256(key),
+            mode=modes.CBC(iv),
+        )
+        en = cipher.encryptor()
+        message = en.update(iv + p_k + u.to_bytes(16) + c.to_bytes(16)) + en.finalize()
+        self.send(message, server_socket)
+
+    def send(self, message: object, socket: socket.socket):
         header = len(message).to_bytes(helpers.HEADER_LENGTH, byteorder="big")
         socket.send(header + message)
 
@@ -160,7 +176,7 @@ class Client:
             "encrypted_payload": encrypted_payload,
             "signature": signature,
         }
-        
+
     def setup_keys(self, user: str):
         pass
 
@@ -207,7 +223,7 @@ if __name__ == "__main__":
         args.password,
         p=config["dh"]["p"],
         g=config["dh"]["g"],
-        ca = ca_pk_location,
+        ca=ca_pk_location,
         server=server_pk_location,
         server_port=config["server"]["port"],
     )

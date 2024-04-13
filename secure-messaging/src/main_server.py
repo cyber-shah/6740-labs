@@ -7,6 +7,7 @@ import threading
 import time
 from collections import defaultdict
 from pathlib import Path
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 import yaml
 from cryptography import x509
@@ -89,6 +90,7 @@ class Server:
         # map of individual params for client connections
         self.steps = defaultdict(int)
         self.bs = {}
+        self.initial_keys = {}
 
     def __request_cert(self) -> x509.Certificate:
         csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
@@ -135,12 +137,12 @@ class Server:
                     time.sleep(0.01)
                     continue
 
-                val = json.loads(buf.decode())
-                logging.info(f"recieved from client {address}: {val}")
+                logging.info(f"recieved from client {address}: {buf}")
 
                 self.steps[address] += 1
                 step = self.steps[address]
                 if step == 1:
+                    val = json.loads(buf.decode())
                     b = random.randint(1, p - 2)
                     username = val["username"]
                     g_a = val["g_a"]
@@ -154,8 +156,8 @@ class Server:
                     username, w = login[0]
                     self.bs[address] = b
 
-                    u = random.randint(1, 2**128 - 1)
-                    c = random.randint(1, 2**128 - 1)
+                    u = random.randint(1, 2**127 - 1)
+                    c = random.randint(1, 2**127 - 1)
 
                     response = {
                         "g_b_plus_g_w": (
@@ -170,15 +172,31 @@ class Server:
                     # intermediate modulos are to avoid enormous intermediate values
                     K = pow(g_a * pow(g, u * w, self.p), b, self.p)
                     logging.info(f"server: computed shared key {K}")
+                    self.initial_keys[connection] = (u, c, hashlib.sha3_256(str(K).encode()).digest())
                     self.send(connection, response)
                 if step == 2:
-                    # we were sent K{P_K, u, c}. send back A{cert}
-                    pass
+                    iv = buf[:16]
+                    buf = buf[16:]
+                    (expected_u, expected_c, key) = self.initial_keys[connection]
+                    cipher = Cipher(
+                        algorithm=algorithms.AES256(key),
+                        mode=modes.CBC(iv),
+                    )
+                    d = cipher.decryptor()
+                    message = d.update(buf) + d.finalize()
+                    assert len(message) == 16 + 16 + 16
+                    p_k = message[0:16]
+                    u = int.from_bytes(message[16:32])
+                    c = int.from_bytes(message[32:48])
+
+                    # nice try attackers!
+                    assert u == expected_u and c == expected_c
+
+                    # we now have p_k. send back A{cert}
 
                 time.sleep(0.1)
         except Exception as e:
             logging.error(e)
-        pass
 
     def logout(self, client_username: str, client_address):
         pass
