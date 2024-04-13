@@ -130,7 +130,7 @@ class Server:
     def handle_client(self, connection: socket.socket, address):
         try:
             while True:
-                buf = self.parse_msg(connection)
+                buf = helpers.parse_msg(connection)
                 if len(buf) == 0:
                     time.sleep(0.01)
                     continue
@@ -143,6 +143,7 @@ class Server:
                 if step == 1:
                     b = random.randint(1, p - 2)
                     username = val["username"]
+                    g_a = val["g_a"]
 
                     login = [v for v in self.logins if v[0] == username]
                     assert len(login) <= 1
@@ -150,18 +151,25 @@ class Server:
                         # someone tried to log in with a username we don't have
                         return
 
-                    username, password = login[0]
+                    username, w = login[0]
                     self.bs[address] = b
 
                     u = random.randint(1, 2**128 - 1)
                     c = random.randint(1, 2**128 - 1)
 
                     response = {
-                        "val": (pow(self.g, b, self.p) + pow(self.g, password, self.p))
+                        "g_b_plus_g_w": (
+                            pow(self.g, b, self.p) + pow(self.g, w, self.p)
+                        )
                         % self.p,
                         "u": u,
                         "c": c,
                     }
+
+                    # (g^b)^(a + uw) = ((g^a)(g^(uw)))^b.
+                    # intermediate modulos are to avoid enormous intermediate values
+                    K = pow(g_a * pow(g, u * w, self.p), b, self.p)
+                    logging.info(f"server: computed shared key {K}")
                     self.send(connection, response)
                 if step == 2:
                     # we were sent K{P_K, u, c}. send back A{cert}
@@ -179,7 +187,6 @@ class Server:
         pass
 
     def parse_msg(self, client_socket: socket.socket):
-        # TODO : do not read message more than the msg length, inside the header
         """
         ALL MESSAGES MUST PASS THROUGH THIS
         reads the message and returns the payload, DOES NOT DECRYPT
@@ -197,7 +204,6 @@ class Server:
             return payload
         except Exception as e:
             logging.error(e)
-            return 0
 
     def send(self, socket, message):
         message = json.dumps(message).encode()
