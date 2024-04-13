@@ -122,20 +122,13 @@ class Server:
     def handle_client(self, connection: socket.socket, address):
         try:
             while True:
-                v = self.parse_msg(connection)
-                if len(v) == 0:
+                buf = self.parse_msg(connection)
+                if len(buf) == 0:
                     time.sleep(0.01)
                     continue
 
-                print(v)
-
-                buf = connection.recv(1024)
-                if len(buf) == 0:
-                    continue
-
                 val = json.loads(buf.decode())
-                if len(buf) > 0:
-                    logging.info(f"recieved from client {address}: {val}")
+                logging.info(f"recieved from client {address}: {val}")
 
                 step = self.steps[address]
                 if step == 1:
