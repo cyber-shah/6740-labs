@@ -2,6 +2,7 @@ import logging
 import socket
 import threading
 from pathlib import Path
+import time
 
 import yaml
 from cryptography import x509
@@ -27,7 +28,7 @@ logging.basicConfig(
 
 class Server:
 
-    def __init__(self, pk_location: str, sk_location: str, port: int, ca: CA) -> None:
+    def __init__(self, pk_location: str, sk_location: str, port: int, ca: CA, p: int, g: int) -> None:
         # some defaults first --------------------------------------------------------
         self.SERVER_PORT = port
         self.SERVER_IP = "localhost"
@@ -42,6 +43,8 @@ class Server:
         # create ssl context
         # get certs
         self.__request_cert()
+        self.p = p
+        self.g = g
 
     def __request_cert(self) -> x509.Certificate:
         csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
@@ -69,22 +72,24 @@ class Server:
         try:
             while True:
                 # Accept incoming connection
-                client_socket, client_address = self.__server_socket.accept()
-                logging.info(f" Connected {client_address}")
+                connection, address = self.__server_socket.accept()
+                logging.info(f" Connected {address}")
 
                 # create a new thread to handle that
                 client_thread = threading.Thread(
-                    target=self.handle_client, args=(client_socket,)
+                    target=self.handle_client, args=(connection, address)
                 )
                 client_thread.start()
         except KeyboardInterrupt:
             logging.info("Server stopped.")
 
-    def handle_client(self, client_socket: socket.socket, client_address):
+    def handle_client(self, connection: socket.socket, address):
         try:
             while True:
-                # NOTE: wrap it inside SSL
-                pass
+                buf = connection.recv(1024)
+                if len(buf) > 0:
+                    logging.info(f"recieved from client: {buf}")
+                time.sleep(0.1)
         except Exception as e:
             logging.error(e)
         pass
@@ -104,6 +109,9 @@ if __name__ == "__main__":
     ca_pk_location = p / config["ca"]["pk_location"]
     ca_sk_location = p / config["ca"]["sk_location"]
 
+    p = config["dh"]["p"]
+    g = config["dh"]["g"]
+
     # create a CA
     ca = CA(pk_location=ca_pk_location, sk_location=ca_sk_location)
 
@@ -113,4 +121,7 @@ if __name__ == "__main__":
         sk_location=server_sk_location,
         port=server_port,
         ca=ca,
+        p=p,
+        g=g
     )
+    server.accept_connections()
