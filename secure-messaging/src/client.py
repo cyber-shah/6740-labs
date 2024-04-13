@@ -202,6 +202,29 @@ class Client:
         }
 
     def setup_keys(self, user: str):
+        # we are A and user is B. ask server for B's public key
+        pk_b = self.get_public_key_for(user)
+
+        # TODO get B's socket information from the server
+        socket_b = ...
+        a = random.randint(1, self.p - 2)
+        g_a = pow(self.g, a, self.p)
+
+        message = self.cert.public_bytes(serialization.Encoding.PEM) + g_a.to_bytes(2048)
+        self.send(message, socket_b)
+
+        # should get back PK_A{[cert_b, g^b mod p]_{SK_B}}
+        response = helpers.parse_msg(socket_b)
+
+        K = ...
+        # use key to compute final challenge
+        self.send(..., socket_b)
+
+    def get_public_key_for(self, user) -> rsa.RSAPublicKey:
+        """
+        Requests the public key of user from the server. Must already be
+        authenticated with the server.
+        """
         pass
 
     def HMAC_sign(self, user: str, message: bytes) -> bytes:
