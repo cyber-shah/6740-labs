@@ -8,6 +8,7 @@ import time
 from collections import defaultdict
 from pathlib import Path
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import serialization
 
 import yaml
 from cryptography import x509
@@ -111,8 +112,7 @@ class Server:
                     time.sleep(0.01)
                     continue
 
-                val = json.loads(buf.decode())
-                logger.info(f"recieved from client {address}: {val}")
+                logger.info(f"recieved from client {address}: {buf}")
 
                 self.steps[address] += 1
                 step = self.steps[address]
@@ -147,6 +147,7 @@ class Server:
                     # intermediate modulos are to avoid enormous intermediate values
                     K = pow(g_a * pow(g, u * w, self.p), b, self.p)
                     logger.info(f"server: computed shared key {K}")
+                    self.initial_keys[connection] = (u, c, hashlib.sha3_256(str(K).encode()).digest())
                     self.send(connection, response)
                 if step == 2:
                     iv = buf[:16]
@@ -166,13 +167,12 @@ class Server:
                     # nice try attackers!
                     assert u == expected_u and c == expected_c
 
-                    print("pk", p_k)
+                    pk = serialization.load_pem_public_key(p_k)
                     # we now have p_k. send back A{cert}
 
                 time.sleep(0.1)
         except Exception as e:
             logger.error(e)
-        pass
 
     def logout(self, client_username: str, client_address):
         pass
