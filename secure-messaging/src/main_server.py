@@ -4,6 +4,9 @@ import socket
 import threading
 import time
 from pathlib import Path
+from collections import defaultdict
+import random
+import hashlib
 
 import yaml
 from cryptography import x509
@@ -16,9 +19,9 @@ from CA_server import CA
 """
 1. authenticate users, using id and pass
     Once authenticated, use store the session key:
-    session_keys : 
+    session_keys :
         { user1: key1, }
-    
+
 2. use the Session keys to encrypt the communication between the client and server
 3. get certs for that user
 3. list all active users
@@ -48,13 +51,13 @@ types of messages:
                 logout
                 get_cert
 """
-HEADER_LENGTH = 4
+
 
 
 class Server:
 
     def __init__(
-        self, pk_location: str, sk_location: str, port: int, ca: CA, p: int, g: int
+        self, pk_location: str, sk_location: str, port: int, ca: CA, p: int, g: int, logins
     ) -> None:
         # some defaults first --------------------------------------------------------
         self.SERVER_PORT = port
@@ -72,6 +75,12 @@ class Server:
         self.__request_cert()
         self.p = p
         self.g = g
+
+        self.logins = [(username, hashlib.sha3_512(p.encode()).hexdigest()) for username, p in logins]
+        # map of individual params for client connections
+        self.steps = defaultdict(int)
+        self.bs = {}
+
 
     def __request_cert(self) -> x509.Certificate:
         csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
@@ -113,9 +122,30 @@ class Server:
     def handle_client(self, connection: socket.socket, address):
         try:
             while True:
+                v = self.parse_msg(connection)
+                if len(v) == 0:
+                    time.sleep(0.01)
+                    continue
+
+                print(v)
+
                 buf = connection.recv(1024)
+                if len(buf) == 0:
+                    continue
+
+                val = json.loads(buf.decode())
                 if len(buf) > 0:
-                    logging.info(f"recieved from client: {buf}")
+                    logging.info(f"recieved from client {address}: {val}")
+
+                step = self.steps[address]
+                if step == 1:
+                    b = random.randint(1, p - 2)
+                    self.bs[address] = b
+                    response = {"val": (pow(self.g, b, self.p) + pow(self.g, w, self.p)) % self.p}
+                    connection.send(json.dumps())
+
+                self.steps[address] += 1
+
                 time.sleep(0.1)
         except Exception as e:
             logging.error(e)
@@ -136,7 +166,7 @@ class Server:
         :return: payload in bytes
         """
         # step 1: read the header, to get the size of the msg
-        header = client_socket.recv(HEADER_LENGTH)
+        header = client_socket.recv(helpers.HEADER_LENGTH)
         msg_length = 0
         try:
             msg_length = int.from_bytes(header, byteorder="big")
@@ -175,5 +205,6 @@ if __name__ == "__main__":
         ca=ca,
         p=p,
         g=g,
+        logins=[("AzureDiamond", "hunter2")]
     )
     server.accept_connections()

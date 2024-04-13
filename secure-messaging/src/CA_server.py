@@ -32,7 +32,6 @@ class CA:
     def __init__(self, pk_location, sk_location) -> None:
         self.ca_sk = helpers.load_private_key_from_file(sk_location)
         self.ca_pk = helpers.load_public_key_from_file(pk_location)
-        print(type(self.ca_sk))
 
     def request_cert(self, csr: x509.CertificateSigningRequest) -> x509.Certificate:
         """

@@ -3,6 +3,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
+HEADER_LENGTH = 4
 
 def load_private_key_from_file(file_path: str) -> rsa.RSAPrivateKey:
     with open(file_path, "rb") as key_file:
