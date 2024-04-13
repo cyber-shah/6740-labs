@@ -26,33 +26,6 @@ from CA_server import CA
 3. get certs for that user
 3. list all active users
 """
-
-logging.basicConfig(
-    filename="server.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
-
-
-"""
-types of messages:
-    {
-            msg_length: "",
-            ---------- encrypted ----------
-            command : "",
-            sender: "",
-            payload : "",
-            ---------- encrypted ----------
-            signature: ""
-            }
-
-    commands :  list
-                login
-                logout
-                get_cert
-"""
-
-
 class Server:
 
     def __init__(
@@ -104,6 +77,7 @@ class Server:
             backend=default_backend(),
         )
         certificate = self.__ca.request_cert(csr)
+        logger.info("got certificates for the server")
         return certificate
 
     def accept_connections(self):
@@ -112,12 +86,12 @@ class Server:
         2. spawns a new thread for each client -- handle_client
         """
         self.__server_socket.listen(5)
-        logging.info(f"server listening at {self.SERVER_IP}:{self.SERVER_PORT}")
+        logger.info(f"server listening at {self.SERVER_IP}:{self.SERVER_PORT}")
         try:
             while True:
                 # Accept incoming connection
                 connection, address = self.__server_socket.accept()
-                logging.info(f" Connected {address}")
+                logger.info(f" Connected {address}")
 
                 # create a new thread to handle that
                 client_thread = threading.Thread(
@@ -125,7 +99,7 @@ class Server:
                 )
                 client_thread.start()
         except KeyboardInterrupt:
-            logging.info("Server stopped.")
+            logger.info("Server stopped.")
 
     def handle_client(self, connection: socket.socket, address):
         try:
@@ -136,7 +110,7 @@ class Server:
                     continue
 
                 val = json.loads(buf.decode())
-                logging.info(f"recieved from client {address}: {val}")
+                logger.info(f"recieved from client {address}: {val}")
 
                 self.steps[address] += 1
                 step = self.steps[address]
@@ -169,7 +143,7 @@ class Server:
                     # (g^b)^(a + uw) = ((g^a)(g^(uw)))^b.
                     # intermediate modulos are to avoid enormous intermediate values
                     K = pow(g_a * pow(g, u * w, self.p), b, self.p)
-                    logging.info(f"server: computed shared key {K}")
+                    logger.info(f"server: computed shared key {K}")
                     self.send(connection, response)
                 if step == 2:
                     # we were sent K{P_K, u, c}. send back A{cert}
@@ -177,7 +151,7 @@ class Server:
 
                 time.sleep(0.1)
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
         pass
 
     def logout(self, client_username: str, client_address):
@@ -203,7 +177,7 @@ class Server:
             payload = client_socket.recv(msg_length)
             return payload
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
 
     def send(self, socket, message):
         message = json.dumps(message).encode()
@@ -212,6 +186,15 @@ class Server:
 
 
 if __name__ == "__main__":
+
+    logging.basicConfig(
+        filename="server.log",
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+    )
+    logger = logging.getLogger(__name__)
+
+
     p = Path(__file__).parent.parent
     with open(p / "config.yml") as config_file:
         config = yaml.safe_load(config_file)
