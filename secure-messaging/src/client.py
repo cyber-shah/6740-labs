@@ -115,7 +115,6 @@ class Client:
             algorithm=hashes.SHA256(),
             backend=default_backend(),
         )
-        certificate = self.__ca.request_cert(csr)
 
         iv = os.urandom(16)
         cipher = Cipher(

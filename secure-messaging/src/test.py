@@ -1,4 +1,5 @@
 
+import json
 import socket
 
 
@@ -16,9 +17,20 @@ def send_messages():
         print("Connected to the server.")
 
         while True:
-            # Send a message to the server
+            # Get user input for the message
             message = input("Enter message to send (or press Ctrl+C to exit): ")
-            client_socket.sendall(message.encode())
+
+            # Create message dictionary
+            msg_dict = {
+                "payload_type": "text",
+                "sender": "client",
+                "payload": message
+            }
+            json_message = json.dumps(msg_dict).encode()
+            header = len(json_message).to_bytes(4, byteorder="big")
+
+            # Send the JSON message to the server
+            client_socket.sendall(header + json_message)
 
     except KeyboardInterrupt:
         print("Ctrl+C pressed. Closing the connection.")

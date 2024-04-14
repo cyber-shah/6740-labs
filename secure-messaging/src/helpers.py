@@ -9,24 +9,26 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 HEADER_LENGTH = 4
 
 
-def parse_msg(client_socket: socket.socket):
+def parse_msg(client_socket: socket.socket)-> bytes:
     """
-    ALL MESSAGES MUST PASS THROUGH THIS
-    reads the message and returns the payload, DOES NOT DECRYPT
+    reads the message and returns the payload = msg length
 
     :param client_socket: socket to recieve data from
     :return: payload in bytes
     """
-    # step 1: read the header, to get the size of the msg
+    # step 1: read the first 4 bytes, to get the size of the msg
     header = client_socket.recv(HEADER_LENGTH)
-    print(header)
+
+    # TODO: check if header does not match msg size
+    print("header: ", header)
+
     msg_length = 0
     try:
         msg_length = int.from_bytes(header, byteorder="big")
-        print(msg_length)
+        print(f"msg_length : " , msg_length)
         # step 2: read the message only equal to the msg length
         payload = client_socket.recv(msg_length)
-        print(payload)
+        print(payload.decode())
         return payload
     except Exception as e:
         logging.error(e)
