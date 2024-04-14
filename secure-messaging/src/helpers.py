@@ -78,7 +78,7 @@ def read_cert(certificate: x509.Certificate):
         f"Public Key: {public_key_str}"
     )
 
-def encrypt_sign(key, payload: bytes, payload_type: bytes, sender: bytes) -> bytes:
+def encrypt_sign(key, payload: bytes) -> bytes:
     """
     Encrypts plaintext message, and prepares the final message in message format
 
@@ -159,7 +159,7 @@ def decrypt_verify(message: bytes, key)-> str:
     decryptor = cipher.decryptor()
     # start decrypting
     decrypted_payload = decryptor.update(payload)
-    print("\n\nfrom decrypt_verify payload: ", decrypted_payload)
+    print("\n\nfrom decrypt_verify payload: ", decrypted_payload.decode())
     # check signature 
     h = hmac.HMAC(key, hashes.SHA256())
     h.update(payload)

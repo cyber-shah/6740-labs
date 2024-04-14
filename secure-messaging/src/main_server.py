@@ -1,7 +1,6 @@
 import hashlib
 import json
 import logging
-import os
 import random
 import socket
 import threading
@@ -10,12 +9,8 @@ from collections import defaultdict
 from pathlib import Path
 
 import yaml
-from cryptography import x509
-from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes, hmac, serialization
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.x509.base import CertificateSigningRequest
 
 import helpers
 from CA_server import CA
@@ -71,7 +66,7 @@ class Server:
         1. Starts listening on the server socket,
         2. spawns a new thread for each client -- handle_client
         """
-        self.server_socket.listen(1)
+        self.server_socket.listen(5)
         print(f"server listening at {self.SERVER_IP}:{self.SERVER_PORT}")
         try:
             while True:
@@ -113,16 +108,14 @@ class Server:
                 print(decrypted_message)
                 
                 # ------------------------- user requested list -------------------------------------
-                if decrypted_message is not None and decrypted_message == "list":
+                if decrypted_message == "list":
                     # FIXME: revert back to original version
                     # message = helpers.encrypt_sign(key = self.session_keys[port]["key"],
-                    #                                payload = str(self.active_users).encode(),
-                    #                                payload_type="list".encode(),
-                    #                                sender="server".encode())
+                    #                                payload = str(self.active_users).encode())
+                    # TODO: create a dict - with username and pk
+                    # that will be cached by the user
                     message = helpers.encrypt_sign(key = self.session_keys[port]["key"],
-                                                   payload = ",".join(str(element) for element in ["u1", "asd", "asdss"]).encode(),
-                                                   payload_type="list".encode(),
-                                                   sender="server".encode())
+                                                   payload = ",".join(str(element) for element in ["u1", "asd", "asdss"]).encode(),)
                     helpers.send(message, connection)
         except Exception as e:
             logger.error(e)
