@@ -51,8 +51,11 @@ class Client:
             },
         }
 
-        # TODO: check if handshake is sucessful
+        self.cert = None
+
         self.handshake()
+        assert self.cert is not None
+        print("handshake successful")
         # TODO: if sucessful, create KEYS
 
     def handshake(self):
@@ -87,7 +90,7 @@ class Client:
         self.session_keys["server"]["key"] = key
         logging.info(f"computed shared key {K}")
 
-        # -------------------------create key pair -------------------------------
+        # ------------------------- create key pair -------------------------------
         self.sk_a = rsa.generate_private_key(
             public_exponent=self.rsa_e, key_size=4096, backend=default_backend()
         )
@@ -99,19 +102,10 @@ class Client:
         )
         assert len(pk_bytes) == 800
 
-        # ----------------------- send a Cert request -----------------------------------
-        csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
-            x509.Name(
-                [
-                    x509.NameAttribute(x509.NameOID.COMMON_NAME, self.username),
-                ]
-            )
-        )
-        csr = csr_builder.sign(
-            private_key=self.sk_a,
-            algorithm=hashes.SHA256(),
-            backend=default_backend(),
-        )
+        # ----------------------- create a Cert request -----------------------------------
+        csr = helpers.create_csr(self.username, self.sk_a)
+        csr_bytes = csr.public_bytes(serialization.Encoding.PEM)
+        assert len(csr_bytes) == 1590
 
         iv = os.urandom(16)
         cipher = Cipher(
@@ -119,13 +113,26 @@ class Client:
             mode=modes.CBC(iv),
         )
         en = cipher.encryptor()
+        # pad to multiple of 16 via PKCS7 standard (n bytes of value chr(n))
         message = (
-            en.update(iv + pk_bytes + u.to_bytes(16) + c.to_bytes(16)) + en.finalize()
+            en.update(iv + pk_bytes + csr_bytes + u.to_bytes(16) + c.to_bytes(16) + ((10).to_bytes(1)) * 10) + en.finalize()
         )
         helpers.send(message, server_socket, convert_to_json=False)
 
-        # TODO get back cert from the server
-        # response = helpers.parse_msg(self.server_socket)
+        # ----------------------- get cert back from server -----------------------------------
+        buf = helpers.parse_msg(self.server_socket)
+        iv = buf[:16]
+        buf = buf[16:]
+        cipher = Cipher(
+            algorithm=algorithms.AES256(key),
+            mode=modes.CBC(iv),
+        )
+        d = cipher.decryptor()
+        cert_bytes = d.update(buf) + d.finalize()
+        cert = x509.load_pem_x509_certificate(cert_bytes)
+        self.cert = cert
+        # TODO assert cert is certified by the server? need to read the server's cert for that
+        # assert cert.verify_directly_issued_by()
 
     def start_cli(self):
         while True:

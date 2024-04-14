@@ -1,21 +1,18 @@
 import hashlib
 import json
 import logging
-import os
 import random
 import socket
 import threading
-import time
+import os
 from collections import defaultdict
 from pathlib import Path
+from io import BytesIO
 
 import yaml
 from cryptography import x509
-from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes, hmac, serialization
+from cryptography.hazmat.primitives import  serialization
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.x509.base import CertificateSigningRequest
 
 import helpers
 from CA_server import CA
@@ -123,12 +120,9 @@ class Server:
     def handshake(self, connection: socket.socket, port):
         buf = helpers.parse_msg(connection)
 
-        print(f"recieved from client {port} : {buf}")
-
         self.steps[port] += 1
         step = self.steps[port]
 
-        # TODO: check if successful
         # ----------------------------------- send b ----------------------------------
         if step == 1:
             val = json.loads(buf.decode())
@@ -162,36 +156,49 @@ class Server:
             # -------------------------------------- K computed ---------------------------------------------
             K = pow(g_a * pow(g, u * w, self.p), b, self.p)
             self.session_keys[port]["key"] = K
-            print(f"server: computed shared key {K}")
 
-            self.initial_keys[connection] = (u, c, hashlib.sha3_256(str(K).encode()).digest())
+            self.initial_keys[connection] = (username, u, c, hashlib.sha3_256(str(K).encode()).digest())
             helpers.send(response, connection)
 
         if step == 2:
             iv = buf[:16]
             buf = buf[16:]
-            (expected_u, expected_c, key) = self.initial_keys[connection]
+            (username, expected_u, expected_c, key) = self.initial_keys[connection]
             cipher = Cipher(
                 algorithm=algorithms.AES256(key),
                 mode=modes.CBC(iv),
             )
             d = cipher.decryptor()
             message = d.update(buf) + d.finalize()
-            assert len(message) == 800 + 16 + 16
-            p_k = message[0:800]
-            u = int.from_bytes(message[800:800 + 16])
-            c = int.from_bytes(message[800 + 16:800 + 32])
+            assert len(message) == 800 + 1590 + 16 + 16 + 10
+            message = BytesIO(message)
+            pk_bytes = message.read(800)
+            csr_bytes = message.read(1590)
+            u = int.from_bytes(message.read(16))
+            c = int.from_bytes(message.read(16))
 
             # nice try attackers!
             assert u == expected_u and c == expected_c
 
-            pk = serialization.load_pem_public_key(p_k)
-            # we now have pk_a. send back K{cert}
+            pk = serialization.load_pem_public_key(pk_bytes)
+            csr = x509.load_pem_x509_csr(csr_bytes)
+            cert = self.ca.request_cert(csr)
 
-            # TODO how do we create cert here to send back?
-            # helpers.send(connection, response)
+            # encrypt the cert with K and send it back to A
+            iv = os.urandom(16)
+            cert_bytes = cert.public_bytes(serialization.Encoding.PEM)
+            cipher = Cipher(
+                algorithm=algorithms.AES256(key),
+                mode=modes.CBC(iv),
+            )
+            en = cipher.encryptor()
+            # pad to multiple of 16 via PKCS7 standard (n bytes of value chr(n))
+            message = en.update(iv + cert_bytes + ((14).to_bytes(1)) * 14) + en.finalize()
+            helpers.send(message, connection, convert_to_json=False)
 
-            time.sleep(0.1)
+            # add this user's public key to the list so we can send it to users
+            # who want to talk to a
+            self.active_users[username] = pk
 
     def logout(self, client_username: str, client_address):
         pass
