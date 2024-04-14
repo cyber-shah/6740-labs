@@ -32,14 +32,13 @@ logger = logging.getLogger(__name__)
 
 """
 TODO:
-    1. clients listen to other connectiosn, RECIVEE SERVER
-    2. server returns a list with PKs, cache them
     3. HMAC in verify and decrypt
     4. signing inside handshake
     5. logout
 
-    for liam : 1. if password is invalid, server throws error?
 """
+# TODO: LIST should not be reuqired
+# maybe directly send the PKs as soon as user logs in
 
 
 class Client:
@@ -322,6 +321,7 @@ class Client:
                 else:
                     print("invalid command")
         except KeyboardInterrupt:
+            self.logout()
             print("bye!")
 
     def send_client(self, input: list[str]) -> None:
@@ -335,11 +335,9 @@ class Client:
             message = input[2:]
             joined_message = f" ".join(message)
 
-            print(f"sending message to {user}...")
-
             # 1.check if user exissts
             if user not in self.session_keys:
-                print(f"unknown user {user}. Run \"list\" to load users")
+                print(f'unknown user {user}. Run "list" to load users')
                 return
 
             # 1. check if session key with that user is already setup
