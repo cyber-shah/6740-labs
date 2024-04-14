@@ -10,8 +10,10 @@ from pathlib import Path
 from io import BytesIO
 
 import yaml
+from cryptography import x509
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
 
 import helpers
 from CA_server import CA
@@ -26,6 +28,8 @@ from CA_server import CA
 3. get certs for that user
 3. list all active users
 """
+
+
 class Server:
 
     def __init__(
@@ -89,7 +93,7 @@ class Server:
             while True:
                 # if message is coming from a port that is not seen
                 # ------------------------ do a handshake/authenticate ----------------------------
-                _ , port = connection.getpeername()
+                _, port = connection.getpeername()
                 if self.steps[port] < 2:
                     # this port hasn't fully authenticated yet. finish handshake
                     self.handshake(connection, port)
@@ -119,6 +123,9 @@ class Server:
                                                    payload = ",".join(str(element) for element in ["u1", "asd", "asdss"]).encode(),)
                     helpers.send(message, connection)
         except Exception as e:
+            import traceback
+
+            traceback.print_exception(e)
             logger.error(e)
 
     def handshake(self, connection: socket.socket, port):
@@ -138,7 +145,7 @@ class Server:
             assert len(login) <= 1
             if len(login) == 0:
                 # someone tried to log in with a username we don't have
-                return
+                raise Exception(f"invalid username {username}")
 
             username, w = login[0]
             self.bs[port] = b
@@ -147,9 +154,7 @@ class Server:
             c = random.randint(1, 2**127 - 1)
 
             response = {
-                "g_b_plus_g_w": (
-                    pow(self.g, b, self.p) + pow(self.g, w, self.p)
-                )
+                "g_b_plus_g_w": (pow(self.g, b, self.p) + pow(self.g, w, self.p))
                 % self.p,
                 "u": u,
                 "c": c,
@@ -161,7 +166,12 @@ class Server:
             K = pow(g_a * pow(g, u * w, self.p), b, self.p)
             self.session_keys[port]["key"] = K
 
-            self.initial_keys[connection] = (username, u, c, hashlib.sha3_256(str(K).encode()).digest())
+            self.initial_keys[connection] = (
+                username,
+                u,
+                c,
+                hashlib.sha3_256(str(K).encode()).digest(),
+            )
             helpers.send(response, connection)
 
         if step == 2:
@@ -174,10 +184,10 @@ class Server:
             )
             d = cipher.decryptor()
             message = d.update(buf) + d.finalize()
-            assert len(message) == 800 + 1590 + 16 + 16 + 10
             message = BytesIO(message)
             pk_bytes = message.read(800)
-            csr_bytes = message.read(1590)
+            csr_len = int.from_bytes(message.read(2))
+            csr_bytes = message.read(csr_len)
             u = int.from_bytes(message.read(16))
             c = int.from_bytes(message.read(16))
 
@@ -196,8 +206,12 @@ class Server:
                 mode=modes.CBC(iv),
             )
             en = cipher.encryptor()
-            # pad to multiple of 16 via PKCS7 standard (n bytes of value chr(n))
-            message = en.update(iv + cert_bytes + ((14).to_bytes(1)) * 14) + en.finalize()
+
+            padder = padding.PKCS7(128).padder()
+            message = (
+                en.update(padder.update(iv + cert_bytes) + padder.finalize())
+                + en.finalize()
+            )
             helpers.send(message, connection, convert_to_json=False)
 
             # add this user's public key to the list so we can send it to users
@@ -216,7 +230,6 @@ if __name__ == "__main__":
         format="%(asctime)s - %(levelname)s - %(message)s",
     )
     logger = logging.getLogger(__name__)
-
 
     p = Path(__file__).parent.parent
     with open(p / "config.yml") as config_file:
@@ -245,6 +258,9 @@ if __name__ == "__main__":
         ca=ca,
         p=p,
         g=g,
-        logins=[("AzureDiamond", "hunter2")],
+        logins=[
+            ("AzureDiamond", "hunter2"),
+            ("liam", "superprivatepassworddontpeek"),
+        ],
     )
     server.accept_connections()

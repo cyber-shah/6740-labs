@@ -34,7 +34,6 @@ def parse_msg(client_socket: socket.socket)-> bytes:
         print(f"parse_msg msg_length : " , msg_length)
         # step 2: read the message only equal to the msg length
         payload = client_socket.recv(msg_length)
-        print(f"parse_msg payload: ", payload)
         return payload
     except Exception as e:
         print(e)
@@ -151,7 +150,7 @@ def decrypt_verify(message: bytes, key)-> str:
     payload = message[16:-32]
 
     print("\n\nfrom decrypt_verify iv: ", iv)
-    print("from decrypt_verify payload: ", payload) 
+    print("from decrypt_verify payload: ", payload)
     print("from decrypt_verify signature: ", signature)
 
     # decrypt the decoded_message
@@ -160,7 +159,7 @@ def decrypt_verify(message: bytes, key)-> str:
     # start decrypting
     decrypted_payload = decryptor.update(payload)
     print("\n\nfrom decrypt_verify payload: ", decrypted_payload.decode())
-    # check signature 
+    # check signature
     h = hmac.HMAC(key, hashes.SHA256())
     h.update(payload)
     try:

@@ -11,9 +11,10 @@ from pathlib import Path
 import yaml
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes, hmac, serialization
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
 
 import helpers
 
@@ -23,7 +24,6 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
-
 
 
 class Client:
@@ -151,7 +151,6 @@ class Client:
         # ----------------------- create a Cert request -----------------------------------
         csr = helpers.create_csr(self.username, self.sk_a)
         csr_bytes = csr.public_bytes(serialization.Encoding.PEM)
-        assert len(csr_bytes) == 1590
 
         iv = os.urandom(16)
         cipher = Cipher(
@@ -159,9 +158,21 @@ class Client:
             mode=modes.CBC(iv),
         )
         en = cipher.encryptor()
-        # pad to multiple of 16 via PKCS7 standard (n bytes of value chr(n))
+        padder = padding.PKCS7(128).padder()
+
         message = (
-            en.update(iv + pk_bytes + csr_bytes + u.to_bytes(16) + c.to_bytes(16) + ((10).to_bytes(1)) * 10) + en.finalize()
+            en.update(
+                padder.update(
+                    iv
+                    + pk_bytes
+                    + len(csr_bytes).to_bytes(2)
+                    + csr_bytes
+                    + u.to_bytes(16)
+                    + c.to_bytes(16)
+                )
+                + padder.finalize()
+            )
+            + en.finalize()
         )
         helpers.send(message, server_socket, convert_to_json=False)
 
@@ -218,7 +229,7 @@ class Client:
             # 1. check if session key with that user is already setup
             if user in self.session_keys:
                 message = helpers.encrypt_sign(
-                        key = self.session_keys[user]["key"], 
+                        key = self.session_keys[user]["key"],
                         payload = joined_message.encode())
                 helpers.send(message, self.session_keys[user]['socket'], convert_to_json=False)
             # 2. else set it up
@@ -228,7 +239,7 @@ class Client:
                     self.setup_keys(user)
                     # send the message
                     message = helpers.encrypt_sign(
-                        key = self.session_keys[user]["key"], 
+                        key = self.session_keys[user]["key"],
                         payload = joined_message.encode())
                     helpers.send(message, self.session_keys[user]['socket'])
 
@@ -247,7 +258,9 @@ class Client:
         a = random.randint(1, self.p - 2)
         g_a = pow(self.g, a, self.p)
 
-        message = self.cert.public_bytes(serialization.Encoding.PEM) + g_a.to_bytes(2048)
+        message = self.cert.public_bytes(serialization.Encoding.PEM) + g_a.to_bytes(
+            2048
+        )
         helpers.send(message, socket_b)
 
         # should get back PK_A{[cert_b, g^b mod p]_{SK_B}}
@@ -262,9 +275,7 @@ class Client:
         Requests the public key of user from the server. Must already be
         authenticated with the server.
         """
-        message = f"get {user}".encode()
-        encrypted = helpers.encrypt_sign(key=self.session_keys["server"]["key"],payload=message)
-        helpers.send(encrypted, self.session_keys["server"]["socket"])
+        pass
 
 
     def logout(self):
