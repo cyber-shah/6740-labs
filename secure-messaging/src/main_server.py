@@ -180,6 +180,7 @@ class Server:
             csr_bytes = message.read(csr_len)
             u = int.from_bytes(message.read(16))
             c = int.from_bytes(message.read(16))
+            port = int.from_bytes(message.read(16))
 
             # nice try attackers!
             assert u == expected_u and c == expected_c
@@ -206,7 +207,7 @@ class Server:
             # add this user's public key to the list so we can send it to users
             # who want to talk to a.
             # b64encode to make bytes serializable
-            self.active_users[username] = base64.b64encode(pk_bytes).decode('ascii')
+            self.active_users[username] = (base64.b64encode(pk_bytes).decode('ascii'), port)
 
     def logout(self, client_username: str, client_address):
         pass

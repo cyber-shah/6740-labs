@@ -8,6 +8,7 @@ import socket
 import threading
 from pathlib import Path
 import base64
+from collections import defaultdict
 
 import yaml
 from cryptography import x509
@@ -60,11 +61,13 @@ class Client:
 
         self.cert = None
 
-        self.handshake()
+        self.handshake_with_server()
         assert self.cert is not None
-        print("handshake successful")
-        # TODO: if sucessful, create KEYS
+        print("handshake with server successful")
 
+        self.steps = defaultdict(int)
+        accept_connections_thread = threading.Thread(target=self.accept_connections, args=())
+        accept_connections_thread.start()
 
     def accept_connections(self):
         self.socket.listen(5)
@@ -84,13 +87,15 @@ class Client:
         try:
             while True:
                 _ , port = connection.getpeername()
+                if self.steps[port] < 2:
+                    # this port hasn't fully authenticated yet. finish handshake
+                    self.handshake_with_client(connection, port)
+                    continue
+
                 message = helpers.parse_msg(connection)
                 if not message:
                     print("Client closed the connection.")
                     break
-
-                decrypted_message = helpers.decrypt_verify(message, b"JSH3y6F17l1bjhB8QUN0EwDMa7bCxiep")
-                print(decrypted_message)
 
         except Exception as e:
             logger.error(e)
@@ -104,8 +109,17 @@ class Client:
         except Exception as e:
             logger.error(e)
 
+    def handshake_with_client(self, connection, port):
+        buf = helpers.parse_msg(connection)
+        self.steps[port] += 1
+        step = self.steps[port]
 
-    def handshake(self):
+        if step == 1:
+            # we are B and A is trying to authenticate with us.
+            # A has signed the message with our public key.
+            message = helpers.rsa_decrypt(buf, self.sk_a)
+
+    def handshake_with_server(self):
         """
         1. sends g_a mod p
         2. computes Key K
@@ -168,6 +182,7 @@ class Client:
                     + csr_bytes
                     + u.to_bytes(16)
                     + c.to_bytes(16)
+                    + self.port.to_bytes(16)
                 )
                 + padder.finalize()
             )
@@ -247,18 +262,21 @@ class Client:
             raise ValueError
 
     def setup_keys(self, user: str):
-        # we are A and user is B. ask the server for B's public key
-        pk_b = self.get_public_key_for(user)
+        # we are A and user is B. ask the server for B's public key and port
+        pk_b, port_b = self.get_public_key_and_port_for(user)
 
-        # TODO get B's socket information from the server
-        socket_b = ...
+        socket_b = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        socket_b.connect(("localhost", port_b))
+
         a = random.randint(1, self.p - 2)
         g_a = pow(self.g, a, self.p)
 
         message = self.cert.public_bytes(serialization.Encoding.PEM) + g_a.to_bytes(
-            2048
+            256
         )
-        helpers.send(message, socket_b)
+        # message = self.sk_a.sign(message)
+        message = helpers.rsa_encrypt(message, pk_b)
+        helpers.send(message, socket_b, convert_to_json=False)
 
         # should get back PK_A{[cert_b, g^b mod p]_{SK_B}}
         response = helpers.parse_msg(socket_b)
@@ -267,7 +285,7 @@ class Client:
         # use key to compute final challenge
         helpers.send(..., socket_b)
 
-    def get_public_key_for(self, user) -> rsa.RSAPublicKey:
+    def get_public_key_and_port_for(self, user) -> rsa.RSAPublicKey:
         """
         Requests the public key of user from the server. Must already be
         authenticated with the server.
@@ -278,8 +296,9 @@ class Client:
         users = json.loads(message)
         if user not in users:
             raise Exception(f"cannot talk to user {user} because the server does not know its public key. valid users: {users.keys()}")
-        pk_bytes = base64.b64decode(users[user].encode("ascii"))
-        return serialization.load_pem_public_key(pk_bytes)
+        (pk_bytes_encoded, port) = users[user]
+        pk_bytes = base64.b64decode(pk_bytes_encoded.encode("ascii"))
+        return (serialization.load_pem_public_key(pk_bytes), port)
 
 
     def logout(self):
