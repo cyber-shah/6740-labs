@@ -8,9 +8,10 @@ import socket
 from pathlib import Path
 
 import yaml
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 import helpers
 
@@ -19,24 +20,12 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
+logger = logging.getLogger(__name__)
+
 from cryptography.hazmat.primitives import hashes, hmac
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 import helpers
-
-# TODO: 1. session key management
-#       2. logout protocol, forget
-#       3. create PK and SK
-#       4. validate attempts
-"""
-{
-        user : {
-            session_key : "",
-            socket : socket,
-            PK : user's PK
-            },
-        }
-"""
 
 
 class Client:
@@ -70,10 +59,18 @@ class Client:
         # TODO: if sucessful, create KEYS
 
     def handshake(self):
-
+        """
+        1. sends g_a mod p
+        2. computes Key K
+        3. creates a PK SK pair
+        4. sends it to the server
+        5. completes the handshake
+        """
         server_socket = self.session_keys["server"]["socket"]
         message = {"g_a": pow(self.g, self.a, self.p), "username": self.username}
-        self.send(json.dumps(message).encode(), server_socket)
+        logger.info(f"sent g_a mod p")
+
+        self.send(message, server_socket)
 
         # need a delay here maybe to ensure server sends response? seems fine
         # for me though
@@ -85,9 +82,15 @@ class Client:
 
         g_b = (g_b_plus_g_w - pow(self.g, self.w, self.p)) % self.p
 
+        # ---------------------- Shared key computed -------------------------------------------
         K = pow(g_b, self.a + (u * self.w), self.p)
+        # convert to 256 bits for aes256
+        key = hashlib.sha3_256(str(K).encode()).digest()
+        # save it
+        self.session_keys["server"]["key"] = key
         logging.info(f"computed shared key {K}")
 
+        # -------------------------create key pair -------------------------------
         self.sk_a = rsa.generate_private_key(
             public_exponent=self.rsa_e, key_size=4096, backend=default_backend()
         )
@@ -99,8 +102,21 @@ class Client:
         )
         assert len(pk_bytes) == 800
 
-        # convert to 256 bits for aes256
-        key = hashlib.sha3_256(str(K).encode()).digest()
+        # ----------------------- send a Cert request -----------------------------------
+        csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
+            x509.Name(
+                [
+                    x509.NameAttribute(x509.NameOID.COMMON_NAME, self.username),
+                ]
+            )
+        )
+        csr = csr_builder.sign(
+            private_key=self.sk_a,
+            algorithm=hashes.SHA256(),
+            backend=default_backend(),
+        )
+        certificate = self.__ca.request_cert(csr)
+
         iv = os.urandom(16)
         cipher = Cipher(
             algorithm=algorithms.AES256(key),
@@ -112,9 +128,18 @@ class Client:
         )
         self.send(message, server_socket)
 
-    def send(self, message: object, socket: socket.socket):
-        header = len(message).to_bytes(helpers.HEADER_LENGTH, byteorder="big")
-        socket.send(header + message)
+    def send(self, message:object, socket: socket.socket):
+         """
+         Sends the message OBJECT to the socket.
+         converts to json and encodes 
+
+         :param message: 
+         :param socket: 
+         """
+         message = json.dumps(message).encode()
+         header = len(message).to_bytes(helpers.HEADER_LENGTH, byteorder="big")
+         self.server_socket.send(header + message)
+         socket.send(header + message)
 
     def login(self):
         pass

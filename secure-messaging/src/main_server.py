@@ -7,13 +7,12 @@ import threading
 import time
 from collections import defaultdict
 from pathlib import Path
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import serialization
 
 import yaml
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 import helpers
 from CA_server import CA
@@ -48,11 +47,8 @@ class Server:
         # load the keys --------------------------------------------------------
         self.__server_pk = helpers.load_public_key_from_file(pk_location)
         self.__server_sk = helpers.load_private_key_from_file(sk_location)
-        # SSL STUFF --------------------------------------------------------
         # instantiate a CA
         self.__ca = ca
-        # create ssl context
-        # get certs
         self.__request_cert()
         self.p = p
         self.g = g
@@ -67,6 +63,11 @@ class Server:
         self.initial_keys = {}
 
     def __request_cert(self) -> x509.Certificate:
+        """
+        Requests a cert for the server
+
+        :return: 
+        """
         csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
             x509.Name(
                 [
@@ -80,7 +81,7 @@ class Server:
             backend=default_backend(),
         )
         certificate = self.__ca.request_cert(csr)
-        logger.info("got certificates for the server")
+        print("got certificates for the server")
         return certificate
 
     def accept_connections(self):
@@ -88,13 +89,14 @@ class Server:
         1. Starts listening on the server socket,
         2. spawns a new thread for each client -- handle_client
         """
-        self.__server_socket.listen(5)
-        logger.info(f"server listening at {self.SERVER_IP}:{self.SERVER_PORT}")
+        self.__server_socket.listen(1)
+        print(f"server listening at {self.SERVER_IP}:{self.SERVER_PORT}")
         try:
             while True:
                 # Accept incoming connection
                 connection, address = self.__server_socket.accept()
-                logger.info(f" Connected {address}")
+
+                print(f" Connected {address}")
 
                 # create a new thread to handle that
                 client_thread = threading.Thread(
@@ -102,22 +104,26 @@ class Server:
                 )
                 client_thread.start()
         except KeyboardInterrupt:
-            logger.info("Server stopped.")
+            print("Server stopped.")
 
     def handle_client(self, connection: socket.socket, address):
         try:
             while True:
+                print(f"inside handle_client")
                 buf = helpers.parse_msg(connection)
                 if len(buf) == 0:
                     time.sleep(0.01)
                     continue
 
-                logger.info(f"recieved from client {address}: {buf}")
+                print(f"recieved from client {address}: {buf}")
 
                 self.steps[address] += 1
                 step = self.steps[address]
+
+                print(f"steps", step)
                 if step == 1:
                     val = json.loads(buf.decode())
+                    print(f"from val" + val)
                     b = random.randint(1, p - 2)
                     username = val["username"]
                     g_a = val["g_a"]
@@ -146,7 +152,7 @@ class Server:
                     # (g^b)^(a + uw) = ((g^a)(g^(uw)))^b.
                     # intermediate modulos are to avoid enormous intermediate values
                     K = pow(g_a * pow(g, u * w, self.p), b, self.p)
-                    logger.info(f"server: computed shared key {K}")
+                    print(f"server: computed shared key {K}")
                     self.initial_keys[connection] = (u, c, hashlib.sha3_256(str(K).encode()).digest())
                     self.send(connection, response)
                 if step == 2:
@@ -179,25 +185,6 @@ class Server:
 
     def login(self, client_username: str):
         pass
-
-    def parse_msg(self, client_socket: socket.socket):
-        """
-        ALL MESSAGES MUST PASS THROUGH THIS
-        reads the message and returns the payload, DOES NOT DECRYPT
-
-        :param client_socket: socket to recieve data from
-        :return: payload in bytes
-        """
-        # step 1: read the header, to get the size of the msg
-        header = client_socket.recv(helpers.HEADER_LENGTH)
-        msg_length = 0
-        try:
-            msg_length = int.from_bytes(header, byteorder="big")
-            # step 2: read the message only equal to the msg length
-            payload = client_socket.recv(msg_length)
-            return payload
-        except Exception as e:
-            logger.error(e)
 
     def send(self, socket, message):
         message = json.dumps(message).encode()

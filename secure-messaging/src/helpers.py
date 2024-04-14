@@ -19,11 +19,14 @@ def parse_msg(client_socket: socket.socket):
     """
     # step 1: read the header, to get the size of the msg
     header = client_socket.recv(HEADER_LENGTH)
+    print(header)
     msg_length = 0
     try:
         msg_length = int.from_bytes(header, byteorder="big")
+        print(msg_length)
         # step 2: read the message only equal to the msg length
         payload = client_socket.recv(msg_length)
+        print(payload)
         return payload
     except Exception as e:
         logging.error(e)
