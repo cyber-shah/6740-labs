@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import socket
+from typing import Dict, Optional
 
 from cryptography import x509
 from cryptography.exceptions import InvalidSignature
@@ -26,11 +27,11 @@ def parse_msg(client_socket: socket.socket)-> bytes:
     header = client_socket.recv(HEADER_LENGTH)
 
     # TODO: check if header does not match msg size
-    print("header: ", header)
+    print("parse_msg header: ", header)
     msg_length = 0
     try:
         msg_length = int.from_bytes(header, byteorder="big")
-        print(f"msg_length : " , msg_length)
+        print(f"parse_msg msg_length : " , msg_length)
         # step 2: read the message only equal to the msg length
         payload = client_socket.recv(msg_length)
         print(payload.decode())
@@ -77,51 +78,47 @@ def read_cert(certificate: x509.Certificate):
         f"Public Key: {public_key_str}"
     )
 
-    pass
+def encrypt_sign(key, message: bytes, payload_type: bytes, sender: bytes) -> object:
+    """
+    Encrypts plaintext message, and prepares the final message in message format
 
+    :param user: str user to send TO
+    :param message: bytes plaintext message
+    :return: obj in format
+    """
+    iv = os.urandom(32)
+    cipher = Cipher(
+        algorithm=algorithms.AES256(key),
+        mode=modes.CBC(iv),
+    )
+    en = cipher.encryptor()
 
-def encrypt_msg(key, message: bytes, payload_type: bytes, sender: bytes) -> object:
-        """
-        Encrypts plaintext message, and prepares the final message in message format
+    # prepare the message
+    payload_type = en.update(payload_type) + en.finalize()
+    encrypted_sender = en.update(sender) + en.finalize()
+    encrypted_payload = en.update(message) + en.finalize()
+    signature = HMAC_sign(key, message)
 
-        :param user: str user to send TO
-        :param message: bytes plaintext message
-        :return: obj in format
-        """
-        iv = os.urandom(32)
-        cipher = Cipher(
-            algorithm=algorithms.AES256(key),
-            mode=modes.CBC(iv),
-        )
-        en = cipher.encryptor()
-
-        # prepare the message
-        payload_type = en.update(payload_type) + en.finalize()
-        encrypted_sender = en.update(sender) + en.finalize()
-        encrypted_payload = en.update(message) + en.finalize()
-        signature = HMAC_sign(key, message)
-
-        return {
-            "iv": iv,
-            "payload_type": payload_type,
-            "encrypted_sender": encrypted_sender,
-            "encrypted_payload": encrypted_payload,
-            "signature": signature,
-        }
+    return {
+        "iv": iv,
+        "payload_type": payload_type,
+        "encrypted_sender": encrypted_sender,
+        "encrypted_payload": encrypted_payload,
+        "signature": signature,
+    }
 
 def HMAC_sign(key , message: bytes) -> bytes:
-        """
-        Signs a message using HMAC
+    """
+    Signs a message using HMAC
 
-        :param user: user the message is for
-        :param message: bytes to sign
-        :return: signature in bytes
-        """
-        h = hmac.HMAC(key, hashes.SHA256())
-        h.update(message)
-        signature = h.finalize()
-        return signature
-
+    :param user: user the message is for
+    :param message: bytes to sign
+    :return: signature in bytes
+    """
+    h = hmac.HMAC(key, hashes.SHA256())
+    h.update(message)
+    signature = h.finalize()
+    return signature
 
 def send(message:object, socket: socket.socket):
      """
@@ -134,8 +131,6 @@ def send(message:object, socket: socket.socket):
      message = json.dumps(message).encode()
      header = len(message).to_bytes(HEADER_LENGTH, byteorder="big")
      socket.send(header + message)
-
-
 
 def create_csr(user_name: str, sk: RSAPrivateKey ) -> CertificateSigningRequest:
     csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
@@ -151,3 +146,33 @@ def create_csr(user_name: str, sk: RSAPrivateKey ) -> CertificateSigningRequest:
             backend=default_backend(),
         )
     return csr
+
+
+def decrypt_verify(message: bytes, key)-> Optional[Dict[str, bytes]]:
+    decoded_message = json.loads(message.decode())
+
+    # decrypt the decoded_message
+    cipher = Cipher(algorithms.AES(key), modes.CBC(decoded_message['iv']))
+    decryptor = cipher.decryptor()
+
+    # start decrypting
+    sender = decryptor.update(decoded_message["sender"]) + decryptor.finalize()
+    payload = decryptor.update(decoded_message["payload"]) + decryptor.finalize()
+    payload_type = decryptor.update(decoded_message["payload_type"]) + decryptor.finalize()
+
+    decrypted_message = {
+            "sender" : sender,
+            "payload" : payload,
+            "payload_type" : payload_type
+            }
+
+    # check signature 
+    h = hmac.HMAC(key, hashes.SHA256())
+    h.update(payload)
+    signature = (decoded_message["signature"])
+    try:
+        h.verify(signature)
+        return decrypted_message
+    except InvalidSignature:
+        # TODO: stopped
+        return None
