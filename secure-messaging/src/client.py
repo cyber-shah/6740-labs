@@ -158,13 +158,15 @@ class Client:
         try:
             user = input[0].lower()
             message = input[1:]
+            joined_message = f" ".join(message)
+
             print("from client, send_client: ", user)
-            print("from client, send_client: ", message)
+            print("from client, send_client: ", joined_message)
             # 1. check if session key with that user is already setup
             if user in self.session_keys:
                 message = helpers.encrypt_sign(
-                        key = self.session_keys[user]["key"],
-                        payload = f" ".join(message).encode(),
+                        key = self.session_keys[user]["key"], 
+                        payload = joined_message.encode(),
                         payload_type="message".encode(),
                         sender = self.username.encode())
                 helpers.send(message, self.session_keys[user]['socket'])
