@@ -1,4 +1,5 @@
 import argparse
+import base64
 import hashlib
 import json
 import logging
@@ -6,17 +7,15 @@ import os
 import random
 import socket
 import threading
-from pathlib import Path
-import base64
 from collections import defaultdict
+from pathlib import Path
 
 import yaml
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import padding, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import padding
 from cryptography.x509.oid import NameOID
 
 import helpers
@@ -29,11 +28,21 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+"""
+TODO: 
+    1. clients listen to other connectiosn
+    2. server returns a list with PKs, cache them
+    3. HMAC in verify and decrypt
+    4. signing inside handshake
+    5. logout
+"""
+
+
 class Client:
     def __init__(self, username, password, p, g, rsa_e, server_port, ca, server, port):
         self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.bind(('localhost', self.port))
+        self.socket.bind(("localhost", self.port))
 
         self.username = username
         self.w = int(hashlib.sha3_512(password.encode()).hexdigest(), 16)
@@ -68,7 +77,9 @@ class Client:
         print("handshake with server successful")
 
         self.steps = defaultdict(int)
-        accept_connections_thread = threading.Thread(target=self.accept_connections, args=())
+        accept_connections_thread = threading.Thread(
+            target=self.accept_connections, args=()
+        )
         accept_connections_thread.start()
 
     def accept_connections(self):
@@ -84,11 +95,10 @@ class Client:
         except KeyboardInterrupt:
             print("Server stopped.")
 
-
     def handle_client(self, connection):
         try:
             while True:
-                _ , port = connection.getpeername()
+                _, port = connection.getpeername()
                 if self.steps[port] < 2:
                     # this port hasn't fully authenticated yet. finish handshake
                     self.handshake_with_client(connection, port)
@@ -108,7 +118,9 @@ class Client:
         try:
             while True:
                 message = helpers.parse_msg(self.server_socket)
-                decrypted_message = helpers.decrypt_verify(message, b"JSH3y6F17l1bjhB8QUN0EwDMa7bCxiep")
+                decrypted_message = helpers.decrypt_verify(
+                    message, b"JSH3y6F17l1bjhB8QUN0EwDMa7bCxiep"
+                )
                 print(decrypted_message)
         except Exception as e:
             logger.error(e)
@@ -125,7 +137,9 @@ class Client:
             cert_a_bytes = message[:-256]
             # TODO verify this cert is valid and came from a
             cert_a = x509.load_pem_x509_certificate(cert_a_bytes)
-            username = cert_a.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
+            username = cert_a.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[
+                0
+            ].value
             pk_a, _port_a = self.get_public_key_and_port_for(username)
 
             g_a = int.from_bytes(message[-256:])
@@ -133,8 +147,10 @@ class Client:
             b = random.randint(1, self.p - 2)
             g_b = pow(self.g, b, self.p)
             c = os.urandom(16)
-            message = self.cert.public_bytes(serialization.Encoding.PEM) + c + g_b.to_bytes(
-                256
+            message = (
+                self.cert.public_bytes(serialization.Encoding.PEM)
+                + c
+                + g_b.to_bytes(256)
             )
             K = pow(g_a, b, self.p)
             K = hashlib.sha3_256(str(K).encode()).digest()
@@ -160,7 +176,6 @@ class Client:
             c = unpadder.update(c) + unpadder.finalize()
             assert c == self.session_keys[username]["challenge"]
             print(f"successfully mutually authenticated with port {port}")
-
 
     def handshake_with_server(self):
         """
@@ -286,9 +301,11 @@ class Client:
             # 1. check if session key with that user is already setup
             if user in self.session_keys:
                 message = helpers.encrypt_sign(
-                        key = self.session_keys[user]["key"],
-                        payload = joined_message.encode())
-                helpers.send(message, self.session_keys[user]['socket'], convert_to_json=False)
+                    key=self.session_keys[user]["key"], payload=joined_message.encode()
+                )
+                helpers.send(
+                    message, self.session_keys[user]["socket"], convert_to_json=False
+                )
             # 2. else set it up
             else:
                 try:
@@ -296,9 +313,14 @@ class Client:
                     self.setup_keys(user)
                     # send the message
                     message = helpers.encrypt_sign(
-                        key = self.session_keys[user]["key"],
-                        payload = joined_message.encode())
-                    helpers.send(message, self.session_keys[user]['socket'], convert_to_json=False)
+                        key=self.session_keys[user]["key"],
+                        payload=joined_message.encode(),
+                    )
+                    helpers.send(
+                        message,
+                        self.session_keys[user]["socket"],
+                        convert_to_json=False,
+                    )
 
                 except ConnectionError:
                     print(f"> cannot connect to {user}")
@@ -316,9 +338,7 @@ class Client:
         a = random.randint(1, self.p - 2)
         g_a = pow(self.g, a, self.p)
 
-        message = self.cert.public_bytes(serialization.Encoding.PEM) + g_a.to_bytes(
-            256
-        )
+        message = self.cert.public_bytes(serialization.Encoding.PEM) + g_a.to_bytes(256)
         # TODO signing
         # message = self.sk_a.sign(message)
         message = helpers.rsa_encrypt(message, pk_b)
@@ -329,8 +349,8 @@ class Client:
         message = helpers.rsa_decrypt(response, self.sk_a)
 
         # TODO verify cert is valid and came from b
-        cert_b_bytes = message[:-256 - 16]
-        c = message[-256 - 16:-256]
+        cert_b_bytes = message[: -256 - 16]
+        c = message[-256 - 16 : -256]
         g_b = int.from_bytes(message[-256:])
         cert_b = x509.load_pem_x509_certificate(cert_b_bytes)
         username = cert_b.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
@@ -349,16 +369,7 @@ class Client:
         en = cipher.encryptor()
         padder = padding.PKCS7(128).padder()
 
-        message = (
-            en.update(
-                padder.update(
-                    iv
-                    + c
-                )
-                + padder.finalize()
-            )
-            + en.finalize()
-        )
+        message = en.update(padder.update(iv + c) + padder.finalize()) + en.finalize()
         helpers.send(message, socket_b, convert_to_json=False)
 
     def get_public_key_and_port_for(self, user) -> rsa.RSAPublicKey:
@@ -371,11 +382,12 @@ class Client:
         message = helpers.decrypt_verify(response, self.session_keys["server"]["key"])
         users = json.loads(message)
         if user not in users:
-            raise Exception(f"cannot talk to user {user} because the server does not know its public key. valid users: {users.keys()}")
+            raise Exception(
+                f"cannot talk to user {user} because the server does not know its public key. valid users: {users.keys()}"
+            )
         (pk_bytes_encoded, port) = users[user]
         pk_bytes = base64.b64decode(pk_bytes_encoded.encode("ascii"))
         return (serialization.load_pem_public_key(pk_bytes), port)
-
 
     def logout(self):
         pass
@@ -404,7 +416,7 @@ if __name__ == "__main__":
         ca=ca_pk_location,
         server=server_pk_location,
         server_port=config["server"]["port"],
-        port=random.randint(1000, 3000)
+        port=random.randint(1000, 3000),
     )
 
     # TODO: check if login is sucessful
