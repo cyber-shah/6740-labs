@@ -10,8 +10,7 @@ from pathlib import Path
 from io import BytesIO
 
 import yaml
-from cryptography import x509
-from cryptography.hazmat.primitives import  serialization
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 import helpers
@@ -68,7 +67,7 @@ class Server:
         1. Starts listening on the server socket,
         2. spawns a new thread for each client -- handle_client
         """
-        self.server_socket.listen(1)
+        self.server_socket.listen(5)
         print(f"server listening at {self.SERVER_IP}:{self.SERVER_PORT}")
         try:
             while True:
@@ -105,14 +104,19 @@ class Server:
                     break
 
                 # decrypt and verify
-                decrypted_message = helpers.decrypt_verify(message, self.session_keys[port]["key"])
+                # decrypted_message = helpers.decrypt_verify(message, self.session_keys[port]["key"])
+                decrypted_message = helpers.decrypt_verify(message, b"JSH3y6F17l1bjhB8QUN0EwDMa7bCxiep")
+                print(decrypted_message)
 
                 # ------------------------- user requested list -------------------------------------
-                if decrypted_message is not None and decrypted_message["payload_type"] == "list":
+                if decrypted_message == "list":
+                    # FIXME: revert back to original version
+                    # message = helpers.encrypt_sign(key = self.session_keys[port]["key"],
+                    #                                payload = str(self.active_users).encode())
+                    # TODO: create a dict - with username and pk
+                    # that will be cached by the user
                     message = helpers.encrypt_sign(key = self.session_keys[port]["key"],
-                                                   payload = str(self.active_users).encode(),
-                                                   payload_type="list".encode(),
-                                                   sender="server".encode())
+                                                   payload = ",".join(str(element) for element in ["u1", "asd", "asdss"]).encode(),)
                     helpers.send(message, connection)
         except Exception as e:
             logger.error(e)

@@ -5,6 +5,7 @@ import logging
 import os
 import random
 import socket
+import threading
 from pathlib import Path
 
 import yaml
@@ -26,9 +27,14 @@ logger = logging.getLogger(__name__)
 
 
 class Client:
-    def __init__(self, username, password, p, g, rsa_e, server_port, ca, server):
+    def __init__(self, username, password, p, g, rsa_e, server_port, ca, server, port):
+        self.port = port
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.bind(('localhost', self.port))
+
         self.username = username
         self.w = int(hashlib.sha3_512(password.encode()).hexdigest(), 16)
+
         # TODO double check this range
         # https://www.ibm.com/docs/en/zvse/6.2?topic=overview-diffie-hellman
         self.a = random.randint(1, p - 2)
@@ -57,6 +63,46 @@ class Client:
         assert self.cert is not None
         print("handshake successful")
         # TODO: if sucessful, create KEYS
+
+
+    def accept_connections(self):
+        self.socket.listen(5)
+        try:
+            while True:
+                connection, address = self.socket.accept()
+                # create a new thread to handle that
+                client_thread = threading.Thread(
+                    target=self.handle_client, args=(connection,)
+                )
+                client_thread.start()
+        except KeyboardInterrupt:
+            print("Server stopped.")
+
+
+    def handle_client(self, connection):
+        try:
+            while True:
+                _ , port = connection.getpeername()
+                message = helpers.parse_msg(connection)
+                if not message:
+                    print("Client closed the connection.")
+                    break
+
+                decrypted_message = helpers.decrypt_verify(message, b"JSH3y6F17l1bjhB8QUN0EwDMa7bCxiep")
+                print(decrypted_message)
+
+        except Exception as e:
+            logger.error(e)
+
+    def recieve_server(self):
+        try:
+            while True:
+                message = helpers.parse_msg(self.server_socket)
+                decrypted_message = helpers.decrypt_verify(message, b"JSH3y6F17l1bjhB8QUN0EwDMa7bCxiep")
+                print(decrypted_message)
+        except Exception as e:
+            logger.error(e)
+
 
     def handshake(self):
         """
@@ -165,20 +211,27 @@ class Client:
         try:
             user = input[0].lower()
             message = input[1:]
+            joined_message = f" ".join(message)
+
             print("from client, send_client: ", user)
-            print("from client, send_client: ", message)
+            print("from client, send_client: ", joined_message)
             # 1. check if session key with that user is already setup
             if user in self.session_keys:
                 message = helpers.encrypt_sign(
-                        key = self.session_keys[user]["key"],
-                        payload = f" ".join(message).encode(),
-                        payload_type="message".encode(),
-                        sender = self.username.encode())
-                helpers.send(message, self.session_keys[user]['socket'])
+                        key = self.session_keys[user]["key"], 
+                        payload = joined_message.encode())
+                helpers.send(message, self.session_keys[user]['socket'], convert_to_json=False)
             # 2. else set it up
             else:
                 try:
+                    # set it up
                     self.setup_keys(user)
+                    # send the message
+                    message = helpers.encrypt_sign(
+                        key = self.session_keys[user]["key"], 
+                        payload = joined_message.encode())
+                    helpers.send(message, self.session_keys[user]['socket'])
+
                 except ConnectionError:
                     print(f"> cannot connect to {user}")
 
@@ -209,7 +262,9 @@ class Client:
         Requests the public key of user from the server. Must already be
         authenticated with the server.
         """
-        pass
+        message = f"get {user}".encode()
+        encrypted = helpers.encrypt_sign(key=self.session_keys["server"]["key"],payload=message)
+        helpers.send(encrypted, self.session_keys["server"]["socket"])
 
 
     def logout(self):
@@ -239,6 +294,7 @@ if __name__ == "__main__":
         ca=ca_pk_location,
         server=server_pk_location,
         server_port=config["server"]["port"],
+        port=random.randint(1000, 3000)
     )
 
     # TODO: check if login is sucessful

@@ -27,11 +27,11 @@ def parse_msg(client_socket: socket.socket)-> bytes:
     header = client_socket.recv(HEADER_LENGTH)
 
     # TODO: check if header does not match msg size
-    print("parse_msg header: ", header)
+    print("\n\nparse_msg header: ", header)
     msg_length = 0
     try:
         msg_length = int.from_bytes(header, byteorder="big")
-        print(f"\n\nparse_msg msg_length : " , msg_length)
+        print(f"parse_msg msg_length : " , msg_length)
         # step 2: read the message only equal to the msg length
         payload = client_socket.recv(msg_length)
         print(f"parse_msg payload: ", payload)
@@ -78,7 +78,7 @@ def read_cert(certificate: x509.Certificate):
         f"Public Key: {public_key_str}"
     )
 
-def encrypt_sign(key, payload: bytes, payload_type: bytes, sender: bytes) -> bytes:
+def encrypt_sign(key, payload: bytes) -> bytes:
     """
     Encrypts plaintext message, and prepares the final message in message format
 
@@ -145,31 +145,26 @@ def create_csr(user_name: str, sk: RSAPrivateKey ) -> CertificateSigningRequest:
     return csr
 
 
-def decrypt_verify(message: bytes, key)-> Optional[Dict[str, bytes]]:
-    payload_length = len(message) - 16 -32
-    signature = message[:32]
+def decrypt_verify(message: bytes, key)-> str:
     iv = message[:16]
+    signature = message[-32:]
+    payload = message[16:-32]
 
-    print("from decrypt_verify iv: ", iv)
-    print("from decrypt_verify payload: ", message[16:payload_length])
+    print("\n\nfrom decrypt_verify iv: ", iv)
+    print("from decrypt_verify payload: ", payload) 
     print("from decrypt_verify signature: ", signature)
+
     # decrypt the decoded_message
-    cipher = Cipher(algorithms.AES(key), modes.GCM(iv))
+    cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
     decryptor = cipher.decryptor()
-
-
-
     # start decrypting
-    payload = decryptor.update(message[16:payload_length]) + decryptor.finalize()
-    signature = message[:32]
-       #
-    # # check signature
-    # h = hmac.HMAC(key, hashes.SHA256())
-    # h.update(payload)
-    # signature = (decoded_message["signature"])
-    # try:
-    #     h.verify(signature)
-    #     return decrypted_message
-    # except InvalidSignature:
-    #     # TODO: stopped
-    #     return None
+    decrypted_payload = decryptor.update(payload)
+    print("\n\nfrom decrypt_verify payload: ", decrypted_payload.decode())
+    # check signature 
+    h = hmac.HMAC(key, hashes.SHA256())
+    h.update(payload)
+    try:
+        h.verify(signature)
+        return decrypted_payload.decode()
+    except InvalidSignature:
+        return ""
