@@ -1,22 +1,22 @@
 import json
-import logging
 import os
 import socket
-from typing import Dict, Optional
+from io import BytesIO
 
 from cryptography import x509
-from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, hmac, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.x509.base import CertificateSigningRequest
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import padding as symmetric_padding
 
 HEADER_LENGTH = 4
 
 
-def parse_msg(client_socket: socket.socket)-> bytes:
+def parse_msg(client_socket: socket.socket) -> bytes:
     """
     reads the message and returns the payload = msg length
 
@@ -77,6 +77,7 @@ def read_cert(certificate: x509.Certificate):
         f"Public Key: {public_key_str}"
     )
 
+
 def encrypt_sign(key, payload: bytes) -> bytes:
     """
     Encrypts plaintext message, and prepares the final message in message format
@@ -87,9 +88,7 @@ def encrypt_sign(key, payload: bytes) -> bytes:
     """
     iv = os.urandom(16)
     cipher = Cipher(
-        algorithm=algorithms.AES256(key),
-        mode=modes.GCM(iv),
-        backend=default_backend()
+        algorithm=algorithms.AES256(key), mode=modes.GCM(iv), backend=default_backend()
     )
     en = cipher.encryptor()
     encrypted_payload = en.update(payload) + en.finalize()
@@ -115,6 +114,7 @@ def HMAC_sign(key , message: bytes) -> bytes:
     signature = h.finalize()
     return signature
 
+
 def send(message, socket: socket.socket, *, convert_to_json=True):
     """
     Sends the message OBJECT to the socket.
@@ -128,23 +128,20 @@ def send(message, socket: socket.socket, *, convert_to_json=True):
     header = len(message).to_bytes(HEADER_LENGTH, byteorder="big")
     socket.send(header + message)
 
-def create_csr(user_name: str, sk: RSAPrivateKey ) -> CertificateSigningRequest:
+
+def create_csr(user_name: str, sk: RSAPrivateKey) -> CertificateSigningRequest:
     csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
-            x509.Name(
-                [
-                    x509.NameAttribute(x509.NameOID.COMMON_NAME, user_name)
-                ]
-            )
-        )
+        x509.Name([x509.NameAttribute(x509.NameOID.COMMON_NAME, user_name)])
+    )
     csr = csr_builder.sign(
-            private_key=sk,
-            algorithm=hashes.SHA256(),
-            backend=default_backend(),
-        )
+        private_key=sk,
+        algorithm=hashes.SHA256(),
+        backend=default_backend(),
+    )
     return csr
 
 
-def decrypt_verify(message: bytes, key)-> str:
+def decrypt_verify(message: bytes, key) -> str:
     iv = message[:16]
     signature = message[-32:]
     payload = message[16:-32]
@@ -166,3 +163,66 @@ def decrypt_verify(message: bytes, key)-> str:
     # TODO signature verification fails for seemingly valid keys and I don't know why
     # h.verify(signature)
     return decrypted_payload.decode()
+
+
+def rsa_encrypt(message, public_key):
+    # to encrypt messages larger than 2048 bits with rsa, we need to encrypt it
+    # symmetrically with a random key and then encrypt that key with rsa.
+    iv = os.urandom(16)
+    key = os.urandom(32)
+    cipher = Cipher(
+        algorithm=algorithms.AES256(key),
+        mode=modes.CBC(iv),
+    )
+    en = cipher.encryptor()
+
+    padder = symmetric_padding.PKCS7(128).padder()
+
+    encrypted_message = (
+        en.update(
+            padder.update(
+                message
+            )
+            + padder.finalize()
+        )
+        + en.finalize()
+    )
+
+    encrypted_symmetric_key = public_key.encrypt(
+        key,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None,
+        ),
+    )
+
+    return iv + len(encrypted_symmetric_key).to_bytes(2) + encrypted_symmetric_key + encrypted_message
+
+def rsa_decrypt(message, private_key):
+    message = BytesIO(message)
+    iv = message.read(16)
+    length = int.from_bytes(message.read(2))
+    encrypted_symmetric_key = message.read(length)
+    encrypted_message = message.read()
+
+    symmetric_key = private_key.decrypt(
+        encrypted_symmetric_key,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None,
+        ),
+    )
+
+    cipher = Cipher(
+        algorithm=algorithms.AES256(symmetric_key),
+        mode=modes.CBC(iv),
+    )
+    d = cipher.decryptor()
+    message = d.update(encrypted_message) + d.finalize()
+
+    unpadder = symmetric_padding.PKCS7(128).unpadder()
+    message = unpadder.update(message) + unpadder.finalize()
+
+    return message

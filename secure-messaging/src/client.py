@@ -17,6 +17,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
+from cryptography.x509.oid import NameOID
 
 import helpers
 
@@ -118,6 +119,28 @@ class Client:
             # we are B and A is trying to authenticate with us.
             # A has signed the message with our public key.
             message = helpers.rsa_decrypt(buf, self.sk_a)
+            cert_a_bytes = message[:-256]
+            # TODO verify this cert is valid and came from a
+            cert_a = x509.load_pem_x509_certificate(cert_a_bytes)
+            username = cert_a.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
+            pk_a, _port_a = self.get_public_key_and_port_for(username)
+
+            g_a = int.from_bytes(message[-256:])
+
+            b = random.randint(1, self.p - 2)
+            g_b = pow(self.g, b, self.p)
+            message = self.cert.public_bytes(serialization.Encoding.PEM) + g_b.to_bytes(
+                256
+            )
+            K = pow(g_a, b, self.p)
+            self.session_keys[username] = {}
+            self.session_keys[username]["key"] = K
+            # TODO signing
+            # message = self.sk_a.sign(message)
+            message = helpers.rsa_encrypt(message, pk_a)
+            helpers.send(message, connection, convert_to_json=False)
+        if step == 2:
+            assert False
 
     def handshake_with_server(self):
         """
@@ -200,6 +223,8 @@ class Client:
         )
         d = cipher.decryptor()
         cert_bytes = d.update(buf) + d.finalize()
+        unpadder = padding.PKCS7(128).unpadder()
+        cert_bytes = unpadder.update(cert_bytes) + unpadder.finalize()
         cert = x509.load_pem_x509_certificate(cert_bytes)
         self.cert = cert
         # TODO assert cert is certified by the server? need to read the server's cert for that
@@ -274,16 +299,28 @@ class Client:
         message = self.cert.public_bytes(serialization.Encoding.PEM) + g_a.to_bytes(
             256
         )
+        # TODO signing
         # message = self.sk_a.sign(message)
         message = helpers.rsa_encrypt(message, pk_b)
         helpers.send(message, socket_b, convert_to_json=False)
 
         # should get back PK_A{[cert_b, g^b mod p]_{SK_B}}
         response = helpers.parse_msg(socket_b)
+        message = helpers.rsa_decrypt(response, self.sk_a)
 
-        K = ...
-        # use key to compute final challenge
-        helpers.send(..., socket_b)
+        # TODO verify cert is valid and came from b
+        cert_b_bytes = message[:-256]
+        g_b = int.from_bytes(message[-256:])
+        cert_b = x509.load_pem_x509_certificate(cert_b_bytes)
+        username = cert_b.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
+        assert username == user, (username, user)
+        K = pow(g_b, a, self.p)
+        self.session_keys[username] = {}
+        self.session_keys[username]["key"] = K
+
+        # TODO use key to compute final challenge
+
+        assert False
 
     def get_public_key_and_port_for(self, user) -> rsa.RSAPublicKey:
         """
