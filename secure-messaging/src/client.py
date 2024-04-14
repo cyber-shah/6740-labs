@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 """
-TODO: 
+TODO:
     1. clients listen to other connectiosn, RECIVEE SERVER
     2. server returns a list with PKs, cache them
     3. HMAC in verify and decrypt
@@ -117,7 +117,7 @@ class Client:
                     print("Client closed the connection.")
                     break
 
-                user = self.get_username_from_port(port)
+                user = self.port_to_username[port]
                 if user is not None:
                     decrypted = helpers.decrypt_verify(
                         message, self.session_keys[user]["key"]
@@ -138,7 +138,7 @@ class Client:
                 decrypted_message = helpers.decrypt_verify(
                     message, self.session_keys["server"]["key"]
                 )
-                self.session_keys.update(eval(decrypted_message))
+                self.session_keys.update(json.loads(decrypted_message))
                 user_names = list(self.session_keys.keys())
                 user_names.remove("server")
                 user_names.remove("ca")
@@ -195,7 +195,6 @@ class Client:
             unpadder = padding.PKCS7(128).unpadder()
             c = unpadder.update(c) + unpadder.finalize()
             assert c == self.session_keys[username]["challenge"]
-            self.session_keys[username]["port"] = port
             print(f"successfully mutually authenticated with port {port} as {username}")
 
     def handshake_with_server(self):
@@ -336,11 +335,11 @@ class Client:
             message = input[2:]
             joined_message = f" ".join(message)
 
-            print(f"sending message to....{user}....")
+            print(f"sending message to {user}...")
 
             # 1.check if user exissts
             if user not in self.session_keys:
-                print("user not active, maybe list again?")
+                print(f"unknown user {user}. Run \"list\" to load users")
                 return
 
             # 1. check if session key with that user is already setup
