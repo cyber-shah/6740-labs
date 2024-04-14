@@ -46,13 +46,13 @@ class Client:
             },
             "server": {
                 "PK": helpers.load_public_key_from_file(server),
-                "key": b"",
+                "key": b"JSH3y6F17l1bjhB8QUN0EwDMa7bCxiep",
                 "socket": self.server_socket,
             },
         }
 
         # TODO: check if handshake is sucessful
-        self.handshake()
+        # self.handshake()
         # TODO: if sucessful, create KEYS
 
     def handshake(self):
@@ -132,11 +132,11 @@ class Client:
             command = user_input[0].lower()
             if command == "list":
                 user_input.insert(0, "server")
-                self.send_message(user_input)
+                self.send_client(user_input)
                 print(user_input)
                 pass
             elif command == "send":
-                self.send_message(user_input)
+                self.send_client(user_input)
                 # 1. set if session key with that user is already setup
                 #       if already setup, use that to communicate
                 # 2. else set it up
@@ -146,28 +146,22 @@ class Client:
             else:
                 print("invalid command")
 
-    def send_message(self, input: list[str]) -> None:
+    def send_client(self, input: list[str]) -> None:
         """
         Sends message in the following format
-        {   msg_length: "",
-            ---------- encrypted ----------
-            payload_type: "",
-            sender: "",
-            payload : "",
-            ---------- encrypted ----------
-            IV : "",
-            HMAC signature: ""}
-
+                
         :param input: input receieved from the cli
         """
         try:
             user = input[0].lower()
             message = input[1:]
+            print("from client, send_client: ", user)
+            print("from client, send_client: ", message)
             # 1. check if session key with that user is already setup
             if user in self.session_keys:
-                message = helpers.encrypt_msg(
+                message = helpers.encrypt_sign(
                         key = self.session_keys[user]["key"], 
-                        message = f" ".join(message).encode(),
+                        payload = f" ".join(message).encode(),
                         payload_type="message".encode(),
                         sender = self.username.encode())
                 helpers.send(message, self.session_keys[user]['socket'])

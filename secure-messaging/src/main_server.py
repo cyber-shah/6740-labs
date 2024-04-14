@@ -106,12 +106,14 @@ class Server:
                     break
 
                 # decrypt and verify
-                decrypted_message = helpers.decrypt_verify(message, self.session_keys[port]["key"])
+                # decrypted_message = helpers.decrypt_verify(message, self.session_keys[port]["key"])
+                decrypted_message = helpers.decrypt_verify(message, b"JSH3y6F17l1bjhB8QUN0EwDMa7bCxiep")
+                print(decrypted_message)
                 
                 # ------------------------- user requested list -------------------------------------
                 if decrypted_message is not None and decrypted_message["payload_type"] == "list":
                     message = helpers.encrypt_sign(key = self.session_keys[port]["key"],
-                                                   message = str(self.active_users).encode(),
+                                                   payload = str(self.active_users).encode(),
                                                    payload_type="list".encode(),
                                                    sender="server".encode())
                     helpers.send(message, connection)
