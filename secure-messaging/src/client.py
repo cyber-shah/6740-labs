@@ -117,7 +117,15 @@ class Client:
                     print("Client closed the connection.")
                     break
 
-                print(f"[{port}] {message}")
+                user = self.get_username_from_port(port)
+                if user is not None:
+                    decrypted = helpers.decrypt_verify(
+                        message, self.session_keys[user]["key"]
+                    )
+                    print(f"<< {user} : {decrypted}")
+
+                else:
+                    print(f"[{port}] {message}")
 
         except Exception as e:
             logger.error(e)
@@ -167,7 +175,6 @@ class Client:
             )
             K = pow(g_a, b, self.p)
             K = hashlib.sha3_256(str(K).encode()).digest()
-            self.session_keys[username] = {}
             self.session_keys[username]["key"] = K
             # TODO signing
             # message = self.sk_a.sign(message)
@@ -188,7 +195,8 @@ class Client:
             unpadder = padding.PKCS7(128).unpadder()
             c = unpadder.update(c) + unpadder.finalize()
             assert c == self.session_keys[username]["challenge"]
-            print(f"successfully mutually authenticated with port {port}")
+            self.session_keys[username]["port"] = port
+            print(f"successfully mutually authenticated with port {port} as {username}")
 
     def handshake_with_server(self):
         """
@@ -296,7 +304,6 @@ class Client:
                 if command == "list":
                     # convert it to "send <server> list"
                     self.send_client(["send", "server", "list"])
-                    pass
                 elif command == "send":
                     # must be of the format "send <user> <message>"
                     self.send_client(user_input)
@@ -311,6 +318,8 @@ class Client:
                 elif command == "exit":
                     self.logout()
                     print("bye!")
+                elif command == "show":
+                    print(self.session_keys)
                 else:
                     print("invalid command")
         except KeyboardInterrupt:
@@ -327,13 +336,15 @@ class Client:
             message = input[2:]
             joined_message = f" ".join(message)
 
+            print(f"sending message to....{user}....")
+
             # 1.check if user exissts
             if user not in self.session_keys:
                 print("user not active, maybe list again?")
                 return
 
             # 1. check if session key with that user is already setup
-            if "key" in self.session_keys[user]:
+            if "key" in self.session_keys[user] and "socket" in self.session_keys[user]:
                 encrypted_message = helpers.encrypt_sign(
                     key=self.session_keys[user]["key"], payload=joined_message.encode()
                 )
@@ -345,8 +356,8 @@ class Client:
             # 2. else set it up
             else:
                 try:
-                    # set it up
                     self.setup_keys(user)
+
                     # send the message
                     message = helpers.encrypt_sign(
                         key=self.session_keys[user]["key"],
@@ -393,7 +404,6 @@ class Client:
         assert username == user, (username, user)
         K = pow(g_b, a, self.p)
         K = hashlib.sha3_256(str(K).encode()).digest()
-        self.session_keys[username] = {}
         self.session_keys[username]["key"] = K
         self.session_keys[username]["socket"] = socket_b
 
@@ -420,21 +430,15 @@ class Client:
         )
         return rsa_public_key, self.session_keys[user]["port"]
 
-        self.send_client(["send", "server", "list"])
-        response = helpers.parse_msg(self.server_socket)
-        message = helpers.decrypt_verify(response, self.session_keys["server"]["key"])
-        users = json.loads(message)
-        if user not in users:
-            raise Exception(
-                f"cannot talk to user {user} because the server does not know its public key. valid users: {users.keys()}"
-            )
-        (pk_bytes_encoded, port) = users[user]
-        pk_bytes = base64.b64decode(pk_bytes_encoded.encode("ascii"))
-        return (serialization.load_pem_public_key(pk_bytes), port)
-
     def logout(self):
         for thread_name, thread in self.threads.items():
             thread.join()
+
+    def get_username_from_port(self, port):
+        for username, user_info in self.session_keys.items():
+            if user_info.get("port") == port:
+                return username
+        return None
 
 
 p = Path(__file__).parent.parent

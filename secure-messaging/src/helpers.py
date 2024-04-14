@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import socket
@@ -226,3 +227,18 @@ def rsa_decrypt(message, private_key):
     message = unpadder.update(message) + unpadder.finalize()
 
     return message
+
+
+def convert_pk_to_rsa_public_key(dictionary):
+    for key, value in dictionary.items():
+        if isinstance(value["PK"], str):
+            try:
+                decoded_pk = base64.b64decode(value["PK"])
+                rsa_public_key = serialization.load_pem_public_key(
+                    decoded_pk, backend=default_backend()
+                )
+                dictionary[key] = rsa_public_key
+            except Exception as e:
+                # If there's an error during decoding or conversion, skip and continue
+                print(f"Error converting PK: {e}")
+    return dictionary

@@ -206,7 +206,6 @@ class Server:
             self.active_users[username]["PK"] = base64.b64encode(pk_bytes).decode(
                 "ascii"
             )
-
             print(f"client successfully authenticated at {port} as {username}")
 
     def logout(self, client_username: str, client_address):
