@@ -1,20 +1,19 @@
+import base64
 import hashlib
 import json
 import logging
+import os
 import random
 import socket
 import threading
-import os
 from collections import defaultdict
-from pathlib import Path
 from io import BytesIO
-import base64
+from pathlib import Path
 
 import yaml
 from cryptography import x509
-from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import padding, serialization
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import padding
 
 import helpers
 from CA_server import CA
@@ -109,13 +108,17 @@ class Server:
                     break
 
                 # decrypt and verify
-                decrypted_message = helpers.decrypt_verify(message, self.session_keys[port]["key"])
+                decrypted_message = helpers.decrypt_verify(
+                    message, self.session_keys[port]["key"]
+                )
 
                 # ------------------------- user requested list -------------------------------------
                 if decrypted_message == "list":
-                    message = helpers.encrypt_sign(key = self.session_keys[port]["key"],
-                                                   payload = json.dumps(self.active_users).encode())
-                    helpers.send(message, connection, convert_to_json=False)
+                    encrypted_message = helpers.encrypt_sign(
+                        key=self.session_keys[port]["key"],
+                        payload=json.dumps(self.active_users).encode(),
+                    )
+                    helpers.send(encrypted_message, connection, convert_to_json=False)
         except Exception as e:
             import traceback
 
@@ -209,7 +212,13 @@ class Server:
             # add this user's public key to the list so we can send it to users
             # who want to talk to a.
             # b64encode to make bytes serializable
-            self.active_users[username] = (base64.b64encode(pk_bytes).decode('ascii'), port)
+            self.active_users[username] = {}
+            self.active_users[username]["port"] = port
+            self.active_users[username]["PK"] = (
+                base64.b64encode(pk_bytes).decode("ascii"),
+            )
+
+            print(f"client successfully authenticated at {port} as {username}")
 
     def logout(self, client_username: str, client_address):
         pass
@@ -254,6 +263,7 @@ if __name__ == "__main__":
         logins=[
             ("AzureDiamond", "hunter2"),
             ("liam", "superprivatepassworddontpeek"),
+            ("melt", "system"),
         ],
     )
     server.accept_connections()

@@ -7,6 +7,7 @@ import os
 import random
 import socket
 import threading
+import time
 from collections import defaultdict
 from pathlib import Path
 
@@ -30,11 +31,13 @@ logger = logging.getLogger(__name__)
 
 """
 TODO: 
-    1. clients listen to other connectiosn
+    1. clients listen to other connectiosn, RECIVEE SERVER
     2. server returns a list with PKs, cache them
     3. HMAC in verify and decrypt
     4. signing inside handshake
     5. logout
+
+    for liam : 1. if password is invalid, server throws error?
 """
 
 
@@ -64,13 +67,15 @@ class Client:
             },
             "server": {
                 "PK": helpers.load_public_key_from_file(server),
-                "key": b"JSH3y6F17l1bjhB8QUN0EwDMa7bCxiep",
+                "key": "",
                 "socket": self.server_socket,
+                "port": server_port,
             },
         }
         self.port_to_username = {}
 
         self.cert = None
+        self.threads = {}
 
         self.handshake_with_server()
         assert self.cert is not None
@@ -81,6 +86,7 @@ class Client:
             target=self.accept_connections, args=()
         )
         accept_connections_thread.start()
+        self.threads["accepy"] = accept_connections_thread
 
     def accept_connections(self):
         self.socket.listen(5)
@@ -92,6 +98,7 @@ class Client:
                     target=self.handle_client, args=(connection,)
                 )
                 client_thread.start()
+                self.threads[address] = client_thread
         except KeyboardInterrupt:
             print("Server stopped.")
 
@@ -117,11 +124,16 @@ class Client:
     def recieve_server(self):
         try:
             while True:
+                # TODO: CACHE the list sent by the server
                 message = helpers.parse_msg(self.server_socket)
                 decrypted_message = helpers.decrypt_verify(
-                    message, b"JSH3y6F17l1bjhB8QUN0EwDMa7bCxiep"
+                    message, self.session_keys["server"]["key"]
                 )
-                print(decrypted_message)
+                self.session_keys.update(eval(decrypted_message))
+                user_names = list(self.session_keys.keys())
+                user_names.remove("server")
+                user_names.remove("ca")
+                print("<< ", user_names)
         except Exception as e:
             logger.error(e)
 
@@ -262,30 +274,48 @@ class Client:
         cert_bytes = unpadder.update(cert_bytes) + unpadder.finalize()
         cert = x509.load_pem_x509_certificate(cert_bytes)
         self.cert = cert
+        # --------------------------------------------------------------------------------------
+        #                       once done with handshake start recieving server
+        # --------------------------------------------------------------------------------------
+        server_thread = threading.Thread(target=self.recieve_server, args=())
+        server_thread.start()
+        self.threads["server"] = server_thread
+
         # TODO assert cert is certified by the server? need to read the server's cert for that
         # assert cert.verify_directly_issued_by()
 
     def start_cli(self):
-        while True:
-            user_input = input(">").split()
+        try:
+            while True:
+                user_input = input(">> ").split()
+                # 1. parse the input
+                command = user_input[0].lower()
+                user_input = user_input[1:]
 
-            # 1. parse the input
-            command = user_input[0].lower()
-            user_input = user_input[1:]
-            if command == "list":
-                self.send_client(["server"] + user_input)
-                print(user_input)
-                pass
-            elif command == "send":
-                self.send_client(user_input)
-                # 1. set if session key with that user is already setup
-                #       if already setup, use that to communicate
-                # 2. else set it up
-                pass
-            elif command == "logout":
-                pass
-            else:
-                print("invalid command")
+                # check if its list
+                if command == "list":
+                    # convert it to "send <server> list"
+                    self.send_client(["send", "server", "list"])
+                    pass
+                elif command == "send":
+                    # must be of the format "send <user> <message>"
+                    print(user_input)
+                    self.send_client(user_input)
+                    # 1. set if session key with that user is already setup
+                    #       if already setup, use that to communicate
+                    # 2. else set it up
+                    pass
+                elif command == "logout":
+                    self.logout()
+                    print("bye!")
+                    pass
+                elif command == "exit":
+                    self.logout()
+                    print("bye!")
+                else:
+                    print("invalid command")
+        except KeyboardInterrupt:
+            print("bye!")
 
     def send_client(self, input: list[str]) -> None:
         """
@@ -294,17 +324,19 @@ class Client:
         :param input: input receieved from the cli
         """
         try:
-            user = input[0]
-            message = input[1:]
+            user = input[1]
+            message = input[2:]
             joined_message = f" ".join(message)
 
             # 1. check if session key with that user is already setup
             if user in self.session_keys:
-                message = helpers.encrypt_sign(
+                encrypted_message = helpers.encrypt_sign(
                     key=self.session_keys[user]["key"], payload=joined_message.encode()
                 )
                 helpers.send(
-                    message, self.session_keys[user]["socket"], convert_to_json=False
+                    encrypted_message,
+                    self.session_keys[user]["socket"],
+                    convert_to_json=False,
                 )
             # 2. else set it up
             else:
@@ -377,7 +409,7 @@ class Client:
         Requests the public key of user from the server. Must already be
         authenticated with the server.
         """
-        self.send_client(["server", "list"])
+        self.send_client(["send", "server", "list"])
         response = helpers.parse_msg(self.server_socket)
         message = helpers.decrypt_verify(response, self.session_keys["server"]["key"])
         users = json.loads(message)
@@ -390,7 +422,8 @@ class Client:
         return (serialization.load_pem_public_key(pk_bytes), port)
 
     def logout(self):
-        pass
+        for thread_name, thread in self.threads.items():
+            thread.join()
 
 
 p = Path(__file__).parent.parent

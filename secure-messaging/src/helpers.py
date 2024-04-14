@@ -5,13 +5,13 @@ from io import BytesIO
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes, hmac, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import hashes, hmac
+from cryptography.hazmat.primitives import padding as symmetric_padding
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.x509.base import CertificateSigningRequest
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import padding as symmetric_padding
 
 HEADER_LENGTH = 4
 
@@ -25,9 +25,9 @@ def parse_msg(client_socket: socket.socket) -> bytes:
     """
     # step 1: read the first 4 bytes, to get the size of the msg
     header = client_socket.recv(HEADER_LENGTH)
+    # print("\n\nparse_msg header: ", header)
 
     # TODO: check if header does not match msg size
-    # print("\n\nparse_msg header: ", header)
     msg_length = 0
     try:
         msg_length = int.from_bytes(header, byteorder="big")
@@ -95,7 +95,7 @@ def encrypt_sign(key, payload: bytes) -> bytes:
     signature = HMAC_sign(key, payload)
     # print("\n\nfrom encrypt_sign iv", iv)
     # print("from encrypt_sign payload: ", payload)
-    # print("from encrypt_sign encrypted payload", encrypted_payload)
+    # print("\n\nfrom encrypt_sign encrypted payload", encrypted_payload)
     # print("from encrypt_sign signature", signature)
     return iv + encrypted_payload + signature
 
@@ -141,12 +141,13 @@ def create_csr(user_name: str, sk: RSAPrivateKey) -> CertificateSigningRequest:
 
 
 def decrypt_verify(message: bytes, key) -> str:
+    # TODO: check signature
     iv = message[:16]
     signature = message[-32:]
     payload = message[16:-32]
 
     # print("\n\nfrom decrypt_verify iv: ", iv)
-    # print("from decrypt_verify payload: ", payload)
+    # print("\n\nfrom decrypt_verify payload: ", payload)
     # print("from decrypt_verify signature: ", signature)
 
     # decrypt the decoded_message
@@ -154,7 +155,7 @@ def decrypt_verify(message: bytes, key) -> str:
     decryptor = cipher.decryptor()
     # start decrypting
     decrypted_payload = decryptor.update(payload)
-    # print("\n\nfrom decrypt_verify payload: ", decrypted_payload.decode())
+    # print("\n\nfrom decrypt_verify decrypted_payload: ", decrypted_payload.decode())
     # check signature
     h = hmac.HMAC(key, hashes.SHA256())
     h.update(payload)
@@ -178,13 +179,7 @@ def rsa_encrypt(message, public_key):
     padder = symmetric_padding.PKCS7(128).padder()
 
     encrypted_message = (
-        en.update(
-            padder.update(
-                message
-            )
-            + padder.finalize()
-        )
-        + en.finalize()
+        en.update(padder.update(message) + padder.finalize()) + en.finalize()
     )
 
     encrypted_symmetric_key = public_key.encrypt(
@@ -196,7 +191,13 @@ def rsa_encrypt(message, public_key):
         ),
     )
 
-    return iv + len(encrypted_symmetric_key).to_bytes(2) + encrypted_symmetric_key + encrypted_message
+    return (
+        iv
+        + len(encrypted_symmetric_key).to_bytes(2)
+        + encrypted_symmetric_key
+        + encrypted_message
+    )
+
 
 def rsa_decrypt(message, private_key):
     message = BytesIO(message)
