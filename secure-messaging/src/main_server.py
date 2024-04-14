@@ -8,6 +8,7 @@ import os
 from collections import defaultdict
 from pathlib import Path
 from io import BytesIO
+import base64
 
 import yaml
 from cryptography import x509
@@ -108,20 +109,13 @@ class Server:
                     break
 
                 # decrypt and verify
-                # decrypted_message = helpers.decrypt_verify(message, self.session_keys[port]["key"])
-                decrypted_message = helpers.decrypt_verify(message, b"JSH3y6F17l1bjhB8QUN0EwDMa7bCxiep")
-                print(decrypted_message)
+                decrypted_message = helpers.decrypt_verify(message, self.session_keys[port]["key"])
 
                 # ------------------------- user requested list -------------------------------------
                 if decrypted_message == "list":
-                    # FIXME: revert back to original version
-                    # message = helpers.encrypt_sign(key = self.session_keys[port]["key"],
-                    #                                payload = str(self.active_users).encode())
-                    # TODO: create a dict - with username and pk
-                    # that will be cached by the user
                     message = helpers.encrypt_sign(key = self.session_keys[port]["key"],
-                                                   payload = ",".join(str(element) for element in ["u1", "asd", "asdss"]).encode(),)
-                    helpers.send(message, connection)
+                                                   payload = json.dumps(self.active_users).encode())
+                    helpers.send(message, connection, convert_to_json=False)
         except Exception as e:
             import traceback
 
@@ -159,19 +153,15 @@ class Server:
                 "u": u,
                 "c": c,
             }
-            # (g^b)^(a + uw) = ((g^a)(g^(uw)))^b.
-            # intermediate modulos are to avoid enormous intermediate values
 
             # -------------------------------------- K computed ---------------------------------------------
+            # (g^b)^(a + uw) = ((g^a)(g^(uw)))^b.
+            # intermediate modulos are to avoid enormous intermediate values
             K = pow(g_a * pow(g, u * w, self.p), b, self.p)
+            K = hashlib.sha3_256(str(K).encode()).digest()
             self.session_keys[port]["key"] = K
 
-            self.initial_keys[connection] = (
-                username,
-                u,
-                c,
-                hashlib.sha3_256(str(K).encode()).digest(),
-            )
+            self.initial_keys[connection] = (username, u, c, K)
             helpers.send(response, connection)
 
         if step == 2:
@@ -194,7 +184,6 @@ class Server:
             # nice try attackers!
             assert u == expected_u and c == expected_c
 
-            pk = serialization.load_pem_public_key(pk_bytes)
             csr = x509.load_pem_x509_csr(csr_bytes)
             cert = self.ca.request_cert(csr)
 
@@ -215,8 +204,9 @@ class Server:
             helpers.send(message, connection, convert_to_json=False)
 
             # add this user's public key to the list so we can send it to users
-            # who want to talk to a
-            self.active_users[username] = pk
+            # who want to talk to a.
+            # b64encode to make bytes serializable
+            self.active_users[username] = base64.b64encode(pk_bytes).decode('ascii')
 
     def logout(self, client_username: str, client_address):
         pass

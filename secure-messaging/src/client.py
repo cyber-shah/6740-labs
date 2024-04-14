@@ -7,6 +7,7 @@ import random
 import socket
 import threading
 from pathlib import Path
+import base64
 
 import yaml
 from cryptography import x509
@@ -118,8 +119,6 @@ class Client:
 
         helpers.send(message, server_socket)
 
-        # need a delay here maybe to ensure server sends response? seems fine
-        # for me though
         response = helpers.parse_msg(self.server_socket)
         response = json.loads(response.decode())
         g_b_plus_g_w = response["g_b_plus_g_w"]
@@ -197,9 +196,9 @@ class Client:
 
             # 1. parse the input
             command = user_input[0].lower()
+            user_input = user_input[1:]
             if command == "list":
-                user_input.insert(0, "server")
-                self.send_client(user_input)
+                self.send_client(["server"] + user_input)
                 print(user_input)
                 pass
             elif command == "send":
@@ -220,12 +219,10 @@ class Client:
         :param input: input receieved from the cli
         """
         try:
-            user = input[0].lower()
+            user = input[0]
             message = input[1:]
             joined_message = f" ".join(message)
 
-            print("from client, send_client: ", user)
-            print("from client, send_client: ", joined_message)
             # 1. check if session key with that user is already setup
             if user in self.session_keys:
                 message = helpers.encrypt_sign(
@@ -250,7 +247,7 @@ class Client:
             raise ValueError
 
     def setup_keys(self, user: str):
-        # we are A and user is B. ask server for B's public key
+        # we are A and user is B. ask the server for B's public key
         pk_b = self.get_public_key_for(user)
 
         # TODO get B's socket information from the server
@@ -275,7 +272,14 @@ class Client:
         Requests the public key of user from the server. Must already be
         authenticated with the server.
         """
-        pass
+        self.send_client(["server", "list"])
+        response = helpers.parse_msg(self.server_socket)
+        message = helpers.decrypt_verify(response, self.session_keys["server"]["key"])
+        users = json.loads(message)
+        if user not in users:
+            raise Exception(f"cannot talk to user {user} because the server does not know its public key. valid users: {users.keys()}")
+        pk_bytes = base64.b64decode(users[user].encode("ascii"))
+        return serialization.load_pem_public_key(pk_bytes)
 
 
     def logout(self):
