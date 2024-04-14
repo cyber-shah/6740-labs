@@ -124,6 +124,9 @@ class Client:
         )
         helpers.send(message, server_socket, convert_to_json=False)
 
+        # TODO get back cert from the server
+        # response = helpers.parse_msg(self.server_socket)
+
     def start_cli(self):
         while True:
             user_input = input(">").split()

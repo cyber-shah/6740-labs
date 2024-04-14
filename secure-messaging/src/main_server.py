@@ -94,7 +94,8 @@ class Server:
                 # if message is coming from a port that is not seen
                 # ------------------------ do a handshake/authenticate ----------------------------
                 _ , port = connection.getpeername()
-                if port not in self.session_keys and self.steps[port] != 2:
+                if self.steps[port] < 2:
+                    # this port hasn't fully authenticated yet. finish handshake
                     self.handshake(connection, port)
                     continue
 
@@ -164,7 +165,7 @@ class Server:
             print(f"server: computed shared key {K}")
 
             self.initial_keys[connection] = (u, c, hashlib.sha3_256(str(K).encode()).digest())
-            self.send(connection, response)
+            helpers.send(response, connection)
 
         if step == 2:
             iv = buf[:16]
@@ -187,15 +188,13 @@ class Server:
             pk = serialization.load_pem_public_key(p_k)
             # we now have pk_a. send back K{cert}
 
+            # TODO how do we create cert here to send back?
+            # helpers.send(connection, response)
+
             time.sleep(0.1)
 
     def logout(self, client_username: str, client_address):
         pass
-
-    def send(self, socket, message):
-        message = json.dumps(message).encode()
-        header = len(message).to_bytes(helpers.HEADER_LENGTH, byteorder="big")
-        socket.send(header + message)
 
 
 if __name__ == "__main__":
