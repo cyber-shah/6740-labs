@@ -10,8 +10,9 @@ from pathlib import Path
 import yaml
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes, hmac, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 import helpers
 
@@ -22,10 +23,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-from cryptography.hazmat.primitives import hashes, hmac
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-
-import helpers
 
 
 class Client:
@@ -70,7 +67,7 @@ class Client:
         message = {"g_a": pow(self.g, self.a, self.p), "username": self.username}
         logger.info(f"sent g_a mod p")
 
-        self.send(message, server_socket)
+        helpers.send(message, server_socket)
 
         # need a delay here maybe to ensure server sends response? seems fine
         # for me though
@@ -125,23 +122,7 @@ class Client:
         message = (
             en.update(iv + pk_bytes + u.to_bytes(16) + c.to_bytes(16)) + en.finalize()
         )
-        self.send(message, server_socket)
-
-    def send(self, message:object, socket: socket.socket):
-         """
-         Sends the message OBJECT to the socket.
-         converts to json and encodes 
-
-         :param message: 
-         :param socket: 
-         """
-         message = json.dumps(message).encode()
-         header = len(message).to_bytes(helpers.HEADER_LENGTH, byteorder="big")
-         self.server_socket.send(header + message)
-         socket.send(header + message)
-
-    def login(self):
-        pass
+        helpers.send(message, server_socket)
 
     def start_cli(self):
         while True:
@@ -184,8 +165,12 @@ class Client:
             message = input[1:]
             # 1. check if session key with that user is already setup
             if user in self.session_keys:
-                message = self.encrypt_msg(user, f" ".join(message).encode())
-                self.send(message, self.session_keys[user]['socket'])
+                message = helpers.encrypt_msg(
+                        key = self.session_keys[user]["key"], 
+                        message = f" ".join(message).encode(),
+                        payload_type="message".encode(),
+                        sender = self.username.encode())
+                helpers.send(message, self.session_keys[user]['socket'])
             # 2. else set it up
             else:
                 try:
@@ -195,35 +180,6 @@ class Client:
 
         except IndexError:
             raise ValueError
-
-    def encrypt_msg(self, user: str, message: bytes) -> object:
-        """
-        Encrypts plaintext message, and prepares the final message in message format
-
-        :param user: str user to send TO
-        :param message: bytes plaintext message
-        :return: obj in format
-        """
-        iv = os.urandom(32)
-        cipher = Cipher(
-            algorithm=algorithms.AES256(self.session_keys[user]["key"]),
-            mode=modes.CBC(iv),
-        )
-        en = cipher.encryptor()
-
-        # prepare the message
-        payload_type = en.update(b"message") + en.finalize()
-        encrypted_sender = en.update(f"{user}".encode()) + en.finalize()
-        encrypted_payload = en.update(message) + en.finalize()
-        signature = self.HMAC_sign(user, message)
-
-        return {
-            "iv": iv,
-            "payload_type": payload_type,
-            "encrypted_sender": encrypted_sender,
-            "encrypted_payload": encrypted_payload,
-            "signature": signature,
-        }
 
     def setup_keys(self, user: str):
         # we are A and user is B. ask server for B's public key
@@ -235,14 +191,14 @@ class Client:
         g_a = pow(self.g, a, self.p)
 
         message = self.cert.public_bytes(serialization.Encoding.PEM) + g_a.to_bytes(2048)
-        self.send(message, socket_b)
+        helpers.send(message, socket_b)
 
         # should get back PK_A{[cert_b, g^b mod p]_{SK_B}}
         response = helpers.parse_msg(socket_b)
 
         K = ...
         # use key to compute final challenge
-        self.send(..., socket_b)
+        helpers.send(..., socket_b)
 
     def get_public_key_for(self, user) -> rsa.RSAPublicKey:
         """
@@ -251,26 +207,7 @@ class Client:
         """
         pass
 
-    def HMAC_sign(self, user: str, message: bytes) -> bytes:
-        """
-        Signs a message using HMAC
-
-        :param user: user the message is for
-        :param message: bytes to sign
-        :return: signature in bytes
-        """
-        h = hmac.HMAC(self.session_keys[user].key, hashes.SHA256())
-        h.update(message)
-        signature = h.finalize()
-        return signature
-
-    def authenticate(self):
-        """
-        1. get PK from the server
-        2. validate the other side's certs, PK
-        3. validate K
-        """
-
+    
     def logout(self):
         pass
 

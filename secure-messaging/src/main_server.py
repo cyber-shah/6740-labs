@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+import os
 import random
 import socket
 import threading
@@ -10,9 +11,11 @@ from pathlib import Path
 
 import yaml
 from cryptography import x509
+from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives import hashes, hmac, serialization
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.x509.base import CertificateSigningRequest
 
 import helpers
 from CA_server import CA
@@ -45,11 +48,11 @@ class Server:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.SERVER_IP, self.SERVER_PORT))
         # load the keys --------------------------------------------------------
-        self.__server_pk = helpers.load_public_key_from_file(pk_location)
+        self.server_pk = helpers.load_public_key_from_file(pk_location)
         self.server_sk = helpers.load_private_key_from_file(sk_location)
         # instantiate a CA
         self.ca = ca
-        self.__request_cert()
+        self.__request_cert(helpers.create_csr("server", self.server_sk))
         self.p = p
         self.g = g
 
@@ -62,25 +65,15 @@ class Server:
         self.bs = {}
         self.initial_keys = {}
         self.session_keys = {}
+        self.active_users = {}
 
-    def __request_cert(self) -> x509.Certificate:
+    def __request_cert(self, csr: CertificateSigningRequest) -> x509.Certificate:
         """
         Requests a cert for the server
 
         :return: 
         """
-        csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
-            x509.Name(
-                [
-                    x509.NameAttribute(x509.NameOID.COMMON_NAME, "server"),
-                ]
-            )
-        )
-        csr = csr_builder.sign(
-            private_key=self.server_sk,
-            algorithm=hashes.SHA256(),
-            backend=default_backend(),
-        )
+        
         certificate = self.ca.request_cert(csr)
         print("got certificates for the server")
         return certificate
@@ -124,10 +117,46 @@ class Server:
                     print("Client closed the connection.")
                     break
 
+                # decrypt and verify
+                decrypted_message = self.decrypt_verify(message, port)
+                
+                if decrypted_message is not None and decrypted_message["payload_type"] == "list":
 
-                       
+
+                
+
         except Exception as e:
             logger.error(e)
+
+
+    def decrypt_verify(self, message: bytes, port )-> dict:
+        decoded_message = json.loads(message.decode())
+
+        # decrypt the decoded_message
+        cipher = Cipher(algorithms.AES(self.session_keys[port]["key"]), modes.CBC(decoded_message['iv']))
+        decryptor = cipher.decryptor()
+
+        # start decrypting
+        sender = decryptor.update(decoded_message["sender"]) + decryptor.finalize()
+        payload = decryptor.update(decoded_message["payload"]) + decryptor.finalize()
+        payload_type = decryptor.update(decoded_message["payload_type"]) + decryptor.finalize()
+
+        decrypted_message = {
+                "sender" : sender,
+                "payload" : payload,
+                "payload_type" : payload_type
+                }
+
+        # check signature 
+        h = hmac.HMAC(self.session_keys[port]["key"], hashes.SHA256())
+        h.update(payload)
+        signature = (decoded_message["signature"])
+        try:
+            h.verify(signature)
+            return decrypted_message
+        except InvalidSignature:
+            # TODO: stopped
+            return None
 
 
     def handshake(self, connection: socket.socket, port):
@@ -203,9 +232,6 @@ class Server:
             time.sleep(0.1)
 
     def logout(self, client_username: str, client_address):
-        pass
-
-    def login(self, client_username: str):
         pass
 
     def send(self, socket, message):

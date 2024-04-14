@@ -1,10 +1,16 @@
+import json
 import logging
+import os
 import socket
 
 from cryptography import x509
+from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes, hmac, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.x509.base import CertificateSigningRequest
 
 HEADER_LENGTH = 4
 
@@ -21,7 +27,6 @@ def parse_msg(client_socket: socket.socket)-> bytes:
 
     # TODO: check if header does not match msg size
     print("header: ", header)
-
     msg_length = 0
     try:
         msg_length = int.from_bytes(header, byteorder="big")
@@ -60,13 +65,11 @@ def load_public_key_from_file(file_path: str) -> rsa.RSAPublicKey:
 def read_cert(certificate: x509.Certificate):
     # Extract the public key from the certificate
     public_key = certificate.public_key()
-
     # Convert the public key to a string representation
     public_key_str = public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo,
     ).decode()
-
     print(
         f"Issuer: {certificate.issuer}, "
         f"Subject: {certificate.subject}, "
@@ -75,3 +78,76 @@ def read_cert(certificate: x509.Certificate):
     )
 
     pass
+
+
+def encrypt_msg(key, message: bytes, payload_type: bytes, sender: bytes) -> object:
+        """
+        Encrypts plaintext message, and prepares the final message in message format
+
+        :param user: str user to send TO
+        :param message: bytes plaintext message
+        :return: obj in format
+        """
+        iv = os.urandom(32)
+        cipher = Cipher(
+            algorithm=algorithms.AES256(key),
+            mode=modes.CBC(iv),
+        )
+        en = cipher.encryptor()
+
+        # prepare the message
+        payload_type = en.update(payload_type) + en.finalize()
+        encrypted_sender = en.update(sender) + en.finalize()
+        encrypted_payload = en.update(message) + en.finalize()
+        signature = HMAC_sign(key, message)
+
+        return {
+            "iv": iv,
+            "payload_type": payload_type,
+            "encrypted_sender": encrypted_sender,
+            "encrypted_payload": encrypted_payload,
+            "signature": signature,
+        }
+
+def HMAC_sign(key , message: bytes) -> bytes:
+        """
+        Signs a message using HMAC
+
+        :param user: user the message is for
+        :param message: bytes to sign
+        :return: signature in bytes
+        """
+        h = hmac.HMAC(key, hashes.SHA256())
+        h.update(message)
+        signature = h.finalize()
+        return signature
+
+
+def send(message:object, socket: socket.socket):
+     """
+     Sends the message OBJECT to the socket.
+     converts to json and encodes 
+
+     :param message: 
+     :param socket: 
+     """
+     message = json.dumps(message).encode()
+     header = len(message).to_bytes(HEADER_LENGTH, byteorder="big")
+     socket.send(header + message)
+
+
+
+def create_csr(user_name: str, sk: RSAPrivateKey ) -> CertificateSigningRequest:
+    csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
+            x509.Name(
+                [
+                    x509.NameAttribute(x509.NameOID.COMMON_NAME, user_name)
+                ]
+            )
+        )
+    csr = csr_builder.sign(
+            private_key=sk,
+            algorithm=hashes.SHA256(),
+            backend=default_backend(),
+        )
+    return csr
