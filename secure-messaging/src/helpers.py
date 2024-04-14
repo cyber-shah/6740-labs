@@ -27,11 +27,11 @@ def parse_msg(client_socket: socket.socket) -> bytes:
     header = client_socket.recv(HEADER_LENGTH)
 
     # TODO: check if header does not match msg size
-    print("\n\nparse_msg header: ", header)
+    # print("\n\nparse_msg header: ", header)
     msg_length = 0
     try:
         msg_length = int.from_bytes(header, byteorder="big")
-        print(f"parse_msg msg_length : " , msg_length)
+        # print(f"parse_msg msg_length : " , msg_length)
         # step 2: read the message only equal to the msg length
         payload = client_socket.recv(msg_length)
         return payload
@@ -93,15 +93,14 @@ def encrypt_sign(key, payload: bytes) -> bytes:
     en = cipher.encryptor()
     encrypted_payload = en.update(payload) + en.finalize()
     signature = HMAC_sign(key, payload)
-    print("\n\nfrom encrypt_sign iv", iv)
-    print("from encrypt_sign payload: ", payload)
-    print("from encrypt_sign encrypted payload", encrypted_payload)
-    print("from encrypt_sign signature", signature)
+    # print("\n\nfrom encrypt_sign iv", iv)
+    # print("from encrypt_sign payload: ", payload)
+    # print("from encrypt_sign encrypted payload", encrypted_payload)
+    # print("from encrypt_sign signature", signature)
     return iv + encrypted_payload + signature
 
 
-
-def HMAC_sign(key , message: bytes) -> bytes:
+def HMAC_sign(key, message: bytes) -> bytes:
     """
     Signs a message using HMAC always 32 BYTES
 
@@ -146,16 +145,16 @@ def decrypt_verify(message: bytes, key) -> str:
     signature = message[-32:]
     payload = message[16:-32]
 
-    print("\n\nfrom decrypt_verify iv: ", iv)
-    print("from decrypt_verify payload: ", payload)
-    print("from decrypt_verify signature: ", signature)
+    # print("\n\nfrom decrypt_verify iv: ", iv)
+    # print("from decrypt_verify payload: ", payload)
+    # print("from decrypt_verify signature: ", signature)
 
     # decrypt the decoded_message
     cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
     decryptor = cipher.decryptor()
     # start decrypting
     decrypted_payload = decryptor.update(payload)
-    print("\n\nfrom decrypt_verify payload: ", decrypted_payload.decode())
+    # print("\n\nfrom decrypt_verify payload: ", decrypted_payload.decode())
     # check signature
     h = hmac.HMAC(key, hashes.SHA256())
     h.update(payload)

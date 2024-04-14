@@ -59,6 +59,7 @@ class Client:
                 "socket": self.server_socket,
             },
         }
+        self.port_to_username = {}
 
         self.cert = None
 
@@ -98,6 +99,8 @@ class Client:
                     print("Client closed the connection.")
                     break
 
+                print(f"[{port}] {message}")
+
         except Exception as e:
             logger.error(e)
 
@@ -129,18 +132,35 @@ class Client:
 
             b = random.randint(1, self.p - 2)
             g_b = pow(self.g, b, self.p)
-            message = self.cert.public_bytes(serialization.Encoding.PEM) + g_b.to_bytes(
+            c = os.urandom(16)
+            message = self.cert.public_bytes(serialization.Encoding.PEM) + c + g_b.to_bytes(
                 256
             )
             K = pow(g_a, b, self.p)
+            K = hashlib.sha3_256(str(K).encode()).digest()
             self.session_keys[username] = {}
             self.session_keys[username]["key"] = K
             # TODO signing
             # message = self.sk_a.sign(message)
             message = helpers.rsa_encrypt(message, pk_a)
+            self.port_to_username[port] = username
+            self.session_keys[username]["challenge"] = c
             helpers.send(message, connection, convert_to_json=False)
         if step == 2:
-            assert False
+            username = self.port_to_username[port]
+            iv = buf[:16]
+            buf = buf[16:]
+            cipher = Cipher(
+                algorithm=algorithms.AES256(self.session_keys[username]["key"]),
+                mode=modes.CBC(iv),
+            )
+            d = cipher.decryptor()
+            c = d.update(buf) + d.finalize()
+            unpadder = padding.PKCS7(128).unpadder()
+            c = unpadder.update(c) + unpadder.finalize()
+            assert c == self.session_keys[username]["challenge"]
+            print(f"successfully mutually authenticated with port {port}")
+
 
     def handshake_with_server(self):
         """
@@ -278,7 +298,7 @@ class Client:
                     message = helpers.encrypt_sign(
                         key = self.session_keys[user]["key"],
                         payload = joined_message.encode())
-                    helpers.send(message, self.session_keys[user]['socket'])
+                    helpers.send(message, self.session_keys[user]['socket'], convert_to_json=False)
 
                 except ConnectionError:
                     print(f"> cannot connect to {user}")
@@ -309,18 +329,37 @@ class Client:
         message = helpers.rsa_decrypt(response, self.sk_a)
 
         # TODO verify cert is valid and came from b
-        cert_b_bytes = message[:-256]
+        cert_b_bytes = message[:-256 - 16]
+        c = message[-256 - 16:-256]
         g_b = int.from_bytes(message[-256:])
         cert_b = x509.load_pem_x509_certificate(cert_b_bytes)
         username = cert_b.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
         assert username == user, (username, user)
         K = pow(g_b, a, self.p)
+        K = hashlib.sha3_256(str(K).encode()).digest()
         self.session_keys[username] = {}
         self.session_keys[username]["key"] = K
+        self.session_keys[username]["socket"] = socket_b
 
-        # TODO use key to compute final challenge
+        iv = os.urandom(16)
+        cipher = Cipher(
+            algorithm=algorithms.AES256(K),
+            mode=modes.CBC(iv),
+        )
+        en = cipher.encryptor()
+        padder = padding.PKCS7(128).padder()
 
-        assert False
+        message = (
+            en.update(
+                padder.update(
+                    iv
+                    + c
+                )
+                + padder.finalize()
+            )
+            + en.finalize()
+        )
+        helpers.send(message, socket_b, convert_to_json=False)
 
     def get_public_key_and_port_for(self, user) -> rsa.RSAPublicKey:
         """
