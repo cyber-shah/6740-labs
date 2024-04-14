@@ -100,9 +100,9 @@ def encrypt_sign(key, payload: bytes, payload_type: bytes, sender: bytes) -> byt
     print("from encrypt_sign encrypted payload", encrypted_payload)
     print("from encrypt_sign signature", signature)
     return iv + encrypted_payload + signature
-    
 
-   
+
+
 def HMAC_sign(key , message: bytes) -> bytes:
     """
     Signs a message using HMAC always 32 BYTES
@@ -116,25 +116,18 @@ def HMAC_sign(key , message: bytes) -> bytes:
     signature = h.finalize()
     return signature
 
-def send(message, socket: socket.socket):
-     """
-     Sends the message OBJECT to the socket.
-     converts to json and encodes 
+def send(message, socket: socket.socket, *, convert_to_json=True):
+    """
+    Sends the message OBJECT to the socket.
+    converts to json and encodes if convert_to_json is True
 
-     :param message: 
-     :param socket: 
-     """
-     if (isinstance(message, bytes)):
-        header = len(message).to_bytes(HEADER_LENGTH, byteorder="big")
-        print("\n\nfrom send in helper MESSAGE: ", message)
-        print("from send in helper LENGTH: ", len(message))
-        print("from send in helper HEADER: ", header)
-        socket.send(header + message)
-     elif (isinstance(message, dict)):
-         json_message = json.dumps(message).encode()
-         header = len(json_message).to_bytes(HEADER_LENGTH, byteorder="big")
-         socket.send(header + json_message)
-
+    :param message:
+    :param socket:
+    """
+    if convert_to_json:
+        message = json.dumps(message).encode()
+    header = len(message).to_bytes(HEADER_LENGTH, byteorder="big")
+    socket.send(header + message)
 
 def create_csr(user_name: str, sk: RSAPrivateKey ) -> CertificateSigningRequest:
     csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
@@ -170,7 +163,7 @@ def decrypt_verify(message: bytes, key)-> Optional[Dict[str, bytes]]:
     payload = decryptor.update(message[16:payload_length]) + decryptor.finalize()
     signature = message[:32]
        #
-    # # check signature 
+    # # check signature
     # h = hmac.HMAC(key, hashes.SHA256())
     # h.update(payload)
     # signature = (decoded_message["signature"])

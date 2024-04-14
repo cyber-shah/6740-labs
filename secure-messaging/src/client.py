@@ -52,7 +52,7 @@ class Client:
         }
 
         # TODO: check if handshake is sucessful
-        # self.handshake()
+        self.handshake()
         # TODO: if sucessful, create KEYS
 
     def handshake(self):
@@ -122,7 +122,7 @@ class Client:
         message = (
             en.update(iv + pk_bytes + u.to_bytes(16) + c.to_bytes(16)) + en.finalize()
         )
-        helpers.send(message, server_socket)
+        helpers.send(message, server_socket, convert_to_json=False)
 
     def start_cli(self):
         while True:
@@ -149,7 +149,7 @@ class Client:
     def send_client(self, input: list[str]) -> None:
         """
         Sends message in the following format
-                
+
         :param input: input receieved from the cli
         """
         try:
@@ -160,7 +160,7 @@ class Client:
             # 1. check if session key with that user is already setup
             if user in self.session_keys:
                 message = helpers.encrypt_sign(
-                        key = self.session_keys[user]["key"], 
+                        key = self.session_keys[user]["key"],
                         payload = f" ".join(message).encode(),
                         payload_type="message".encode(),
                         sender = self.username.encode())
@@ -201,7 +201,7 @@ class Client:
         """
         pass
 
-    
+
     def logout(self):
         pass
 

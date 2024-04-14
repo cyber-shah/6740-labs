@@ -63,7 +63,7 @@ class Server:
         self.steps = defaultdict(int)
         self.bs = {}
         self.initial_keys = {}
-        self.session_keys = {}
+        self.session_keys = defaultdict(dict)
         self.active_users = {}
 
     def accept_connections(self):
@@ -91,12 +91,13 @@ class Server:
     def handle_client(self, connection: socket.socket):
         try:
             while True:
-                # if message is coming from a port that is not seen 
+                # if message is coming from a port that is not seen
                 # ------------------------ do a handshake/authenticate ----------------------------
                 _ , port = connection.getpeername()
-                # if port not in self.session_keys and self.steps[port] != 2:
-                #     self.handshake(connection, port)
- 
+                if port not in self.session_keys and self.steps[port] != 2:
+                    self.handshake(connection, port)
+                    continue
+
                 # ------------------------- post handshake ----------------------------------------
                 message = helpers.parse_msg(connection)
 
@@ -106,10 +107,8 @@ class Server:
                     break
 
                 # decrypt and verify
-                # decrypted_message = helpers.decrypt_verify(message, self.session_keys[port]["key"])
-                decrypted_message = helpers.decrypt_verify(message, b"JSH3y6F17l1bjhB8QUN0EwDMa7bCxiep")
-                print(decrypted_message)
-                
+                decrypted_message = helpers.decrypt_verify(message, self.session_keys[port]["key"])
+
                 # ------------------------- user requested list -------------------------------------
                 if decrypted_message is not None and decrypted_message["payload_type"] == "list":
                     message = helpers.encrypt_sign(key = self.session_keys[port]["key"],
@@ -128,13 +127,10 @@ class Server:
         self.steps[port] += 1
         step = self.steps[port]
 
-        print(f"steps", step)
         # TODO: check if successful
         # ----------------------------------- send b ----------------------------------
         if step == 1:
-            print("in step 1")
             val = json.loads(buf.decode())
-            print(f"from val" + val)
             b = random.randint(1, p - 2)
             username = val["username"]
             g_a = val["g_a"]
@@ -169,7 +165,7 @@ class Server:
 
             self.initial_keys[connection] = (u, c, hashlib.sha3_256(str(K).encode()).digest())
             self.send(connection, response)
-        
+
         if step == 2:
             iv = buf[:16]
             buf = buf[16:]
