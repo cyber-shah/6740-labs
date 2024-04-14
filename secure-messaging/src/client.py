@@ -10,6 +10,7 @@ import threading
 import time
 from collections import defaultdict
 from pathlib import Path
+from typing import Tuple
 
 import yaml
 from cryptography import x509
@@ -290,7 +291,6 @@ class Client:
                 user_input = input(">> ").split()
                 # 1. parse the input
                 command = user_input[0].lower()
-                user_input = user_input[1:]
 
                 # check if its list
                 if command == "list":
@@ -299,7 +299,6 @@ class Client:
                     pass
                 elif command == "send":
                     # must be of the format "send <user> <message>"
-                    print(user_input)
                     self.send_client(user_input)
                     # 1. set if session key with that user is already setup
                     #       if already setup, use that to communicate
@@ -328,8 +327,13 @@ class Client:
             message = input[2:]
             joined_message = f" ".join(message)
 
+            # 1.check if user exissts
+            if user not in self.session_keys:
+                print("user not active, maybe list again?")
+                return
+
             # 1. check if session key with that user is already setup
-            if user in self.session_keys:
+            if "key" in self.session_keys[user]:
                 encrypted_message = helpers.encrypt_sign(
                     key=self.session_keys[user]["key"], payload=joined_message.encode()
                 )
@@ -404,11 +408,18 @@ class Client:
         message = en.update(padder.update(iv + c) + padder.finalize()) + en.finalize()
         helpers.send(message, socket_b, convert_to_json=False)
 
-    def get_public_key_and_port_for(self, user) -> rsa.RSAPublicKey:
+    def get_public_key_and_port_for(self, user):
         """
         Requests the public key of user from the server. Must already be
         authenticated with the server.
         """
+        base64_encoded_pk = self.session_keys[user]["PK"]
+        decoded_pk = base64.b64decode(base64_encoded_pk)
+        rsa_public_key = serialization.load_pem_public_key(
+            decoded_pk, backend=default_backend()
+        )
+        return rsa_public_key, self.session_keys[user]["port"]
+
         self.send_client(["send", "server", "list"])
         response = helpers.parse_msg(self.server_socket)
         message = helpers.decrypt_verify(response, self.session_keys["server"]["key"])

@@ -18,17 +18,6 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import helpers
 from CA_server import CA
 
-"""
-1. authenticate users, using id and pass
-    Once authenticated, use store the session key:
-    session_keys :
-        { user1: key1, }
-
-2. use the Session keys to encrypt the communication between the client and server
-3. get certs for that user
-3. list all active users
-"""
-
 
 class Server:
 
@@ -214,8 +203,8 @@ class Server:
             # b64encode to make bytes serializable
             self.active_users[username] = {}
             self.active_users[username]["port"] = port
-            self.active_users[username]["PK"] = (
-                base64.b64encode(pk_bytes).decode("ascii"),
+            self.active_users[username]["PK"] = base64.b64encode(pk_bytes).decode(
+                "ascii"
             )
 
             print(f"client successfully authenticated at {port} as {username}")
