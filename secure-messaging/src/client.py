@@ -7,10 +7,8 @@ import os
 import random
 import socket
 import threading
-import time
 from collections import defaultdict
 from pathlib import Path
-from typing import Tuple
 
 import yaml
 from cryptography import x509
@@ -36,8 +34,6 @@ TODO:
     3. HMAC in verify and decrypt
     4. signing inside handshake
     5. logout
-
-    for liam : 1. if password is invalid, server throws error?
 """
 
 
@@ -50,8 +46,6 @@ class Client:
         self.username = username
         self.w = int(hashlib.sha3_512(password.encode()).hexdigest(), 16)
 
-        # TODO double check this range
-        # https://www.ibm.com/docs/en/zvse/6.2?topic=overview-diffie-hellman
         self.a = random.randint(1, p - 2)
         self.p = p
         self.g = g
@@ -60,7 +54,6 @@ class Client:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.connect(("localhost", server_port))
         # store server's PK and CA's PK here, as trusted authorities
-        # TODO: add server's keys here after auth
         self.session_keys = {
             "ca": {
                 "PK": helpers.load_public_key_from_file(ca),
@@ -132,7 +125,6 @@ class Client:
     def recieve_server(self):
         try:
             while True:
-                # TODO: CACHE the list sent by the server
                 message = helpers.parse_msg(self.server_socket)
                 decrypted_message = helpers.decrypt_verify(
                     message, self.session_keys["server"]["key"]
@@ -162,7 +154,6 @@ class Client:
             # A has signed the message with our public key.
             message = helpers.rsa_decrypt(buf, self.sk_a)
             cert_a_bytes = message[:-256]
-            # TODO verify this cert is valid and came from a
             cert_a = x509.load_pem_x509_certificate(cert_a_bytes)
             username = cert_a.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[
                 0
@@ -182,8 +173,6 @@ class Client:
             K = pow(g_a, b, self.p)
             K = hashlib.sha3_256(str(K).encode()).digest()
             self.session_keys[username]["key"] = K
-            # TODO signing
-            # message = self.sk_a.sign(message)
             message = helpers.rsa_encrypt(message, pk_a)
             self.port_to_username[port] = username
             self.session_keys[username]["challenge"] = c
@@ -295,9 +284,6 @@ class Client:
         server_thread.start()
         self.threads["server"] = server_thread
 
-        # TODO assert cert is certified by the server? need to read the server's cert for that
-        # assert cert.verify_directly_issued_by()
-
     def start_cli(self):
         try:
             while True:
@@ -391,8 +377,7 @@ class Client:
         g_a = pow(self.g, a, self.p)
 
         message = self.cert.public_bytes(serialization.Encoding.PEM) + g_a.to_bytes(256)
-        # TODO signing
-        # message = self.sk_a.sign(message)
+
         message = helpers.rsa_encrypt(message, pk_b)
         helpers.send(message, socket_b, convert_to_json=False)
 
@@ -400,7 +385,6 @@ class Client:
         response = helpers.parse_msg(socket_b)
         message = helpers.rsa_decrypt(response, self.sk_a)
 
-        # TODO verify cert is valid and came from b
         cert_b_bytes = message[: -256 - 16]
         c = message[-256 - 16 : -256]
         g_b = int.from_bytes(message[-256:])
