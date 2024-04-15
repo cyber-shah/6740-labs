@@ -271,7 +271,7 @@ if __name__ == "__main__":
         g=g,
         logins=[
             ("AzureDiamond", "hunter2"),
-            ("liam", "superprivatepassworddontpeek"),
+            ("liam", "superprivatepassword"),
             ("melt", "system"),
         ],
     )
