@@ -173,7 +173,9 @@ class Server:
                 unpadder = padding.PKCS7(128).unpadder()
                 message = unpadder.update(message) + unpadder.finalize()
             except ValueError:
-                print("client provided an incorrect password! (symmetric key disagreement)")
+                print(
+                    "client provided an incorrect password! (symmetric key disagreement)"
+                )
                 return
 
             message = BytesIO(message)
