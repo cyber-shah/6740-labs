@@ -18,6 +18,8 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import helpers
 from CA_server import CA
 
+# TODO: whenever a new user joins update everyone
+
 
 class Server:
 
@@ -103,9 +105,10 @@ class Server:
 
                 # ------------------------- user requested list -------------------------------------
                 if decrypted_message == "list":
+                    new_message = {"list": self.active_users}
                     encrypted_message = helpers.encrypt_sign(
                         key=self.session_keys[port]["key"],
-                        payload=json.dumps(self.active_users).encode(),
+                        payload=json.dumps(new_message).encode(),
                     )
                     helpers.send(encrypted_message, connection, convert_to_json=False)
         except Exception as e:
@@ -206,14 +209,27 @@ class Server:
             self.active_users[username]["PK"] = base64.b64encode(pk_bytes).decode(
                 "ascii"
             )
+            # ---------------- send the entire list -------------------------------
+            _, acutal_port = connection.getpeername()
+            new_message = {"list": self.active_users}
+            encrypted_message = helpers.encrypt_sign(
+                key=self.session_keys[acutal_port]["key"],
+                payload=json.dumps(new_message).encode(),
+            )
+            helpers.send(encrypted_message, connection, convert_to_json=False)
+            self.send_all("hi")
+
             print(f"client successfully authenticated at {port} as {username}")
 
     def logout(self, client_username: str, client_address):
         pass
 
+    def send_all(self, message: str):
+        for ports in self.session_keys.keys():
+            print(ports)
+
 
 if __name__ == "__main__":
-
     logging.basicConfig(
         filename="server.log",
         level=logging.INFO,
@@ -250,7 +266,7 @@ if __name__ == "__main__":
         g=g,
         logins=[
             ("AzureDiamond", "hunter2"),
-            ("liam", "superprivatepassword"),
+            ("liam", "superprivatepassworddontpeek"),
             ("melt", "system"),
         ],
     )

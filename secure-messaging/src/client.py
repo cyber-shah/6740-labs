@@ -30,7 +30,6 @@ logger = logging.getLogger(__name__)
 
 """
 TODO:
-    1. clients listen to other connectiosn, RECIVEE SERVER
     2. server returns a list with PKs, cache them
     3. HMAC in verify and decrypt
     4. signing inside handshake
@@ -136,11 +135,18 @@ class Client:
                 decrypted_message = helpers.decrypt_verify(
                     message, self.session_keys["server"]["key"]
                 )
-                self.session_keys.update(json.loads(decrypted_message))
-                user_names = list(self.session_keys.keys())
-                user_names.remove("server")
-                user_names.remove("ca")
-                print("<< ", user_names)
+                json_decrypted = json.loads(decrypted_message)
+                if "list" in decrypted_message:
+                    self.session_keys.update(json_decrypted["list"])
+                    user_names = list(self.session_keys.keys())
+                    user_names.remove("server")
+                    user_names.remove("ca")
+                    user_names.remove(self.username)
+                    print("<< List of active users: ", user_names)
+                elif "update" in decrypted_message:
+                    self.session_keys.update(json_decrypted["update"])
+                    print("<< new user joined: ", list(json_decrypted["update"].keys()))
+
         except Exception as e:
             logger.error(e)
 
@@ -301,6 +307,7 @@ class Client:
                     self.send_client(["send", "server", "list"])
                 elif command == "send":
                     # must be of the format "send <user> <message>"
+                    self.send_client(["send", "server", "upadate"])
                     self.send_client(user_input)
                     # 1. set if session key with that user is already setup
                     #       if already setup, use that to communicate
@@ -318,6 +325,7 @@ class Client:
                 else:
                     print("invalid command")
         except KeyboardInterrupt:
+            self.logout()
             print("bye!")
 
     def send_client(self, input: list[str]) -> None:
@@ -331,11 +339,9 @@ class Client:
             message = input[2:]
             joined_message = f" ".join(message)
 
-            print(f"sending message to {user}...")
-
             # 1.check if user exissts
             if user not in self.session_keys:
-                print(f"unknown user {user}. Run \"list\" to load users")
+                print(f'unknown user {user}. Run "list" to load users')
                 return
 
             # 1. check if session key with that user is already setup
