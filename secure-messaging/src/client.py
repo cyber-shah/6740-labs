@@ -34,8 +34,6 @@ TODO:
     3. HMAC in verify and decrypt
     4. signing inside handshake
     5. logout
-
-    for liam : 1. if password is invalid, server throws error?
 """
 
 
