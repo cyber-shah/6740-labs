@@ -112,9 +112,6 @@ class Server:
                     )
                     helpers.send(encrypted_message, connection, convert_to_json=False)
         except Exception as e:
-            import traceback
-
-            traceback.print_exception(e)
             logger.error(e)
 
     def handshake(self, connection: socket.socket, port):
@@ -134,7 +131,9 @@ class Server:
             assert len(login) <= 1
             if len(login) == 0:
                 # someone tried to log in with a username we don't have
-                raise Exception(f"invalid username {username}")
+                print(f"client tried connecting with invalid username {username}")
+                del self.steps[port]
+                return
 
             username, w = login[0]
             self.bs[port] = b
@@ -174,8 +173,9 @@ class Server:
                 message = unpadder.update(message) + unpadder.finalize()
             except ValueError:
                 print(
-                    "client provided an incorrect password! (symmetric key disagreement)"
+                    "client tried connecting with invalid password (symmetric key disagreement)"
                 )
+                del self.steps[port]
                 return
 
             message = BytesIO(message)
@@ -232,7 +232,7 @@ class Server:
         pass
 
     def send_all(self, message: str):
-        for ports in self.session_keys.keys():
+        for ports in self.session_keys:
             print(ports)
 
 
