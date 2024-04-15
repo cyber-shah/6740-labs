@@ -7,10 +7,8 @@ import os
 import random
 import socket
 import threading
-import time
 from collections import defaultdict
 from pathlib import Path
-from typing import Tuple
 
 import yaml
 from cryptography import x509
@@ -176,8 +174,6 @@ class Client:
             K = pow(g_a, b, self.p)
             K = hashlib.sha3_256(str(K).encode()).digest()
             self.session_keys[username]["key"] = K
-            # TODO signing
-            # message = self.sk_a.sign(message)
             message = helpers.rsa_encrypt(message, pk_a)
             self.port_to_username[port] = username
             self.session_keys[username]["challenge"] = c
@@ -385,8 +381,7 @@ class Client:
         g_a = pow(self.g, a, self.p)
 
         message = self.cert.public_bytes(serialization.Encoding.PEM) + g_a.to_bytes(256)
-        # TODO signing
-        # message = self.sk_a.sign(message)
+
         message = helpers.rsa_encrypt(message, pk_b)
         helpers.send(message, socket_b, convert_to_json=False)
 
