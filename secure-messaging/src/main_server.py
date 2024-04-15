@@ -168,9 +168,14 @@ class Server:
                 mode=modes.CBC(iv),
             )
             d = cipher.decryptor()
-            message = d.update(buf) + d.finalize()
-            unpadder = padding.PKCS7(128).unpadder()
-            message = unpadder.update(message) + unpadder.finalize()
+            try:
+                message = d.update(buf) + d.finalize()
+                unpadder = padding.PKCS7(128).unpadder()
+                message = unpadder.update(message) + unpadder.finalize()
+            except ValueError:
+                print("client provided an incorrect password! (symmetric key disagreement)")
+                return
+
             message = BytesIO(message)
             pk_bytes = message.read(800)
             csr_len = int.from_bytes(message.read(2))
