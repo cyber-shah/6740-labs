@@ -1,40 +1,43 @@
-# Server:
-By design the server doesn't know who talks to whom. They are only responsible for auth/reg users.
+### Installation
 
-#### Responsiblities
-1. registers/auths users
-2. manages user's PK and SK 
-3. share a list all online users and their addresses
+We use only the yaml and cryptography libraries:
 
-#### Key components:
-- Storing : all PK and SK's are stored along with the username and password. 
-- Encryption : entire DB can be encrypted using LUKS
-- Security : ALL CONNECTIONS MUST BE WRAPPED AROUND TLS
+```
+pip install -r requirements.txt
+```
 
-# CA and Certs:
-Cert generation is taken care by CA.
-All certificates are signed by the CA and therefore can be verified by all the clients.
+### Configuration
 
-#### Responsiblities
-Maintain Certificates (create, delete and update)
-Store certs and ensure no repitation
+Configuration is in `config.yml`.
 
-#### Key components:
-- Storing : Certificates are stored inside the `certs` path, no need to encrypt them.
-- Encryption : How to make sure that the CA's SK is not leaked?
-- Security : ONLY the server can talk to the CA
+The only thing that you may realistically want to change for deployment is the `server.port` option. This is the port the server will listen on for incoming client connections. We picked a reasonable default, but it is possible some machines already have the port taken.
 
-certificates are created for 24 hours
+### Server
 
-# Client:
-Use message queues to store messages while someone is away?
+To launch the server:
 
-Each client trusts only one party and that is the CA.
+```
+python src/main_server.py
+```
 
-#### Responsiblities
+This should be done first, before the clients.
 
+### Client
 
+To launch a client:
 
-#### Key components:
-- Storing : PK and SK sent by the server is stored using TLS key. MUST be forgotten as the user logs out.
-- Security : protect the PK and SK from leaking WHILE the user is using the application?
+```
+python src/client.py username password
+```
+
+If the server doesn't recognize the username or password, it will reject it.
+
+### Users
+
+The server comes with three pre-registered users:
+
+| Username | Password |
+|-------------|-------|
+| AzureDiamond      | hunter2   |
+| liam      | superprivatepassword   |
+| melt      | system   |
