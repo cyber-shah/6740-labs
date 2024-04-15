@@ -224,16 +224,11 @@ class Server:
                 payload=json.dumps(new_message).encode(),
             )
             helpers.send(encrypted_message, connection, convert_to_json=False)
-            self.send_all("hi")
 
             print(f"client successfully authenticated at {port} as {username}")
 
     def logout(self, client_username: str, client_address):
         pass
-
-    def send_all(self, message: str):
-        for ports in self.session_keys:
-            print(ports)
 
 
 if __name__ == "__main__":
