@@ -1,3 +1,7 @@
+### Design
+
+The design slides are in `design.pdf`.
+
 ### Installation
 
 We use only the yaml and cryptography libraries:
