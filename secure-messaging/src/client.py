@@ -46,8 +46,6 @@ class Client:
         self.username = username
         self.w = int(hashlib.sha3_512(password.encode()).hexdigest(), 16)
 
-        # TODO double check this range
-        # https://www.ibm.com/docs/en/zvse/6.2?topic=overview-diffie-hellman
         self.a = random.randint(1, p - 2)
         self.p = p
         self.g = g
@@ -56,7 +54,6 @@ class Client:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.connect(("localhost", server_port))
         # store server's PK and CA's PK here, as trusted authorities
-        # TODO: add server's keys here after auth
         self.session_keys = {
             "ca": {
                 "PK": helpers.load_public_key_from_file(ca),
@@ -128,7 +125,6 @@ class Client:
     def recieve_server(self):
         try:
             while True:
-                # TODO: CACHE the list sent by the server
                 message = helpers.parse_msg(self.server_socket)
                 decrypted_message = helpers.decrypt_verify(
                     message, self.session_keys["server"]["key"]
@@ -158,7 +154,6 @@ class Client:
             # A has signed the message with our public key.
             message = helpers.rsa_decrypt(buf, self.sk_a)
             cert_a_bytes = message[:-256]
-            # TODO verify this cert is valid and came from a
             cert_a = x509.load_pem_x509_certificate(cert_a_bytes)
             username = cert_a.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[
                 0
@@ -289,9 +284,6 @@ class Client:
         server_thread.start()
         self.threads["server"] = server_thread
 
-        # TODO assert cert is certified by the server? need to read the server's cert for that
-        # assert cert.verify_directly_issued_by()
-
     def start_cli(self):
         try:
             while True:
@@ -393,7 +385,6 @@ class Client:
         response = helpers.parse_msg(socket_b)
         message = helpers.rsa_decrypt(response, self.sk_a)
 
-        # TODO verify cert is valid and came from b
         cert_b_bytes = message[: -256 - 16]
         c = message[-256 - 16 : -256]
         g_b = int.from_bytes(message[-256:])
