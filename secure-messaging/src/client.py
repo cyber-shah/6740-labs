@@ -436,8 +436,11 @@ class Client:
         return rsa_public_key, self.session_keys[user]["port"]
 
     def logout(self):
-        for thread_name, thread in self.threads.items():
-            thread.join()
+        print(self.threads)
+        for thread in self.threads.keys():
+            threadz = self.threads[thread]
+            threadz.join()
+            print(threadz)
 
     def get_username_from_port(self, port):
         for username, user_info in self.session_keys.items():
